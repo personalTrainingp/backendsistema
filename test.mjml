@@ -1,0 +1,117 @@
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-all font-family="'Montserrat', sans-serif"></mj-all>
+    </mj-attributes>
+    <mj-style>
+      .contenedor-info-resumen {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      
+      .contenido-resumen {
+        border: 1px solid black;
+        border-radius: 20px;
+        padding: 20px;
+        margin: auto 120px;
+      }
+      
+      .item-inf>* {
+        margin-bottom: 7px;
+      }
+      
+      .contenedor-text-info-title {
+        display: flex;
+        justify-content: center;
+        position: relative;
+        top: 30px;
+      }
+      
+      .list-items {
+        font-size: 20px;
+      }
+      
+      .text-info-title {
+        display: block;
+        width: fit-content;
+        background-color: black;
+        color: white;
+        padding: 4px;
+        position: relative;
+        top: 30px;
+        justify-content: space-between;
+      }
+      
+      .list-items {
+        margin-top: 30px;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body>
+    <mj-container width="1000px">
+      <mj-section>
+        <mj-column>
+          <mj-divider border-color="#000000"></mj-divider>
+          <mj-image src="./imgs/logo-black.png" width="400px"></mj-image>
+        </mj-column>
+      </mj-section>
+      <mj-section>
+        <mj-column>
+          <mj-divider border-color="#000000"></mj-divider>
+          <mj-text font-family="'Archivo Black', sans-serif" font-size="30px">Bienvenido(a):</mj-text>
+          <mj-text class="border-bottom border-black" font-size="45px">Ana Maria Pineda</mj-text>
+          <mj-text font-size="27px" font-weight="bold">¡Gracias por unirte a</mj-text>
+          <mj-text font-family="'Archivo Black', sans-serif" font-size="32px" color="#FF5000">Personal Training!</mj-text>
+        </mj-column>
+        <mj-column>
+          <mj-text color="#FFFFFF" font-family="'Montserrat', sans-serif" font-size="13px" padding="0px" padding-bottom="7px">CONTRATO N°</mj-text>
+          <mj-text background-color="#FF5000" font-size="30px" padding="0px" padding-top="7px" padding-bottom="7px">14742</mj-text>
+          <mj-text color="#FFFFFF" font-family="'Montserrat', sans-serif" font-size="13px" padding="0px" padding-bottom="7px">CÓD PARTICIPANTE</mj-text>
+          <mj-text background-color="#FF5000" font-size="30px" padding="0px" padding-top="7px" padding-bottom="7px">3193</mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section>
+        <mj-column>
+          <mj-text class="fw-bolder bg-black text-bg-success" font-size="30px" padding="4px 20px" font-family="'Montserrat', sans-serif">R E S U M E N</mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section>
+        <mj-column>
+          <mj-divider border-color="#000000"></mj-divider>
+          <mj-text>Programa:</mj-text>
+          <mj-text>Fusion Savage</mj-text>
+          <mj-text>Semanas:</mj-text>
+          <mj-text>12</mj-text>
+          <mj-text>Fecha de inicio:</mj-text>
+          <mj-text>08-11-23</mj-text>
+          <mj-text>Fecha de termino:</mj-text>
+          <mj-text>09-02-24</mj-text>
+          <mj-text>Horario:</mj-text>
+          <mj-text>7:00 p.m.</mj-text>
+          <mj-text>Dias de congelamiento:</mj-text>
+          <mj-text>15</mj-text>
+          <mj-text>Citas nutricionales:</mj-text>
+          <mj-text>4</mj-text>
+          <mj-text>Boleta:</mj-text>
+          <mj-text>Boleta 4078</mj-text>
+          <mj-text>Monto:</mj-text>
+          <mj-text>S/1,318</mj-text>
+          <mj-text>Asesor Fitness:</mj-text>
+          <mj-text>Alejandro Vidal</mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section>
+        <mj-column>
+          <mj-divider border-color="#000000"></mj-divider>
+          <mj-image src="./imgs/mailing-pt-copia-2_01.png" width="100%"></mj-image>
+        </mj-column>
+      </mj-section>
+      <mj-section>
+        <mj-column>
+          <mj-image src="./imgs/info-recortado.png" width="400px"></mj-image>
+        </mj-column>
+      </mj-section>
+    </mj-container>
+  </mj-body>
+</mjml>
