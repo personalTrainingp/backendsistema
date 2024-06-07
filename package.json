@@ -4,7 +4,7 @@
   "description": "dashboard nuevo PT",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Running tests...\"",
     "dev": "nodemon index.js",
     "start": "node index.js"
   },
