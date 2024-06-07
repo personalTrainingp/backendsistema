@@ -15,6 +15,7 @@
   "author": "CarlosRosalesMorales",
   "license": "ISC",
   "dependencies": {
+    "@azure/storage-blob": "^12.23.0",
     "@react-email/render": "^0.0.13",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
