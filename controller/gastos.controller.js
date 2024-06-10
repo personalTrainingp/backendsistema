@@ -21,6 +21,7 @@ const getGastos = async (req = request, res = response) => {
   try {
     const gastos = await Gastos.findAll({
       where: { flag: true },
+      order: [["id", "DESC"]],
       attributes: [
         "id",
         "moneda",
