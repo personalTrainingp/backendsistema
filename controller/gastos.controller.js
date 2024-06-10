@@ -21,6 +21,7 @@ const getGastos = async (req = request, res = response) => {
   try {
     const gastos = await Gastos.findAll({
       where: { flag: true },
+      order: [["id", "DESC"]],
       attributes: [
         "id",
         "moneda",
@@ -55,15 +56,21 @@ const getProveedoresGastos_SinRep = async (req = request, res = response) => {
   try {
     const proveedoresUnicos = await Gastos.findAll({
       attributes: [
-        [Sequelize.literal("DISTINCT [tb_egresos].[id_prov]"), "id_prov"],
+        "id_prov",
+        [Sequelize.fn("COUNT", Sequelize.col("*")), "count"],
+        [
+          Sequelize.literal('MAX("tb_Proveedor"."razon_social_prov")'),
+          "razon_social_prov",
+        ], // Corregido
       ],
       include: [
         {
           model: Proveedor,
-          attributes: ["razon_social_prov"],
+          attributes: [],
         },
       ],
-      raw: true,
+      group: ["id_prov"],
+      having: Sequelize.literal("COUNT(*) > 1"),
     });
     res.status(200).json({
       msg: "success",

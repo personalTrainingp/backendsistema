@@ -437,13 +437,43 @@ const loginUsuario = async (req = request, res = response) => {
     }
 
     //Generate JWT token
-    const token = await generarJWT(usuario.uid, usuario.nombres_user);
+    const token = await generarJWT(
+      usuario.uid,
+      usuario.nombres_user,
+      usuario.rol_user
+    );
+
+    let MODULOS_ITEMS = [];
+    if (usuario.rol_user === 1) {
+      MODULOS_ITEMS = [
+        {
+          name: "Ventas",
+          path: "/venta",
+          key: "mod-venta",
+        },
+      ];
+    }
+    if (usuario.rol_user === 2) {
+      MODULOS_ITEMS = [
+        {
+          name: "Administracion",
+          path: "/adm",
+          key: "mod-adm",
+        },
+        {
+          name: "Ventas",
+          path: "/venta",
+          key: "mod-venta",
+        },
+      ];
+    }
 
     res.json({
       ok: true,
       uid: usuario.uid,
       rol_user: usuario.rol_user,
       name: usuario.nombres_user,
+      MODULOS_ITEMS,
       token,
     });
   } catch (error) {
@@ -455,15 +485,40 @@ const loginUsuario = async (req = request, res = response) => {
   }
 };
 const revalidarToken = async (req, res) => {
-  const { uid, name } = req;
-  const token = await generarJWT(uid, name);
+  const { uid, name, rol_user } = req;
+  const token = await generarJWT(uid, name, rol_user);
+  let MODULOS_ITEMS = [];
 
+  if (rol_user === 1) {
+    MODULOS_ITEMS = [
+      {
+        name: "Ventas",
+        path: "/venta",
+        key: "mod-venta",
+      },
+    ];
+  }
+  if (rol_user === 2) {
+    MODULOS_ITEMS = [
+      {
+        name: "Administracion",
+        path: "/adm",
+        key: "mod-adm",
+      },
+      {
+        name: "Ventas",
+        path: "/venta",
+        key: "mod-venta",
+      },
+    ];
+  }
   res.json({
     ok: true,
     msg: "renewed",
     uid,
     name,
     token,
+    MODULOS_ITEMS,
   });
 };
 module.exports = {

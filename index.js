@@ -72,6 +72,6 @@ app.use("/api/serviciospt", require("./routes/serviciosPT.router.js"));
 app.use("/api/cita", require("./routes/cita.router.js"));
 
 //Escuchar peticiones
-app.listen(env.PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${env.PORT}`);
+app.listen(env.PORT || 4001, () => {
+  console.log(`Servidor corriendo en el puerto ${env.PORT || 4001}`);
 });
