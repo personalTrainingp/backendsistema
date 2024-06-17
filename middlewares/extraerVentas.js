@@ -49,8 +49,8 @@ const extraerVentaMembresia = (req, res, next) => {
       cong: Pgm.cong,
       semanas: Pgm.semanas,
       name_pgm: Pgm.name_pgm,
-      fechaFinal: Pgm.fechaFinal,
-      fechaInicio_programa: Pgm.fechaInicio_programa,
+      fec_fin_mem: Pgm.fechaFinal,
+      fec_inicio_mem: Pgm.fechaInicio_programa,
       nutric: Pgm.nutric,
     };
   });

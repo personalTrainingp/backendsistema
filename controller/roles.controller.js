@@ -71,45 +71,6 @@ const seccionGET = async (req = request, res = response) => {
           url: "/seguimiento",
         },
         {
-          key: "reportes",
-          label: "Reportes",
-          isTitle: false,
-          icon: "uil-home-alt",
-          children: [
-            {
-              key: "r-totalVentas",
-              label: "Total de ventas",
-              url: "/reporte/total-ventas",
-              icon: "uil-home-alt",
-              parentKey: "reportes",
-            },
-            {
-              key: "r-ventasPrograma",
-              label: "Ventas por programas",
-              url: "/reporte/ventas-programas",
-              parentKey: "reportes",
-            },
-            {
-              key: "r-ventasAsesor",
-              label: "Ventas por asesor",
-              url: "/reporte/ventas-asesor",
-              parentKey: "reportes",
-            },
-            {
-              key: "r-ventasDia",
-              label: "Ventas por dia",
-              url: "/reporte/ventas-dia",
-              parentKey: "reportes",
-            },
-            {
-              key: "r-ventasSemana",
-              label: "Ventas por semana",
-              url: "/reporte/venta-semana",
-              parentKey: "reportes",
-            },
-          ],
-        },
-        {
           key: "cliente",
           label: "Cliente",
           isTitle: true,
@@ -120,6 +81,13 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: false,
           icon: "uil-calender",
           url: "/gestion-clientes",
+        },
+        {
+          key: "cliente-prospecto",
+          label: "Prospectos",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-prospecto",
         },
         {
           key: "cita",
@@ -134,16 +102,30 @@ const seccionGET = async (req = request, res = response) => {
           url: "/gestion-nutricion",
         },
         {
-          key: "Metas",
-          label: "Metas y bonos",
+          key: "citas",
+          label: "Citas Fitology",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-nutricion",
+        },
+        {
+          key: "cong-reg",
+          label: "Congelamiento y Regalo",
           isTitle: true,
         },
         {
-          key: "meta",
-          label: "Metas y bonos",
+          key: "cong",
+          label: "Congelamiento",
           isTitle: false,
           icon: "uil-calender",
-          url: "/metas",
+          url: "/gestion-nutricion",
+        },
+        {
+          key: "reg",
+          label: "Regalos",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-nutricion",
         },
       ];
     }
@@ -257,6 +239,144 @@ const seccionGET = async (req = request, res = response) => {
         // },
       ];
     }
+    if (modulo === "mod-general-ventas") {
+      MENU_ITEMS = [
+        {
+          key: "ventas",
+          label: "Ventas",
+          isTitle: true,
+        },
+        {
+          key: "ventas-nuevaVenta",
+          label: "Nueva venta",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/nueva-venta",
+        },
+        {
+          key: "gestion-ventas",
+          label: "Ventas",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-ventas",
+        },
+        {
+          key: "ventas-seguimiento",
+          label: "Seguimiento",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/seguimiento",
+        },
+        {
+          key: "reportes",
+          label: "Reportes",
+          isTitle: false,
+          icon: "uil-home-alt",
+          children: [
+            {
+              key: "r-totalVentas",
+              label: "Total de ventas",
+              url: "/reporte/total-ventas",
+              icon: "uil-home-alt",
+              parentKey: "reportes",
+            },
+            {
+              key: "r-ventasPrograma",
+              label: "Ventas por programas",
+              url: "/reporte/ventas-programas",
+              parentKey: "reportes",
+            },
+            {
+              key: "r-ventasAsesor",
+              label: "Ventas por asesor",
+              url: "/reporte/ventas-asesor",
+              parentKey: "reportes",
+            },
+            {
+              key: "r-ventasDia",
+              label: "Ventas por dia",
+              url: "/reporte/ventas-dia",
+              parentKey: "reportes",
+            },
+            {
+              key: "r-ventasSemana",
+              label: "Ventas por semana",
+              url: "/reporte/venta-semana",
+              parentKey: "reportes",
+            },
+          ],
+        },
+        {
+          key: "cliente",
+          label: "Cliente",
+          isTitle: true,
+        },
+        {
+          key: "cliente-admClientes",
+          label: "Administrador de clientes",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-clientes",
+        },
+        {
+          key: "cliente-prospecto",
+          label: "Prospectos",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-prospecto",
+        },
+        {
+          key: "cita",
+          label: "Citas",
+          isTitle: true,
+        },
+        {
+          key: "citas",
+          label: "Citas nutricionales",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-nutricion",
+        },
+        {
+          key: "citas",
+          label: "Citas Fitology",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-nutricion",
+        },
+        {
+          key: "cong-reg",
+          label: "Congelamiento y Regalo",
+          isTitle: true,
+        },
+        {
+          key: "cong",
+          label: "Congelamiento",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/extension/congelamiento",
+        },
+        {
+          key: "reg",
+          label: "Regalos",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/extension/regalos",
+        },
+        {
+          key: "Metas",
+          label: "Metas y bonos",
+          isTitle: true,
+        },
+        {
+          key: "meta",
+          label: "Metas y bonos",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/metas",
+        },
+      ];
+    }
     res.status(200).json({
       msg: "success",
       MENU_ITEMS,
@@ -292,7 +412,16 @@ const moduleGET = async (req = response, res = response) => {
         {
           name: "Ventas",
           path: "/venta",
-          key: "mod-venta",
+          key: "mod-general-ventas",
+        },
+      ];
+    }
+    if (usuario.rol_user === 3) {
+      MODULOS_ITEMS = [
+        {
+          name: "Ventas",
+          path: "/venta",
+          key: "mod-general-ventas",
         },
       ];
     }

@@ -1,6 +1,7 @@
 const { request, response } = require("express");
 const { Comentario, ContactoEmergencia } = require("../models/Modelos");
 const uuid = require("uuid");
+const { ExtensionMembresia } = require("../models/ExtensionMembresia");
 
 const postComentario = async (req, res) => {
   const { uid_usuario, comentario_com, uidLocation } = req.body;
@@ -43,8 +44,18 @@ const postCoctactoEmergencia = async (req, res) => {
     });
   }
 };
+const postExtensionCongelamiento= async(req, res)=>{
+}
+const postExtensionRegalo=async(req, res)=>{
+
+}
+const getExtensionesxTIPO = async(req, res)=>{
+}
 
 module.exports = {
   postComentario,
   postCoctactoEmergencia,
+  postExtensionCongelamiento,
+  postExtensionRegalo,
+  getExtensionesxTIPO,
 };

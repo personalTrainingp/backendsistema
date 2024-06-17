@@ -23,7 +23,11 @@ const FormaPago = db.define("tb_Forma_pago", {
   id_banco: {
     type: DataTypes.INTEGER,
   },
-  estado_pago: {
+  estado_venta: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+  estado_gasto: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },

@@ -9,6 +9,14 @@ const {
   detalleVenta_pagoVenta,
 } = require("../models/Venta");
 const { Cliente, Empleado } = require("../models/Usuarios");
+const { Sequelize } = require("sequelize");
+const { Producto } = require("../models/Producto");
+const {
+  ProgramaTraining,
+  SemanasTraining,
+  TarifaTraining,
+} = require("../models/ProgramaTraining");
+const { HorarioProgramaPT } = require("../models/HorarioProgramaPT");
 
 const postVenta = async (req = request, res = response) => {
   // const {} = req.body;
@@ -105,14 +113,39 @@ const get_VENTAS = async (req = request, res = response) => {
         "numero_transac",
         "fecha_venta",
       ],
+      order: [["id", "DESC"]],
       include: [
         {
           model: Cliente,
-          attributes: ["nombre_cli", "apPaterno_cli", "apMaterno_cli"],
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_cli"),
+                " ",
+                Sequelize.col("apPaterno_cli"),
+                " ",
+                Sequelize.col("apMaterno_cli")
+              ),
+              "nombres_apellidos_cli",
+            ],
+          ],
         },
         {
           model: Empleado,
-          attributes: ["nombre_empl", "apPaterno_empl", "apMaterno_empl"],
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_empl"),
+                " ",
+                Sequelize.col("apPaterno_empl"),
+                " ",
+                Sequelize.col("apMaterno_empl")
+              ),
+              "nombres_apellidos_empl",
+            ],
+          ],
         },
         {
           model: detalleVenta_producto,
@@ -130,7 +163,8 @@ const get_VENTAS = async (req = request, res = response) => {
             "id_venta",
             "id_pgm",
             "id_tarifa",
-            "id_semana",
+            "horario",
+            "id_st",
             "tarifa_monto",
           ],
         },
@@ -154,12 +188,124 @@ const get_VENTAS = async (req = request, res = response) => {
     });
   }
 };
+const get_VENTA_ID = async (req = request, res = response) => {
+  const { id } = req.params;
+  try {
+    const venta = await Venta.findAll({
+      attributes: [
+        "id",
+        "id_cli",
+        "id_empl",
+        "id_tipoFactura",
+        "numero_transac",
+        "fecha_venta",
+        "observacion",
+      ],
+      where: { id: id },
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: Cliente,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_cli"),
+                " ",
+                Sequelize.col("apPaterno_cli"),
+                " ",
+                Sequelize.col("apMaterno_cli")
+              ),
+              "nombres_apellidos_cli",
+            ],
+          ],
+        },
+        {
+          model: Empleado,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_empl"),
+                " ",
+                Sequelize.col("apPaterno_empl"),
+                " ",
+                Sequelize.col("apMaterno_empl")
+              ),
+              "nombres_apellidos_empl",
+            ],
+          ],
+        },
+        {
+          model: detalleVenta_producto,
+          attributes: [
+            "id_venta",
+            "id_producto",
+            "cantidad",
+            "precio_unitario",
+            "tarifa_monto",
+          ],
+          include: [
+            {
+              model: Producto,
+              attributes: ["id", "nombre_producto", "id_categoria"],
+            },
+          ],
+        },
+        {
+          model: detalleVenta_membresias,
+          attributes: [
+            "id_venta",
+            "id_pgm",
+            "id_tarifa",
+            "id_st",
+            "tarifa_monto",
+          ],
+
+          include: [
+            {
+              model: ProgramaTraining,
+              attributes: ["name_pgm"],
+            },
+            {
+              model: SemanasTraining,
+              attributes: ["semanas_st", "congelamiento_st", "nutricion_st"],
+              include: [
+                {
+                  model: TarifaTraining,
+                  attributes: ["tarifaCash_tt", "nombreTarifa_tt"],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          model: detalleVenta_citas,
+          attributes: ["id_venta", "id_cita", "tarifa_monto"],
+        },
+        {
+          model: detalleVenta_pagoVenta,
+          attributes: ["id_venta", "parcial_monto"],
+        },
+      ],
+    });
+    res.status(200).json({
+      ok: true,
+      venta,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: `Error en el servidor, en controller de get_VENTAS, hable con el administrador: ${error}`,
+    });
+  }
+};
 const get_VENTAS_detalle_PROGRAMA = async (req = request, res = response) => {};
 const get_VENTAS_detalle_PRODUCTO = async (req = request, res = response) => {};
 const get_VENTAS_detalle_CITAS = async (req = request, res = response) => {};
 module.exports = {
   postVenta,
   get_VENTAS,
+  get_VENTA_ID,
   get_VENTAS_detalle_PROGRAMA,
   get_VENTAS_detalle_PRODUCTO,
   get_VENTAS_detalle_CITAS,

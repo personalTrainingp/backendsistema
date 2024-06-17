@@ -19,12 +19,14 @@ const {
   getParametrosFinanzas,
   getParametroGrupoxTIPOGASTO,
   getParametroGasto,
+  getProgramasActivos,
 } = require("../controller/Parametros.controller");
 const router = Router();
 /**
  * [API Documentation]
  * /api/parametros/
  */
+router.get("/get_params/programas-activos", getProgramasActivos);
 router.get("/get_param/param_gasto/:id", getParametroGasto);
 router.post("/post_param/:entidad/:sigla", postParametros);
 router.get("/get_params/producto/proveedor", getParametrosporProveedor);

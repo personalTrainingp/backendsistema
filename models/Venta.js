@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 
 const { db } = require("../database/sequelizeConnection");
 const { Cliente, Empleado } = require("./Usuarios");
+const { ProgramaTraining, SemanasTraining } = require("./ProgramaTraining");
 
 const Venta = db.define("tb_venta", {
   id: {
@@ -43,6 +44,12 @@ const detalleVenta_membresias = db.define("detalle_ventaMembresia", {
   },
   id_venta: {
     type: DataTypes.INTEGER,
+  },
+  fec_inicio_mem: {
+    type: DataTypes.DATE,
+  },
+  fec_fin_mem: {
+    type: DataTypes.DATE,
   },
   id_pgm: {
     type: DataTypes.INTEGER,
@@ -148,23 +155,23 @@ const detalleVenta_pagoVenta = db.define("detalleVenta_pagoVenta", {
   },
 });
 
-// Venta.hasOne(Cliente, {
-//   foreignKey: "id_cli",
-//   sourceKey: "id",
-// });
-// Cliente.belongsTo(Venta, {
-//   foreignKey: "id_cli",
-//   sourceKey: "id",
-// });
+detalleVenta_membresias.hasOne(ProgramaTraining, {
+  foreignKey: "id_pgm",
+  sourceKey: "id_pgm",
+});
+ProgramaTraining.belongsTo(detalleVenta_membresias, {
+  foreignKey: "id_pgm",
+  targetKey: "id_pgm",
+});
 
-// Venta.hasOne(Empleado, {
-//   foreignKey: "id_empl",
-//   sourceKey: "id",
-// });
-// Empleado.belongsTo(Venta, {
-//   foreignKey: "id_empl",
-//   sourceKey: "id",
-// });
+detalleVenta_membresias.hasOne(SemanasTraining, {
+  foreignKey: "id_st",
+  sourceKey: "id_st",
+});
+SemanasTraining.belongsTo(detalleVenta_membresias, {
+  foreignKey: "id_st",
+  targetKey: "id_st",
+});
 
 // Venta.hasMany(detalleVenta_producto, {
 //   foreignKey: "id",

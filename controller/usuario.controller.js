@@ -3,6 +3,14 @@ const { Cliente, Usuario, Empleado } = require("../models/Usuarios");
 const generarJWT = require("../helpers/jwt");
 const uuid = require("uuid");
 const { Sequelize } = require("sequelize");
+const {
+  Venta,
+  detalleVenta_membresias,
+  detalleVenta_citas,
+  detalleVenta_producto,
+  detalleVenta_pagoVenta,
+} = require("../models/Venta");
+const { ProgramaTraining } = require("../models/ProgramaTraining");
 
 const postUsuarioCliente = (req = request, res = response) => {
   const {
@@ -99,6 +107,31 @@ const getUsuarioCliente = async (req = request, res = response) => {
     const { uid_cliente } = req.params;
     const cliente = await Cliente.findOne({
       where: { flag: true, uid: uid_cliente },
+      include: [
+        // {
+        //   model: Venta,
+        //   include: [
+        //     {
+        //       model: Empleado,
+        //       attributes: ["nombre_emp", "apPaterno_emp", "apMaterno_emp"],
+        //     },
+        //     {
+        //       model: detalleVenta_membresias,
+        //       // attributes: [
+        //       // ]
+        //     },
+        //     {
+        //       model: detalleVenta_citas,
+        //     },
+        //     {
+        //       model: detalleVenta_producto,
+        //     },
+        //     {
+        //       model: detalleVenta_pagoVenta
+        //     }
+        //   ],
+        // },
+      ],
     });
     res.status(200).json({
       msg: "success",
@@ -467,6 +500,15 @@ const loginUsuario = async (req = request, res = response) => {
         },
       ];
     }
+    if (usuario.rol_user === 3) {
+      MODULOS_ITEMS = [
+        {
+          name: "Ventas",
+          path: "/venta",
+          key: "mod-general-ventas",
+        },
+      ];
+    }
 
     res.json({
       ok: true,
@@ -509,6 +551,15 @@ const revalidarToken = async (req, res) => {
         name: "Ventas",
         path: "/venta",
         key: "mod-venta",
+      },
+    ];
+  }
+  if (rol_user === 3) {
+    MODULOS_ITEMS = [
+      {
+        name: "Ventas",
+        path: "/venta",
+        key: "mod-general-ventas",
       },
     ];
   }

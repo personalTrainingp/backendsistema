@@ -289,6 +289,7 @@ const getParametroSemanaPGM = async (req = request, res = response) => {
   try {
     const semanas = await SemanasTraining.findAll({
       where: { id_pgm: id_pgm, flag: true, estado_st: true },
+      order: [["semanas_st", "ASC"]],
       attributes: [
         ["id_st", "value"],
         ["semanas_st", "semanas"],
@@ -464,6 +465,23 @@ const getParametroGasto = async (req = request, res = response) => {
     res.status(404).json(error);
   }
 };
+const getProgramasActivos = async (req = request, res = response) => {
+  try {
+    const programasActivos = await ProgramaTraining.findAll({
+      where: { estado_pgm: true, flag: true },
+      attributes: [
+        ["id_pgm", "value"],
+        ["name_pgm", "label"],
+      ],
+    });
+    res.status(200).json({
+      msg: "ok",
+      programasActivos,
+    });
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
 module.exports = {
   getParametros,
   postParametros,
@@ -485,4 +503,5 @@ module.exports = {
   getParametroGrupoxTIPOGASTO,
   getParametroxTIPOGASTOXID,
   getParametroGasto,
+  getProgramasActivos,
 };

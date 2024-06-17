@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { db } = require("../database/sequelizeConnection");
+const { detalleVenta_producto } = require("./Venta");
 
 const Producto = db.define(
   "tb_producto",
@@ -65,6 +66,14 @@ const Producto = db.define(
   },
   { tableName: "tb_producto" }
 );
+detalleVenta_producto.hasOne(Producto, {
+  foreignKey: "id",
+  sourceKey: "id_producto",
+});
+Producto.belongsTo(detalleVenta_producto, {
+  foreignKey: "id_producto",
+  targetKey: "id",
+});
 
 Producto.sync()
   .then(() => {

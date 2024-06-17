@@ -56,12 +56,15 @@ app.use("/api/programaTraining", require("./routes/programaTraining.route.js"));
 app.use("/api/parametros", require("./routes/parametros.route.js"));
 //TODO: USUARIOS(CLIENTES, COLABORADORES, USUARIOS LOGEADOS)
 app.use("/api/usuario", require("./routes/usuario.route.js"));
+
 app.use("/api/servicios", require("./routes/servicios.router.js"));
 
 app.use("/api/meta", require("./routes/meta.route.js"));
 app.use("/api/impuestos", require("./routes/impuestos.router.js"));
 //TODO upload // imgs
 app.use("/api", require("./routes/upload/upload.routes.js"));
+
+app.use("/api/reporte", require("./routes/reporte.router.js"))
 
 //TODO: FORMA PAGO
 app.use("/api/formPago", require("./routes/formaPago.router.js"));
@@ -70,6 +73,7 @@ app.use("/api/venta", require("./routes/venta.router.js"));
 app.use("/api/serviciospt", require("./routes/serviciosPT.router.js"));
 
 app.use("/api/cita", require("./routes/cita.router.js"));
+app.use("/api/prospecto", require("./routes/prospecto.router.js"));
 
 //Escuchar peticiones
 app.listen(env.PORT || 4001, () => {
