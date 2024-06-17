@@ -50,7 +50,7 @@ jobs:
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
         with:
-          app-name: 'personaltraining-api'
+          app-name: 'apipersonaltraining'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8CA21874272A4D109A18504CCB9EB1C5 }}
           package: .
