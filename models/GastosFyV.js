@@ -91,13 +91,16 @@ ParametroGastos.belongsTo(Gastos, {
   sourceKey: "id",
 });
 
-Gastos.hasOne(Proveedor, {
-  foreignKey: "id",
-  sourceKey: "id_prov",
+Gastos.belongsTo(Proveedor, {
+  foreignKey: "id_prov",
+  targetKey: "id",
+  // as: "proveedor", // Opcional: alias para la relación
 });
-Proveedor.belongsTo(Gastos, {
+
+Proveedor.hasMany(Gastos, {
   foreignKey: "id_prov",
   sourceKey: "id",
+  // as: "gastos", // Opcional: alias para la relación
 });
 
 // Controlador para actualizar la longitud del campo

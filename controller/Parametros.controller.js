@@ -170,6 +170,7 @@ const getParametrosporProveedor = async (req, res) => {
   try {
     const parametros = await Proveedor.findAll({
       where: { flag: true },
+      order: [["id", "desc"]],
       attributes: [
         ["id", "value"],
         ["razon_social_prov", "label"],

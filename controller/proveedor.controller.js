@@ -5,6 +5,7 @@ const uid = require("uuid");
 const getTBProveedores = async (req = request, res = response) => {
   try {
     const proveedores = await Proveedor.findAll({
+      order: [["id", "desc"]],
       attributes: [
         "razon_social_prov",
         "ruc_prov",
@@ -56,8 +57,13 @@ const PostProveedores = async (req, res) => {
       email_vend_prov,
     });
     await proveedor.save();
-    res.status(200).json(proveedor);
+    res.status(200).json({
+      msg: "Proveedor creado con exito",
+      proveedor,
+      ok: true,
+    });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       ok: false,
       msg: "Hable con el encargado de sistema",
@@ -117,7 +123,6 @@ const deleteProveedor = async (req = request, res = response) => {
 const updateProveedor = async (req = request, res = response) => {
   try {
     const { id } = req.params;
-    console.log(req.body);
     const proveedor = await Proveedor.findByPk(id);
     if (!proveedor) {
       return res.status(404).json({
@@ -128,13 +133,14 @@ const updateProveedor = async (req = request, res = response) => {
 
     proveedor.update(req.body);
     res.status(200).json({
-      msg: proveedor,
+      proveedor,
+      msg: "Proveedor actualizado",
+      ok: true,
     });
   } catch (error) {
     res.status(500).json({
       ok: true,
-      msg: "Error al eliminar el proveedor. Hable con el encargado de sistema",
-      error: error.message,
+      msg: `Error al eliminar el proveedor. Hable con el encargado de sistema error: ${error}`,
     });
   }
 };
