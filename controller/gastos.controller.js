@@ -38,7 +38,7 @@ const getGastos = async (req = request, res = response) => {
         },
         {
           model: ParametroGastos,
-          attributes: ["nombre_gasto"],
+          attributes: ["nombre_gasto", "grupo"],
         },
       ],
     });
