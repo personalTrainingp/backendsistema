@@ -58,19 +58,19 @@ const getCitasDisponibleporClient = async (req = request, res = response) => {
         ["id", "value"],
         ["id_cli", "cliente"],
       ],
-      include: [
-        {
-          model: detalleVenta_citas,
-          attributes: ["cantidad", "id_cita"],
-          include: [
-            {
-              model: Servicios,
-              attributes: ["id", "nombre_servicio"],
-              where: { flag: true },
-            },
-          ],
-        },
-      ],
+      // include: [
+      //   {
+      //     model: detalleVenta_citas,
+      //     attributes: ["cantidad", "id_cita"],
+      //     include: [
+      //       {
+      //         model: Servicios,
+      //         attributes: ["id", "nombre_servicio"],
+      //         where: { flag: true },
+      //       },
+      //     ],
+      //   },
+      // ],
     });
 
     // Obtener las citas programadas desde la tabla tb_citas
@@ -80,58 +80,58 @@ const getCitasDisponibleporClient = async (req = request, res = response) => {
     });
 
     // Convertir resultados a JSON
-    const citasDisponiblesJSON = citasDisponibles.map((cita) => cita.toJSON());
-    const citasProgramadasJSON = citasProgramadas.map((cita) => cita.toJSON());
+    // const citasDisponiblesJSON = citasDisponibles.map((cita) => cita.toJSON());
+    // const citasProgramadasJSON = citasProgramadas.map((cita) => cita.toJSON());
 
-    // Reducir las citas disponibles a un solo objeto
-    const mergedData = citasDisponiblesJSON.reduce((acc, curr) => {
-      if (!acc) {
-        acc = {
-          value: curr.value,
-          cliente: curr.cliente,
-          detalle_ventaCitas: [],
-        };
-      }
+    // // Reducir las citas disponibles a un solo objeto
+    // const mergedData = citasDisponiblesJSON.reduce((acc, curr) => {
+    //   if (!acc) {
+    //     acc = {
+    //       value: curr.value,
+    //       cliente: curr.cliente,
+    //       detalle_ventaCitas: [],
+    //     };
+    //   }
 
-      curr.detalle_ventaCitas.forEach((detalle) => {
-        const existingDetalle = acc.detalle_ventaCitas.find(
-          (d) => d.id_cita === detalle.id_cita
-        );
-        if (existingDetalle) {
-          existingDetalle.cantidad = (
-            parseInt(existingDetalle.cantidad) + parseInt(detalle.cantidad)
-          ).toString();
-        } else {
-          acc.detalle_ventaCitas.push({ ...detalle });
-        }
-      });
+    //   curr.detalle_ventaCitas.forEach((detalle) => {
+    //     const existingDetalle = acc.detalle_ventaCitas.find(
+    //       (d) => d.id_cita === detalle.id_cita
+    //     );
+    //     if (existingDetalle) {
+    //       existingDetalle.cantidad = (
+    //         parseInt(existingDetalle.cantidad) + parseInt(detalle.cantidad)
+    //       ).toString();
+    //     } else {
+    //       acc.detalle_ventaCitas.push({ ...detalle });
+    //     }
+    //   });
 
-      return acc;
-    }, null);
+    //   return acc;
+    // }, null);
 
     // Crear un objeto para contar las citas programadas por id_cita
-    const citasProgramadasCount = citasProgramadasJSON.reduce((acc, curr) => {
-      acc[curr.id_cita] = (acc[curr.id_cita] || 0) + 1;
-      return acc;
-    }, {});
+    // const citasProgramadasCount = citasProgramadasJSON.reduce((acc, curr) => {
+    //   acc[curr.id_cita] = (acc[curr.id_cita] || 0) + 1;
+    //   return acc;
+    // }, {});
 
     // Restar las citas programadas de las citas disponibles
-    mergedData.detalle_ventaCitas = mergedData.detalle_ventaCitas.map(
-      (detalle) => {
-        const programadas = citasProgramadasCount[detalle.id_cita] || 0;
-        detalle.cantidad = (
-          parseInt(detalle.cantidad) - programadas
-        ).toString();
-        return detalle;
-      }
-    );
+    // mergedData.detalle_ventaCitas = mergedData.detalle_ventaCitas.map(
+    //   (detalle) => {
+    //     const programadas = citasProgramadasCount[detalle.id_cita] || 0;
+    //     detalle.cantidad = (
+    //       parseInt(detalle.cantidad) - programadas
+    //     ).toString();
+    //     return detalle;
+    //   }
+    // );
 
     // Filtrar las citas donde la cantidad es mayor que 0
-    mergedData.detalle_ventaCitas = mergedData.detalle_ventaCitas.filter(
-      (detalle) => parseInt(detalle.cantidad) > 0
-    );
+    // mergedData.detalle_ventaCitas = mergedData.detalle_ventaCitas.filter(
+    //   (detalle) => parseInt(detalle.cantidad) > 0
+    // );
 
-    res.status(200).json(mergedData);
+    res.status(200).json(citasDisponibles);
   } catch (error) {
     res.status(505).json(error);
   }

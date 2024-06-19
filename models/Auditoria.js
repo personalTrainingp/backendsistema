@@ -1,37 +1,36 @@
 const { DataTypes } = require("sequelize");
 const { db } = require("../database/sequelizeConnection");
-const { Cliente } = require("./Usuarios");
-const { detalleVenta_citas } = require("./Venta");
 
-const Cita = db.define("tb_cita", {
+const Auditoria = db.define("tb_auditoria", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  id_cli: {
+  id_user: {
     type: DataTypes.INTEGER,
   },
-  id_detallecita: {
+  ip_user: {
+    type: DataTypes.STRING(40),
+  },
+  accion: {
     type: DataTypes.INTEGER,
   },
-  fecha_init: {
-    type: DataTypes.DATE,
+  observacion: {
+    type: DataTypes.STRING(2000),
   },
-  fecha_final: {
+  fecha_audit: {
     type: DataTypes.DATE,
-  },
-  status_cita: {
-    type: DataTypes.STRING,
   },
   flag: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
 });
-Cita.sync()
+
+Auditoria.sync()
   .then(() => {
-    console.log("La tabla Cita ha sido creada o ya existe.");
+    console.log("La tabla Auditoria ha sido sync o ya existe.");
   })
   .catch((error) => {
     console.error(
@@ -40,9 +39,6 @@ Cita.sync()
     );
   });
 
-// detalleVenta_citas.hasMany(Cita, { foreignKey: "id_detallecita" });
-// Cita.belongsTo(detalleVenta_citas, { foreignKey: "id_detallecita" });
-
 module.exports = {
-  Cita,
+  Auditoria,
 };

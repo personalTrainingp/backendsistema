@@ -2,11 +2,12 @@ const { Cita } = require("../models/Cita");
 const { Cliente } = require("../models/Usuarios");
 
 const getCitas = async (req, res) => {
+  const { servicion } = req.body;
   try {
     const citas = await Cita.findAll({
       where: { flag: true },
       attributes: [
-        "id_cita",
+        "id_detallecita",
         "id_cli",
         "fecha_init",
         "fecha_final",
@@ -26,15 +27,16 @@ const getCitas = async (req, res) => {
   }
 };
 const postCita = async (req, res) => {
-  const { id_cli, id_cita, fecha_init, fecha_final, status_cita } = req.body;
+  const { id_cli, id_detallecita, fecha_init, fecha_final, status_cita } = req.body;
   try {
-    const cita = await Cita.create({
-      id_cita,
+    const cita = new Cita({
+      id_detallecita,
       id_cli,
       fecha_init,
       fecha_final,
       status_cita,
     });
+    await cita.save();
     res.status(200).json({
       ok: true,
       cita,

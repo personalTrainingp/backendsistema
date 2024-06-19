@@ -6,5 +6,5 @@ const router = Router();
 */
 
 router.post("/post-cita", postCita);
-router.get("/get-ventas", getCitas);
+router.get("/get-citas", getCitas);
 module.exports = router;

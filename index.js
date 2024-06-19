@@ -3,6 +3,7 @@ const cors = require("cors");
 const { urlArchivos, urlArchivoLogos } = require("./config/constant");
 const { db } = require("./database/sequelizeConnection.js");
 const { ImagePT } = require("./models/Image.js");
+const transporterU = require("./config/nodemailer.js");
 const fileServer = express.static;
 require("dotenv").config();
 const env = process.env;
@@ -24,6 +25,117 @@ const getConnectionORM = async () => {
   }
 };
 getConnectionORM();
+const sendReminderEmail = (email)=>{
+  const mailOptions = {
+    from: "notificaciones@personaltraining.com.pe",
+    to: `${email}`,
+    subject: "Asunto del correo",
+    html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${EMAIL_INFO.nombre_cli}</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+    
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+    
+    
+            th {
+                background-color: #f2f2f2;
+            }
+    
+            .logo {
+                width: 400px;
+                margin: 0 auto;
+                display: block;
+            }
+    
+            .text-center {
+                text-align: center;
+            }
+    
+            .bold {
+                font-weight: bold;
+            }
+            .bg-primary{
+                background-color: #FF5000;
+            }
+            .bg-black{
+                background-color: #000;
+            }
+            .m-0{
+                margin: 0;
+            }
+            .color-white{
+                color: #fff;
+            }
+            .body-table{
+                display: flex;
+                justify-content: center;
+            }
+            .dflex-jcenter{
+                display: flex;
+                justify-content: center;
+            }
+            .table-info tr{
+                display: flex;
+                justify-content: center;
+            }
+            .table-info td{
+                width: 100%;
+            }
+            .table-info .param{
+                text-align: right;
+            }
+            .table-info tr{
+                margin-bottom: 5px;
+            }
+            .table-info{
+                font-size: 18px;
+            }
+            
+        </style>
+    </head>
+    
+    <body>
+            Este mensaje a sido enviando 10 dias antes de tu membresia
+    </body>
+    
+    </html>
+      `,
+  };
+  transporterU.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.error(error);
+    } else {
+      console.log("Correo electrónico enviado: " + info.response);
+    }
+
+    // Cerrar la conexión SMTP
+    transporterU.close();
+  });
+}
+const checkMembresiaShips = ()=>{
+  const today = new Date()
+  const reminderToday = new Date()
+  reminderToday.setDate(today.getDate()+10)
+  try {
+    
+  } catch (error) {
+    console.error('Error checking memberships:', error);
+  }
+}
+
+
+
 //CORS
 app.use(cors());
 
@@ -74,6 +186,7 @@ app.use("/api/serviciospt", require("./routes/serviciosPT.router.js"));
 
 app.use("/api/cita", require("./routes/cita.router.js"));
 app.use("/api/prospecto", require("./routes/prospecto.router.js"));
+app.use("/api/auditoria", require("./routes/auditoria.router.js"));
 
 //Escuchar peticiones
 app.listen(env.PORT || 4001, () => {

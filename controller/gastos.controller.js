@@ -38,7 +38,7 @@ const getGastos = async (req = request, res = response) => {
         },
         {
           model: ParametroGastos,
-          attributes: ["nombre_gasto", "grupo"]
+          attributes: ["nombre_gasto", "grupo"],
         },
       ],
     });
@@ -122,6 +122,9 @@ const putGasto = async (req = request, res = response) => {
     const { id } = req.params;
     const gasto = await Gastos.findOne({ where: { flag: true, id } });
     await gasto.update(req.body);
+    res.status(200).json({
+      msg: "success",
+    });
   } catch (error) {
     res.status(500).json({
       error: `Error en el servidor, en controller de putGasto, hable con el administrador: ${error}`,
@@ -131,8 +134,11 @@ const putGasto = async (req = request, res = response) => {
 const deleteGasto = async (req = request, res = response) => {
   try {
     const { id } = req.params;
-    const gasto = await Gastos.findOne({ where: { flag: true, id } });
+    const gasto = await Gastos.findByPk(id);
     await gasto.update({ flag: false });
+    res.status(200).json({
+      msg: "success",
+    });
   } catch (error) {
     res.status(500).json({
       error: `Error en el servidor, en controller de putGasto, hable con el administrador: ${error}`,
@@ -142,6 +148,7 @@ const deleteGasto = async (req = request, res = response) => {
 module.exports = {
   postGasto,
   getGastos,
+
   getGasto,
   putGasto,
   deleteGasto,
