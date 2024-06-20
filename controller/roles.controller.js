@@ -95,18 +95,18 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: true,
         },
         {
-          key: "citas",
+          key: "citas-nutricional",
           label: "Citas nutricionales",
           isTitle: false,
           icon: "uil-calender",
-          url: "/gestion-nutricion",
+          url: "/crear-citas-nutricion",
         },
         {
-          key: "citas",
+          key: "citas-fitology",
           label: "Citas Fitology",
           isTitle: false,
           icon: "uil-calender",
-          url: "/gestion-nutricion",
+          url: "/crear-citas-fitology",
         },
         {
           key: "cong-reg",
@@ -142,6 +142,13 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: false,
           icon: "uil-calender",
           url: "/gestion-auth-usuario",
+        },
+        {
+          key: "adm-audit",
+          label: "Auditoria",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/auditoria",
         },
         {
           key: "prov",
@@ -335,14 +342,14 @@ const seccionGET = async (req = request, res = response) => {
           label: "Citas nutricionales",
           isTitle: false,
           icon: "uil-calender",
-          url: "/gestion-nutricion",
+          url: "/crear-citas-nutricion",
         },
         {
           key: "citas",
           label: "Citas Fitology",
           isTitle: false,
           icon: "uil-calender",
-          url: "/gestion-nutricion",
+          url: "/crear-citas-fitology",
         },
         {
           key: "cong-reg",

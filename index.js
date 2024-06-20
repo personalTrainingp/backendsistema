@@ -14,7 +14,6 @@ const app = express();
 //Base de datos
 //dbConnection()
 // getConnection();
-
 const getConnectionORM = async () => {
   try {
     await db.authenticate();
@@ -25,7 +24,7 @@ const getConnectionORM = async () => {
   }
 };
 getConnectionORM();
-const sendReminderEmail = (email)=>{
+const sendReminderEmail = (email) => {
   const mailOptions = {
     from: "notificaciones@personaltraining.com.pe",
     to: `${email}`,
@@ -122,19 +121,16 @@ const sendReminderEmail = (email)=>{
     // Cerrar la conexión SMTP
     transporterU.close();
   });
-}
-const checkMembresiaShips = ()=>{
-  const today = new Date()
-  const reminderToday = new Date()
-  reminderToday.setDate(today.getDate()+10)
+};
+const checkMembresiaShips = () => {
+  const today = new Date();
+  const reminderToday = new Date();
+  reminderToday.setDate(today.getDate() + 10);
   try {
-    
   } catch (error) {
-    console.error('Error checking memberships:', error);
+    console.error("Error checking memberships:", error);
   }
-}
-
-
+};
 
 //CORS
 app.use(cors());
@@ -176,7 +172,7 @@ app.use("/api/impuestos", require("./routes/impuestos.router.js"));
 //TODO upload // imgs
 app.use("/api", require("./routes/upload/upload.routes.js"));
 
-app.use("/api/reporte", require("./routes/reporte.router.js"))
+app.use("/api/reporte", require("./routes/reporte.router.js"));
 
 //TODO: FORMA PAGO
 app.use("/api/formPago", require("./routes/formaPago.router.js"));

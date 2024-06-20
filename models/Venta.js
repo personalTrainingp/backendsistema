@@ -106,7 +106,7 @@ const detalleVenta_citas = db.define("detalle_ventaCitas", {
   id_venta: {
     type: DataTypes.INTEGER,
   },
-  id_cita: {
+  id_servicio: {
     type: DataTypes.INTEGER,
   },
   cantidad: {

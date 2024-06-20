@@ -19,15 +19,18 @@ const Meta = db.define("tb_meta", {
   uid: {
     type: DataTypes.STRING,
   },
-  fec_inicio: {
+  fec_init: {
     type: DataTypes.DATE,
   },
-  fec_fin: {
+  fec_final: {
     type: DataTypes.DATE,
   },
-  status_meta: {
-    type: DataTypes.STRING(40),
+  observacion: {
+    type: DataTypes.STRING,
   },
+  // status_meta: {
+  //   type: DataTypes.STRING(40),
+  // },
   estado: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,

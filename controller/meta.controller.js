@@ -4,20 +4,21 @@ const uid = require("uuid");
 const { Empleado } = require("../models/Usuarios");
 
 const postMeta = async (req = request, res = response) => {
-  const { nombre_meta, meta_meta, bono, fec_inicio, fec_fin } = req.body;
+  const { nombre_meta, meta, bono, fec_init, fec_final, observacion } =
+    req.body;
   try {
-    const meta = new Meta({
+    const metaPOST = new Meta({
       nombre_meta,
-      meta: meta_meta,
-      bono: bono,
-      fec_fin,
-      fec_inicio,
-      status_meta: 45,
-      uid: uid.v4(),
-    });
-    meta.save();
-    res.status(200).json({
       meta,
+      bono,
+      uid: uid.v4(),
+      fec_init,
+      fec_final,
+      observacion,
+    });
+    await metaPOST.save();
+    res.status(200).json({
+      metaPOST,
       msg: "success",
     });
   } catch (error) {
@@ -45,9 +46,9 @@ const getMetas = async (req, res) => {
         "nombre_meta",
         "meta",
         "bono",
-        "fec_inicio",
-        "fec_fin",
-        "status_meta",
+        "fec_init",
+        "fec_final",
+        "observacion",
         "id_meta",
       ],
     });

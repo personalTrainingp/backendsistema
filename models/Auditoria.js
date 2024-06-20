@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { db } = require("../database/sequelizeConnection");
+const { Usuario } = require("./Usuarios");
 
 const Auditoria = db.define("tb_auditoria", {
   id: {
@@ -28,6 +29,8 @@ const Auditoria = db.define("tb_auditoria", {
   },
 });
 
+Usuario.hasMany(Auditoria, { foreignKey: "id_user" });
+Auditoria.belongsTo(Usuario, { foreignKey: "id_user" });
 Auditoria.sync()
   .then(() => {
     console.log("La tabla Auditoria ha sido sync o ya existe.");

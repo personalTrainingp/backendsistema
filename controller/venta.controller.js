@@ -170,7 +170,7 @@ const get_VENTAS = async (req = request, res = response) => {
         },
         {
           model: detalleVenta_citas,
-          attributes: ["id_venta", "id_cita", "tarifa_monto"],
+          attributes: ["id_venta", "id_servicio", "tarifa_monto"],
         },
         {
           model: detalleVenta_pagoVenta,
@@ -281,7 +281,7 @@ const get_VENTA_ID = async (req = request, res = response) => {
         },
         {
           model: detalleVenta_citas,
-          attributes: ["id_venta", "id_cita", "tarifa_monto"],
+          attributes: ["id_venta", "id_servicio", "tarifa_monto"],
         },
         {
           model: detalleVenta_pagoVenta,

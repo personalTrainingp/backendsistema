@@ -11,6 +11,9 @@ const {
   detalleVenta_pagoVenta,
 } = require("../models/Venta");
 const { ProgramaTraining } = require("../models/ProgramaTraining");
+const { extraerIpUser } = require("../helpers/extraerUser");
+const { capturarAUDIT } = require("../middlewares/auditoria");
+const { typesCRUD } = require("../types/types");
 
 const postUsuarioCliente = (req = request, res = response) => {
   const {
@@ -468,12 +471,14 @@ const loginUsuario = async (req = request, res = response) => {
         msg: "Contraseña incorrecta",
       });
     }
-
+    let ip_user = extraerIpUser(req, res);
     //Generate JWT token
     const token = await generarJWT(
       usuario.uid,
       usuario.nombres_user,
-      usuario.rol_user
+      usuario.rol_user,
+      ip_user,
+      usuario.id_user
     );
 
     let MODULOS_ITEMS = [];
@@ -510,6 +515,15 @@ const loginUsuario = async (req = request, res = response) => {
       ];
     }
 
+    let formAUDIT = {
+      id_user: usuario.id_user,
+      ip_user: ip_user,
+      accion: typesCRUD.GET,
+      observacion: `Usuario Ingresando`,
+      fecha_audit: new Date(),
+    };
+    await capturarAUDIT(formAUDIT);
+
     res.json({
       ok: true,
       uid: usuario.uid,
@@ -528,7 +542,8 @@ const loginUsuario = async (req = request, res = response) => {
 };
 const revalidarToken = async (req, res) => {
   const { uid, name, rol_user } = req;
-  const token = await generarJWT(uid, name, rol_user);
+  let ip_user = extraerIpUser(req, res);
+  const token = await generarJWT(uid, name, rol_user, ip_user);
   let MODULOS_ITEMS = [];
 
   if (rol_user === 1) {

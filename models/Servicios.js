@@ -31,10 +31,10 @@ const Servicios = db.define("tb_servicios", {
 });
 
 Servicios.hasOne(detalleVenta_citas, {
-  foreignKey: "id_cita",
+  foreignKey: "id_servicio",
 });
 detalleVenta_citas.belongsTo(Servicios, {
-  foreignKey: "id_cita",
+  foreignKey: "id_servicio",
 });
 
 Servicios.sync()

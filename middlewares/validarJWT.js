@@ -10,13 +10,16 @@ const validarJWT = (req, res = response, next) => {
       msg: "No hay token en la peticion",
     });
   }
-
   try {
-    const { uid, name, rol_user } = jwt.verify(token, process.env.SECRET_KEY);
-
+    const { uid, name, rol_user, ip_user, id_user } = jwt.verify(
+      token,
+      process.env.SECRET_KEY
+    );
+    req.ip_user = ip_user;
     req.uid = uid;
     req.name = name;
     req.rol_user = rol_user;
+    req.id_user = id_user;
   } catch (error) {
     return res.status(500).json({
       ok: false,

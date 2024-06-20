@@ -1,6 +1,8 @@
 const { response, request } = require("express");
 const { Proveedor } = require("../models/Proveedor");
 const uid = require("uuid");
+const { capturarAUDIT } = require("../middlewares/auditoria");
+const { typesCRUD } = require("../types/types");
 
 const getTBProveedores = async (req = request, res = response) => {
   try {
@@ -27,7 +29,7 @@ const getTBProveedores = async (req = request, res = response) => {
     });
   }
 };
-const PostProveedores = async (req, res) => {
+const PostProveedores = async (req, res, next) => {
   const {
     ruc_prov,
     razon_social_prov,
@@ -57,6 +59,14 @@ const PostProveedores = async (req, res) => {
       email_vend_prov,
     });
     await proveedor.save();
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.POST,
+      observacion: `Se registro: proveedor de id ${proveedor.id}`,
+      fecha_audit: new Date(),
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json({
       msg: "Proveedor creado con exito",
       proveedor,

@@ -29,6 +29,15 @@ const Cita = db.define("tb_cita", {
     defaultValue: true,
   },
 });
+
+detalleVenta_citas.hasOne(Cita, { foreignKey: "id_detallecita" });
+Cita.belongsTo(detalleVenta_citas, {
+  foreignKey: "id_detallecita",
+});
+
+Cliente.hasMany(Cita, { sourceKey: "id_cli" });
+Cita.belongsTo(Cliente, { foreignKey: "id_cli" });
+
 Cita.sync()
   .then(() => {
     console.log("La tabla Cita ha sido creada o ya existe.");
@@ -39,10 +48,6 @@ Cita.sync()
       error
     );
   });
-
-// detalleVenta_citas.hasMany(Cita, { foreignKey: "id_detallecita" });
-// Cita.belongsTo(detalleVenta_citas, { foreignKey: "id_detallecita" });
-
 module.exports = {
   Cita,
 };
