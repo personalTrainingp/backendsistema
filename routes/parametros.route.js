@@ -41,7 +41,7 @@ router.get("/get_params/semanas_PGM/:id_pgm", getParametroSemanaPGM);
 router.get("/get_params/horario_PGM/:id_pgm", getParametroHorariosPGM);
 router.get("/get_params/tarifa_sm/:id_st", getParametroTarifasSM);
 router.get("/get_params/meta_asesor/:id_meta", getParametroMetaxAsesor);
-router.get("/get_params/citadisponible/:id_cli", getCitasDisponibleporClient);
+router.get("/get_params/cita-disponible/:id_cli", getCitasDisponibleporClient);
 router.get("/get_params/params-tb-finanzas", getParametrosFinanzas);
 router.get("/get_params/:entidad", getParametrosporEntidad);
 router.get("/get_params/:id_param", getParametrosporId);

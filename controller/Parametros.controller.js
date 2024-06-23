@@ -58,19 +58,19 @@ const getCitasDisponibleporClient = async (req = request, res = response) => {
         ["id", "value"],
         ["id_cli", "cliente"],
       ],
-      // include: [
-      //   {
-      //     model: detalleVenta_citas,
-      //     attributes: ["cantidad", "id_cita"],
-      //     include: [
-      //       {
-      //         model: Servicios,
-      //         attributes: ["id", "nombre_servicio"],
-      //         where: { flag: true },
-      //       },
-      //     ],
-      //   },
-      // ],
+      include: [
+        {
+          model: detalleVenta_citas,
+          attributes: ["cantidad", "id_cita"],
+          include: [
+            {
+              model: Servicios,
+              attributes: ["id", "nombre_servicio"],
+              where: { flag: true },
+            },
+          ],
+        },
+      ],
     });
 
     // Obtener las citas programadas desde la tabla tb_citas

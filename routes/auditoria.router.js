@@ -5,6 +5,6 @@ const router = Router();
 /api/auditoria
 */
 
-router.post("/post-prospecto", postAudit);
+router.post("/post-auditoria", postAudit);
 router.get("/get-auditoria", getTBAudit);
 module.exports = router;

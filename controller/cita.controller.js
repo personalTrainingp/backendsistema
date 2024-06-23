@@ -11,6 +11,7 @@ const getCitas = async (req = request, res = response) => {
     const citas = await Cita.findAll({
       where: { flag: true },
       attributes: [
+        "id",
         "id_detallecita",
         "id_cli",
         "fecha_init",
@@ -81,6 +82,7 @@ const postCita = async (req = request, res = response) => {
     });
   }
 };
+
 const getCitaporID = async (req = request, res = response) => {
   const { id } = req.params;
   try {
@@ -97,8 +99,84 @@ const getCitaporID = async (req = request, res = response) => {
     });
   }
 };
+
 const deleteCita = async (req = request, res = response) => {};
-const putCita = async (req = request, res = response) => {};
+
+const putCita = async (req = request, res = response) => {
+  const { id } = req.params;
+  try {
+    const cita = await Cita.findOne({ where: { flag: true, id } });
+    await cita.update(req.body);
+    res.status(200).json({
+      ok: true,
+      cita,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Hable con el administrador: putCita",
+    });
+  }
+};
+
+const getCitasxServicios = async (req = request, res = response) => {
+  const { tipo_serv } = req.params;
+  console.log("tipo_serv", tipo_serv);
+  try {
+    const citas = await Cita.findAll({
+      where: { flag: true },
+      attributes: [
+        "id",
+        "id_detallecita",
+        "id_cli",
+        "fecha_init",
+        "fecha_final",
+        "status_cita",
+      ],
+      include: [
+        {
+          model: Cliente,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_cli"),
+                " ",
+                Sequelize.col("apPaterno_cli"),
+                " ",
+                Sequelize.col("apMaterno_cli")
+              ),
+              "nombres_apellidos_cli",
+            ],
+          ],
+        },
+        {
+          model: detalleVenta_citas,
+          required: true,
+          include: [
+            {
+              model: Servicios,
+              attributes: ["id", "tipo_servicio"],
+              where: { tipo_servicio: tipo_serv },
+              required: true,
+            },
+          ],
+        },
+      ],
+    });
+    res.status(200).json({
+      ok: true,
+      citas,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Hable con el administrador: getCitasxServicios",
+    });
+  }
+};
 
 module.exports = {
   getCitas,
@@ -106,4 +184,5 @@ module.exports = {
   getCitaporID,
   deleteCita,
   putCita,
+  getCitasxServicios,
 };

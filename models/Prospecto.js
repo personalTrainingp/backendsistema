@@ -14,6 +14,9 @@ const Prospecto = db.define(
     uid: {
       type: DataTypes.STRING,
     },
+    uid_comentario: {
+      type: DataTypes.STRING,
+    },
     nombres: {
       type: DataTypes.STRING,
     },

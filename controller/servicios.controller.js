@@ -2,19 +2,21 @@ const { request, response } = require("express");
 const { Comentario, ContactoEmergencia } = require("../models/Modelos");
 const uuid = require("uuid");
 const { ExtensionMembresia } = require("../models/ExtensionMembresia");
+const { Usuario } = require("../models/Usuarios");
+const { Sequelize } = require("sequelize");
 
 const postComentario = async (req, res) => {
-  const { uid_usuario, comentario_com, uidLocation } = req.body;
+  const { uid_usuario, comentario_com, uid_location } = req.body;
   const fec_registro = new Date();
   try {
     const comentario = new Comentario({
       uid_usuario,
       comentario_com,
-      fec_registro,
-      uid_location: uidLocation,
+      fec_registro: new Date(),
+      uid_location,
       uid: uuid.v4(),
     });
-    comentario.save();
+    await comentario.save();
     res.status(200).json(comentario);
   } catch (error) {
     res.status(500).json({
@@ -22,6 +24,92 @@ const postComentario = async (req, res) => {
     });
   }
 };
+const getComentarioxLOCATION = async (req = request, res = response) => {
+  const { location } = req.params;
+  try {
+    const comentarios = await Comentario.findAll({
+      where: { uid_location: location },
+      attributes: ["fec_registro", "id_comentario", "comentario_com"],
+      order: [["fec_registro", "desc"]],
+      include: [
+        {
+          model: Usuario,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombres_user"),
+                " ",
+                Sequelize.col("apellidos_user")
+              ),
+              "nombres_apellidos_user",
+            ],
+            "uid",
+          ],
+        },
+      ],
+    });
+    res.status(200).json({
+      comentarios,
+      msg: "success",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(200).json({
+      msg: `Error hable con el sistemas: getComentarioxLOCATION: ${error}`,
+    });
+  }
+};
+const getComentarioxID = async (req = request, res = response) => {
+  const { id } = req.params;
+  try {
+    const comentario = await Comentario.findByPk(id, { flag: true });
+    res.status(200).json(comentario);
+  } catch (error) {
+    res.status(200).json({
+      msg: "Error hable con el sistemas: getComentarioxID",
+    });
+  }
+};
+const putComentarioxID = async (req = request, res = response) => {
+  const { id } = req.params;
+  try {
+    const comentario = await Comentario.findByPk(id, { flag: true });
+    if (!comentario) {
+      return res.status(404).json({
+        msg: `No existe un programa con el id "${id}"`,
+      });
+    }
+    await comentario.update(req.body);
+    res.status(200).json({
+      msg: "success",
+    });
+  } catch (error) {
+    res.status(200).json({
+      msg: "Error hable con el sistemas: putComentarioxID",
+    });
+  }
+};
+const deleteComentarioxID = async (req = request, res = response) => {
+  const { id } = req.params;
+  try {
+    const comentario = await Comentario.findByPk(id, { flag: true });
+    if (!comentario) {
+      return res.status(404).json({
+        msg: `No existe un programa con el id "${id}"`,
+      });
+    }
+    await comentario.update({ flag: false });
+    res.status(200).json({
+      msg: "success",
+    });
+  } catch (error) {
+    res.status(200).json({
+      msg: "Error hable con el sistemas: deleteComentarioxID",
+    });
+  }
+};
+
 const postCoctactoEmergencia = async (req, res) => {
   const { contactosDeEmergencia, uidLocation } = req.body;
   try {
@@ -44,13 +132,9 @@ const postCoctactoEmergencia = async (req, res) => {
     });
   }
 };
-const postExtensionCongelamiento= async(req, res)=>{
-}
-const postExtensionRegalo=async(req, res)=>{
-
-}
-const getExtensionesxTIPO = async(req, res)=>{
-}
+const postExtensionCongelamiento = async (req, res) => {};
+const postExtensionRegalo = async (req, res) => {};
+const getExtensionesxTIPO = async (req, res) => {};
 
 module.exports = {
   postComentario,
@@ -58,4 +142,8 @@ module.exports = {
   postExtensionCongelamiento,
   postExtensionRegalo,
   getExtensionesxTIPO,
+  getComentarioxLOCATION,
+  getComentarioxID,
+  putComentarioxID,
+  deleteComentarioxID,
 };

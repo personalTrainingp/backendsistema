@@ -1,5 +1,6 @@
 const { db } = require("../database/sequelizeConnection");
 const { DataTypes } = require("sequelize");
+const { Usuario } = require("./Usuarios");
 
 const Comentario = db.define("tb_comentarios", {
   id_comentario: {
@@ -24,6 +25,14 @@ const Comentario = db.define("tb_comentarios", {
   },
 });
 
+Usuario.hasMany(Comentario, {
+  foreignKey: "uid_usuario",
+  sourceKey: "uid",
+});
+Comentario.belongsTo(Usuario, {
+  foreignKey: "uid_usuario",
+  targetKey: "uid",
+});
 const Actividad = db.define("auth_actividad", {
   id: {
     type: DataTypes.INTEGER,

@@ -17,6 +17,7 @@ const postProspecto = async (req = request, res = response) => {
   try {
     const prospecto = new Prospecto({
       uid: uid.v4(),
+      uid_comentario: uid.v4(),
       nombres,
       apellido_materno,
       apellido_paterno,
