@@ -74,6 +74,8 @@ const getReporteSeguimiento = async (req, res) => {
     });
   }
 };
+const getReporteEgresos = async (req, res) => {};
 module.exports = {
   getReporteSeguimiento,
+  getReporteEgresos,
 };

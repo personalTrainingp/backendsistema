@@ -196,6 +196,7 @@ const get_VENTA_ID = async (req = request, res = response) => {
         "id",
         "id_cli",
         "id_empl",
+        "id_origen",
         "id_tipoFactura",
         "numero_transac",
         "fecha_venta",

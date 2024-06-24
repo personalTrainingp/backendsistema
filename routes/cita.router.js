@@ -7,13 +7,14 @@ const {
   putCita,
   getCitasxServicios,
 } = require("../controller/cita.controller.js");
+const { mailNutricion } = require("../middlewares/mails.js");
 const router = Router();
 /*
 /api/cita
 */
 
 router.get("/get-citas/:tipo_serv", getCitasxServicios);
-router.post("/post-cita", postCita);
+router.post("/post-cita", mailNutricion, postCita);
 router.get("/get-cita/:id", getCitaporID);
 router.put("/put-cita/:id", putCita);
 router.put("/delete-cita/:id", deleteCita);

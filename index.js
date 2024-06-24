@@ -173,6 +173,7 @@ app.use("/api/impuestos", require("./routes/impuestos.router.js"));
 app.use("/api", require("./routes/upload/upload.routes.js"));
 
 app.use("/api/reporte", require("./routes/reporte.router.js"));
+app.use("/api/comision", require("./routes/comision.router.js"));
 
 //TODO: FORMA PAGO
 app.use("/api/formPago", require("./routes/formaPago.router.js"));

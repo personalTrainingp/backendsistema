@@ -388,26 +388,6 @@ value: 7
     transporterU.close();
   });
   next();
-  // try {
-  //     await transporterU.sendMail({
-  //       from: "Utiliza el siguiente codigo para registrarte --- prueba 1 con frontend",
-  //       to: "aldairp@personaltraining.com.pe",
-  //       subject:
-  //         "Utiliza el siguiente codigo para registrarte --- prueba 1 con frontend",
-  //       html: `
-  //       PRUEBA HTML <div class="p-2 bg-dark">hola</div>
-  //       `,
-  //       message: `Hola aqui la prueba`,
-  //     });
-  //     console.log("Correo Enviado");
-  //   } catch (error) {
-  //     console.log(error);
-  //     res.status(500).json({
-  //       ok: false,
-  //       msg: "Problemas tecnicos al enviar el email",
-  //       // uid: usuariofind.id,
-  //     });
-  //   }
 };
 const extraerPagos = async (req = request, res = response, next) => {
   const pagosExtraidos = req.body.datos_pagos.map((e) => {
