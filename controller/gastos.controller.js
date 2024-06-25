@@ -20,8 +20,15 @@ const postGasto = async (req = request, res = response) => {
 const getGastos = async (req = request, res = response) => {
   try {
     const gastos = await Gastos.findAll({
-      where: { flag: true },
-      order: [["id", "DESC"]],
+      where: {
+        flag: true,
+        [Sequelize.Op.and]: Sequelize.where(
+          Sequelize.fn("YEAR", Sequelize.col("fec_pago")),
+          "<",
+          2030
+        ),
+      },
+      order: [["fec_pago", "desc"]],
       attributes: [
         "id",
         "moneda",
