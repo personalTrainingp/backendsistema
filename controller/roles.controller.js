@@ -194,6 +194,20 @@ const seccionGET = async (req = request, res = response) => {
           url: "/gestion-productos",
         },
         {
+          key: "serv-fito",
+          label: "Fitology",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/serv-fitology",
+        },
+        {
+          key: "serv-nutri",
+          label: "Nutricion",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/serv-nutricion",
+        },
+        {
           key: "gf-gv",
           label: "Gastos fijos y variables",
           isTitle: true,
@@ -338,14 +352,14 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: true,
         },
         {
-          key: "citas",
+          key: "citas-NUT",
           label: "Citas nutricionales",
           isTitle: false,
           icon: "uil-calender",
           url: "/crear-citas-nutricion",
         },
         {
-          key: "citas",
+          key: "citas-FIT",
           label: "Citas Fitology",
           isTitle: false,
           icon: "uil-calender",
@@ -357,18 +371,11 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: true,
         },
         {
-          key: "cong",
-          label: "Congelamiento",
+          key: "congreg",
+          label: "Congelamiento y regalos",
           isTitle: false,
           icon: "uil-calender",
           url: "/extension/congelamiento",
-        },
-        {
-          key: "reg",
-          label: "Regalos",
-          isTitle: false,
-          icon: "uil-calender",
-          url: "/extension/regalos",
         },
         {
           key: "Metas",

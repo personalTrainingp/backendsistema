@@ -53,7 +53,10 @@ const Gastos = db.define("tb_egresos", {
     type: DataTypes.BOOLEAN,
   },
   fec_registro: {
-    type: DataTypes.DATEONLY,
+    type: DataTypes.DATE,
+  },
+  fec_comprobante: {
+    type: DataTypes.DATE,
   },
   fec_pago: {
     type: DataTypes.DATEONLY,

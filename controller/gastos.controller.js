@@ -38,7 +38,7 @@ const getGastos = async (req = request, res = response) => {
         },
         {
           model: ParametroGastos,
-          attributes: ["nombre_gasto", "grupo"],
+          attributes: ["nombre_gasto", "grupo", "id_tipoGasto"],
         },
       ],
     });
@@ -99,6 +99,7 @@ const getGasto = async (req = request, res = response) => {
         "impuesto_igv",
         "impuesto_renta",
         "fec_pago",
+        "fec_comprobante",
         "id_forma_pago",
         "id_banco_pago",
         "n_operacion",
