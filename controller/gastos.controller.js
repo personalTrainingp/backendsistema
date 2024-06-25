@@ -28,7 +28,7 @@ const getGastos = async (req = request, res = response) => {
           2030
         ),
       },
-      order: [["fec_pago", "desc"]],
+      order: [["fec_registro", "desc"]],
       attributes: [
         "id",
         "moneda",
