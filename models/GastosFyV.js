@@ -56,7 +56,7 @@ const Gastos = db.define("tb_egresos", {
     type: DataTypes.DATE,
   },
   fec_comprobante: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATEONLY,
   },
   fec_pago: {
     type: DataTypes.DATEONLY,

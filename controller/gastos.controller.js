@@ -12,6 +12,7 @@ const postGasto = async (req = request, res = response) => {
       gasto,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       error: `Error en el servidor, en controller de postGasto, hable con el administrador: ${error}`,
     });
