@@ -2,6 +2,7 @@ const { request, response } = require("express");
 const { Gastos, ParametroGastos } = require("../models/GastosFyV");
 const { Proveedor } = require("../models/Proveedor");
 const { Sequelize } = require("sequelize");
+const { Parametros } = require("../models/Parametros");
 
 const postGasto = async (req = request, res = response) => {
   try {
@@ -36,6 +37,7 @@ const getGastos = async (req = request, res = response) => {
         "monto",
         "fec_pago",
         "fec_registro",
+        "fec_comprobante",
         "descripcion",
         "id_prov",
       ],
@@ -47,6 +49,16 @@ const getGastos = async (req = request, res = response) => {
         {
           model: ParametroGastos,
           attributes: ["nombre_gasto", "grupo", "id_tipoGasto"],
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_banco",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_forma_pago",
         },
       ],
     });

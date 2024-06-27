@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { db } = require("../database/sequelizeConnection");
 const { Proveedor } = require("./Proveedor");
+const { Parametros } = require("./Parametros");
 
 const ParametroGastos = db.define("tb_parametros_gastos", {
   id: {
@@ -56,10 +57,10 @@ const Gastos = db.define("tb_egresos", {
     type: DataTypes.DATE,
   },
   fec_comprobante: {
-    type: DataTypes.DATEONLY,
+    type: DataTypes.STRING(12),
   },
   fec_pago: {
-    type: DataTypes.DATEONLY,
+    type: DataTypes.STRING(12),
   },
   id_forma_pago: {
     type: DataTypes.INTEGER,
@@ -83,6 +84,17 @@ const Gastos = db.define("tb_egresos", {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+});
+
+Gastos.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_forma_pago",
+  as: "parametro_forma_pago",
+});
+Gastos.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_banco_pago",
+  as: "parametro_banco",
 });
 
 Gastos.hasOne(ParametroGastos, {

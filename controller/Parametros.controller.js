@@ -14,7 +14,11 @@ const { HorarioProgramaPT } = require("../models/HorarioProgramaPT");
 const { MetaVSAsesor } = require("../models/Meta");
 const { FormaPago } = require("../models/Forma_Pago");
 const { Cita } = require("../models/Cita");
-const { detalleVenta_citas, Venta } = require("../models/Venta");
+const {
+  detalleVenta_citas,
+  Venta,
+  detalleVenta_membresias,
+} = require("../models/Venta");
 const { Servicios } = require("../models/Servicios");
 const { ParametroGastos } = require("../models/GastosFyV");
 const getParametrosporId = async (req = request, res = response) => {
@@ -195,6 +199,35 @@ const getParametrosporCliente = async (req, res) => {
         ],
         "email_cli",
       ],
+      // include: [
+      //   {
+      //     model: Venta,
+      //     include: [
+      //       {
+      //         model: detalleVenta_membresias,
+      //         attributes: [
+      //           "fec_inicio_mem",
+      //           "fec_fin_mem",
+      //           "id_pgm",
+      //           "id_st",
+      //           "id_tarifa",
+      //           "tarifa_monto",
+      //         ],
+      //         include: [
+      //           {
+      //             model: ProgramaTraining,
+      //             attributes: ["name_pgm"],
+      //           },
+      //           {
+      //             model: SemanasTraining,
+      //             attributes: ["semanas_st"],
+      //           },
+      //         ],
+      //         required: true,
+      //       },
+      //     ],
+      //   },
+      // ],
     });
     res.status(200).json(parametros);
   } catch (error) {
@@ -483,6 +516,45 @@ const getProgramasActivos = async (req = request, res = response) => {
     res.status(404).json(error);
   }
 };
+const getLogicaEstadoMembresia = async (req = request, res = response) => {
+  const { id_cli } = req.params;
+  try {
+    const ultimaMembresiaPorCliente = await Venta.findOne({
+      where: {
+        id_cli: id_cli,
+        flag: true,
+      },
+      order: [["fecha_venta", "DESC"]],
+      include: [
+        {
+          model: detalleVenta_membresias,
+          attributes: [
+            "fec_inicio_mem",
+            "fec_fin_mem",
+            "id_pgm",
+            "id_st",
+            "id_tarifa",
+            "tarifa_monto",
+          ],
+          include: [
+            {
+              model: ProgramaTraining,
+              attributes: ["name_pgm"],
+            },
+            {
+              model: SemanasTraining,
+              attributes: ["semanas_st"],
+            },
+          ],
+          required: true,
+        },
+      ],
+    });
+    res.status(200).json(ultimaMembresiaPorCliente);
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
 module.exports = {
   getParametros,
   postParametros,
@@ -505,4 +577,5 @@ module.exports = {
   getParametroxTIPOGASTOXID,
   getParametroGasto,
   getProgramasActivos,
+  getLogicaEstadoMembresia,
 };
