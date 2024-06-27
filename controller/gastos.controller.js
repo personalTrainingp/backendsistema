@@ -29,6 +29,9 @@ const getGastos = async (req = request, res = response) => {
           "<",
           2030
         ),
+        id: {
+          [Sequelize.Op.not]: 2548,
+        },
       },
       order: [["fec_registro", "desc"]],
       attributes: [
@@ -36,6 +39,12 @@ const getGastos = async (req = request, res = response) => {
         "moneda",
         "monto",
         "fec_pago",
+        "id_tipo_comprobante",
+        "n_comprabante",
+        "impuesto_igv",
+        "impuesto_renta",
+        "fec_comprobante",
+        "n_operacion",
         "fec_registro",
         "fec_comprobante",
         "descripcion",
@@ -59,6 +68,11 @@ const getGastos = async (req = request, res = response) => {
           model: Parametros,
           attributes: ["id_param", "label_param"],
           as: "parametro_forma_pago",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_comprobante",
         },
       ],
     });
