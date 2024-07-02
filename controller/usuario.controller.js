@@ -10,10 +10,14 @@ const {
   detalleVenta_producto,
   detalleVenta_pagoVenta,
 } = require("../models/Venta");
-const { ProgramaTraining } = require("../models/ProgramaTraining");
+const {
+  ProgramaTraining,
+  SemanasTraining,
+} = require("../models/ProgramaTraining");
 const { extraerIpUser } = require("../helpers/extraerUser");
 const { capturarAUDIT } = require("../middlewares/auditoria");
 const { typesCRUD } = require("../types/types");
+const { Producto } = require("../models/Producto");
 
 const postUsuarioCliente = (req = request, res = response) => {
   const {
@@ -111,6 +115,49 @@ const getUsuarioCliente = async (req = request, res = response) => {
     const cliente = await Cliente.findOne({
       where: { flag: true, uid: uid_cliente },
       include: [
+        {
+          model: Venta,
+          include: [
+            {
+              model: detalleVenta_membresias,
+              attributes: [
+                "fec_inicio_mem",
+                "fec_fin_mem",
+                "id_pgm",
+                "id_st",
+                "id_tarifa",
+                "tarifa_monto",
+              ],
+              include: [
+                {
+                  model: ProgramaTraining,
+                  attributes: ["name_pgm"],
+                },
+                {
+                  model: SemanasTraining,
+                  attributes: ["semanas_st"],
+                },
+              ],
+              required: true,
+            },
+            {
+              model: detalleVenta_producto,
+              attributes: [
+                "id_venta",
+                "id_producto",
+                "cantidad",
+                "precio_unitario",
+                "tarifa_monto",
+              ],
+              include: [
+                {
+                  model: Producto,
+                  attributes: ["id", "nombre_producto", "id_categoria"],
+                },
+              ],
+            },
+          ],
+        },
         // {
         //   model: Venta,
         //   include: [

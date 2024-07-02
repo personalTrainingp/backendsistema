@@ -43,7 +43,6 @@ const getGastos = async (req = request, res = response) => {
         "n_comprabante",
         "impuesto_igv",
         "impuesto_renta",
-        "fec_comprobante",
         "n_operacion",
         "fec_registro",
         "fec_comprobante",

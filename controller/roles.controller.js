@@ -114,18 +114,11 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: true,
         },
         {
-          key: "cong",
-          label: "Congelamiento",
+          key: "congreg",
+          label: "Congelamiento y regalos",
           isTitle: false,
           icon: "uil-calender",
-          url: "/gestion-nutricion",
-        },
-        {
-          key: "reg",
-          label: "Regalos",
-          isTitle: false,
-          icon: "uil-calender",
-          url: "/gestion-nutricion",
+          url: "/extension/congelamiento",
         },
       ];
     }

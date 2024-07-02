@@ -215,6 +215,7 @@ const Cliente = db.define("tb_cliente", {
   },
 });
 
+
 const test = () => {};
 
 Cliente.sync()
@@ -270,31 +271,6 @@ const carcel = () => {
   //     console.error("Unable to connect to the database:", error);
   //   }
   // })();
-
-  (async () => {
-    try {
-      const clientesToUpdate = await Cliente.findAll({
-        where: {
-          uid_comentario: null,
-        },
-      });
-
-      const updatePromises = clientesToUpdate.map((cliente) => {
-        return Cliente.update(
-          { uid_comentario: uuid.v4() },
-          { where: { id_cli: cliente.id_cli } }
-        );
-      });
-
-      await Promise.all(updatePromises);
-
-      console.log(
-        "Se han actualizado los valores null en la columna uid con UUIDs únicos."
-      );
-    } catch (error) {
-      console.error("No se pudo conectar a la base de datos:", error);
-    }
-  })();
 };
 module.exports = {
   Cliente,
