@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - apipersonaltraining
+name: Build and deploy Node.js app to Azure Web App - api-sistemaback
 
 on:
   push:
@@ -57,15 +57,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_DF7A5EE2C3CA4805B42537665F043F50 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3CC1C1D12CA14AF4880789BC83B1FC24 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1F8671FA835743A1ABD878DE0645741D }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C5FB1E97A9264112B8D508434C755824 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5FCBCF15388E4117B1176E0B1459FFD5 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F627B4D7371F412B8D1E7DE7934A1C8A }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'apipersonaltraining'
+          app-name: 'api-sistemaback'
           slot-name: 'Production'
           package: .
           
