@@ -19,22 +19,22 @@ const Proveedor = db.define(
       type: DataTypes.STRING(150),
     },
     tel_prov: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(250),
     },
     cel_prov: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(250),
     },
     email_prov: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(300),
     },
     direc_prov: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(300),
     },
     dni_vend_prov: {
       type: DataTypes.STRING(20),
     },
     nombre_vend_prov: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(300),
     },
     cel_vend_prov: {
       type: DataTypes.STRING(20),

@@ -15,10 +15,10 @@ const ExtensionMembresia = db.define("tb_extension_membresia", {
     type: DataTypes.INTEGER,
   },
   extension_inicio: {
-    type: DataTypes.DATEONLY,
+    type: DataTypes.STRING(40),
   },
   extension_fin: {
-    type: DataTypes.DATEONLY,
+    type: DataTypes.STRING(40),
   },
   observacion: {
     type: DataTypes.STRING(360),

@@ -155,8 +155,6 @@ const detalleVenta_pagoVenta = db.define("detalleVenta_pagoVenta", {
   },
 });
 
-
-
 detalleVenta_membresias.hasOne(ProgramaTraining, {
   foreignKey: "id_pgm",
   sourceKey: "id_pgm",

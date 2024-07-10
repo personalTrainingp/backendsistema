@@ -28,6 +28,7 @@ const Gastos = db.define("tb_egresos", {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
+    allowNull: false,
   },
   id_gasto: {
     type: DataTypes.INTEGER,
@@ -75,7 +76,7 @@ const Gastos = db.define("tb_egresos", {
     type: DataTypes.INTEGER,
   },
   descripcion: {
-    type: DataTypes.STRING(360),
+    type: DataTypes.STRING(600),
   },
   id_prov: {
     type: DataTypes.INTEGER,
