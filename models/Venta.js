@@ -155,6 +155,8 @@ const detalleVenta_pagoVenta = db.define("detalleVenta_pagoVenta", {
   },
 });
 
+
+
 detalleVenta_membresias.hasOne(ProgramaTraining, {
   foreignKey: "id_pgm",
   sourceKey: "id_pgm",
@@ -172,34 +174,6 @@ SemanasTraining.belongsTo(detalleVenta_membresias, {
   foreignKey: "id_st",
   targetKey: "id_st",
 });
-
-// Venta.hasMany(detalleVenta_producto, {
-//   foreignKey: "id",
-// });
-// detalleVenta_producto.belongsTo(Venta, {
-//   foreignKey: "id_venta",
-// });
-
-// Venta.hasMany(detalleVenta_membresias, {
-//   foreignKey: "id",
-// });
-// detalleVenta_membresias.belongsTo(Venta, {
-//   foreignKey: "id_venta",
-// });
-
-// Venta.hasMany(detalleVenta_citas, {
-//   foreignKey: "id",
-// });
-// detalleVenta_citas.belongsTo(Venta, {
-//   foreignKey: "id_venta",
-// });
-
-// Venta.hasMany(detalleVenta_pagoVenta, {
-//   foreignKey: "id",
-// });
-// detalleVenta_pagoVenta.belongsTo(Venta, {
-//   foreignKey: "id_venta",
-// });
 
 // Definición de la relación entre Venta y Cliente
 Venta.belongsTo(Cliente, {

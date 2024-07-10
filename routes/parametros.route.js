@@ -21,6 +21,7 @@ const {
   getParametroGasto,
   getProgramasActivos,
   getLogicaEstadoMembresia,
+  getParametrosVendedoresVendiendoTodo,
 } = require("../controller/Parametros.controller");
 const { obtener_estado_membresia } = require("../middlewares/logicaSistema");
 const router = Router();
@@ -29,6 +30,10 @@ const router = Router();
  * /api/parametros/
  */
 
+router.get(
+  "/get_params/vendedores_vendiendo",
+  getParametrosVendedoresVendiendoTodo
+);
 router.get("/get_params/programas-activos", getProgramasActivos);
 router.get("/get_param/param_gasto/:id", getParametroGasto);
 router.post("/post_param/:entidad/:sigla", postParametros);
@@ -44,12 +49,18 @@ router.get("/get_params/semanas_PGM/:id_pgm", getParametroSemanaPGM);
 router.get("/get_params/horario_PGM/:id_pgm", getParametroHorariosPGM);
 router.get("/get_params/tarifa_sm/:id_st", getParametroTarifasSM);
 router.get("/get_params/meta_asesor/:id_meta", getParametroMetaxAsesor);
-router.get("/get_params/cita-disponible/:id_cli", getCitasDisponibleporClient);
+router.get(
+  "/get_params/cita-disponible/:id_cli/:tipo_serv",
+  getCitasDisponibleporClient
+);
 router.get("/get_params/params-tb-finanzas", getParametrosFinanzas);
 router.get("/get_params/:entidad", getParametrosporEntidad);
 router.get("/get_params/:id_param", getParametrosporId);
 router.get("/get_params/forma_pago", getParametrosFormaPago);
-router.get("/get_params/get_estado_membresia_cli/:id_cli", getLogicaEstadoMembresia)
+router.get(
+  "/get_params/get_estado_membresia_cli/:id_cli",
+  getLogicaEstadoMembresia
+);
 router.get(
   "/get_params/grupo-gasto/:id_tipo_gasto",
   getParametroGrupoxTIPOGASTO

@@ -1,4 +1,6 @@
 const express = require("express");
+
+// const ZKLib = require("zklib-js");
 const cors = require("cors");
 const { urlArchivos, urlArchivoLogos } = require("./config/constant");
 const { db } = require("./database/sequelizeConnection.js");
@@ -24,6 +26,7 @@ const getConnectionORM = async () => {
   }
 };
 getConnectionORM();
+
 const sendReminderEmail = (email) => {
   const mailOptions = {
     from: "notificaciones@personaltraining.com.pe",
@@ -132,10 +135,22 @@ const checkMembresiaShips = () => {
   }
 };
 
+const allowedOrigins = [
+  "https://personaltraining-sigma.vercel.app",
+  "http://localhost:5173",
+];
+
 //CORS
 app.use(
   cors({
-    origin: "https://personaltraining-sigma.vercel.app",
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = "El origen CORS no está permitido.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
   })
 );
 

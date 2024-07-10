@@ -284,6 +284,7 @@ const seccionGET = async (req = request, res = response) => {
         {
           key: "reportes",
           label: "Reportes",
+          url: "/reporte",
           isTitle: false,
           icon: "uil-home-alt",
           children: [
@@ -297,7 +298,7 @@ const seccionGET = async (req = request, res = response) => {
             {
               key: "r-ventasPrograma",
               label: "Ventas por programas",
-              url: "/reporte/ventas-programas",
+              url: "/reporte/reporte-programa",
               parentKey: "reportes",
             },
             {
@@ -308,14 +309,8 @@ const seccionGET = async (req = request, res = response) => {
             },
             {
               key: "r-ventasDia",
-              label: "Ventas por dia",
-              url: "/reporte/ventas-dia",
-              parentKey: "reportes",
-            },
-            {
-              key: "r-ventasSemana",
-              label: "Ventas por semana",
-              url: "/reporte/venta-semana",
+              label: "Ventas por metas",
+              url: "/reporte/ventas-metas",
               parentKey: "reportes",
             },
           ],

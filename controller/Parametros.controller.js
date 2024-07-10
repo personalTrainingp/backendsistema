@@ -54,7 +54,7 @@ const getParametros = async (req = request, res = response) => {
 };
 const getCitasDisponibleporClient = async (req = request, res = response) => {
   try {
-    const { id_cli } = req.params;
+    const { id_cli, tipo_serv } = req.params;
     // Obtener las citas disponibles desde la tabla tb_detallecita
     const citasDisponibles = await Venta.findAll({
       where: { flag: true, id_cli: id_cli },
@@ -65,17 +65,18 @@ const getCitasDisponibleporClient = async (req = request, res = response) => {
       include: [
         {
           model: detalleVenta_citas,
-          attributes: ["cantidad", "id_cita"],
+          attributes: ["cantidad", "id"],
           include: [
             {
               model: Servicios,
               attributes: ["id", "nombre_servicio"],
-              where: { flag: true },
+              where: { flag: true, tipo_servicio: tipo_serv },
             },
           ],
         },
       ],
     });
+    console.log(citasDisponibles);
 
     // Obtener las citas programadas desde la tabla tb_citas
     const citasProgramadas = await Cita.findAll({
@@ -555,6 +556,58 @@ const getLogicaEstadoMembresia = async (req = request, res = response) => {
     res.status(404).json(error);
   }
 };
+const getParametrosVendedoresVendiendoTodo = async (
+  req = request,
+  res = response
+) => {
+  try {
+    const filtroVendedores_ventas = await Venta.findAll({
+      attributes: ["id_empl", "fecha_venta"],
+      include: [
+        {
+          model: Empleado,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_empl"),
+                " ",
+                Sequelize.col("apPaterno_empl"),
+                " ",
+                Sequelize.col("apMaterno_empl")
+              ),
+              "nombres_apellidos_empl",
+            ],
+          ],
+        },
+      ],
+      raw: true,
+    });
+    let groupedByIdEmpl = filtroVendedores_ventas.reduce((acc, venta) => {
+      const { id_empl } = venta;
+      if (!acc[id_empl]) {
+        acc[id_empl] = [];
+      }
+      acc[id_empl].push(venta);
+      return acc;
+    }, {});
+
+    groupedByIdEmpl = Object.keys(groupedByIdEmpl).map((id_empl) => {
+      return {
+        value: parseInt(id_empl),
+        label:
+          groupedByIdEmpl[id_empl][0]["tb_empleado.nombres_apellidos_empl"],
+      };
+    });
+    res.status(200).json({
+      msg: "ok",
+      vendedores: groupedByIdEmpl,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(404).json(error);
+  }
+};
 module.exports = {
   getParametros,
   postParametros,
@@ -578,4 +631,5 @@ module.exports = {
   getParametroGasto,
   getProgramasActivos,
   getLogicaEstadoMembresia,
+  getParametrosVendedoresVendiendoTodo,
 };
