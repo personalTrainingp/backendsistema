@@ -1,6 +1,42 @@
 const jwt = require("jsonwebtoken");
 
 const generarJWT = (uid, name, rol_user, ip_user, id_user) => {
+  // console.log(id_user, "en jwt, en llamada");
+
+  let MODULOS_ITEMS = [];
+
+  if (rol_user === 1) {
+    MODULOS_ITEMS = [
+      {
+        name: "Ventas",
+        path: "/venta",
+        key: "mod-venta",
+      },
+    ];
+  }
+  if (rol_user === 2) {
+    MODULOS_ITEMS = [
+      {
+        name: "Administracion",
+        path: "/adm",
+        key: "mod-adm",
+      },
+      {
+        name: "Ventas",
+        path: "/venta",
+        key: "mod-venta",
+      },
+    ];
+  }
+  if (rol_user === 3) {
+    MODULOS_ITEMS = [
+      {
+        name: "Ventas",
+        path: "/venta",
+        key: "mod-general-ventas",
+      },
+    ];
+  }
   return new Promise((resolve, reject) => {
     const payload = { uid, name, rol_user, ip_user, id_user };
     jwt.sign(

@@ -5,6 +5,34 @@ const { ImagePT } = require("../../models/Image");
 const { request, response } = require("express");
 const { ProgramaTraining } = require("../../models/ProgramaTraining");
 const uid = require("uuid");
+const { uploadFile, downloadFile } = require("../../config/blobstorage");
+
+const uploadPost_AVATAR = async (req, res) => {
+  const containerName = "useravatar"; // Reemplaza con tu contenedor
+  const blobName = req.file.originalname;
+  const filePath = req.file.path;
+
+  try {
+    await uploadFile(containerName, blobName, filePath);
+    res.status(200).send("File uploaded successfully.");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error uploading file.");
+  }
+};
+const obtenerUpload_AVATAR = async (req, res) => {
+  const containerName = "useravatar"; // Reemplaza con tu contenedor
+  const blobName = req.params.filename;
+  const downloadFilePath = `downloads/${blobName}`;
+
+  try {
+    await downloadFile(containerName, blobName, downloadFilePath);
+    res.download(downloadFilePath);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error downloading file.");
+  }
+};
 
 const upload = async (req, res) => {
   const { file } = req;
@@ -164,4 +192,7 @@ module.exports = {
   uploadAvatar,
   getUpload,
   uploadTarjeta,
+
+  uploadPost_AVATAR,
+  obtenerUpload_AVATAR,
 };

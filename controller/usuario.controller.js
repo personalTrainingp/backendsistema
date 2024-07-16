@@ -19,6 +19,38 @@ const { capturarAUDIT } = require("../middlewares/auditoria");
 const { typesCRUD } = require("../types/types");
 const { Producto } = require("../models/Producto");
 
+const getUsuariosClientexID = async (req = request, res = response) => {
+  try {
+    const { id_cli } = req.params;
+    const cliente = await Cliente.findByPk(id_cli, {
+      attributes: [
+        [
+          Sequelize.fn(
+            "CONCAT",
+            Sequelize.col("nombre_cli"),
+            " ",
+            Sequelize.col("apPaterno_cli"),
+            " ",
+            Sequelize.col("apMaterno_cli")
+          ),
+          "nombres_apellidos_cli",
+        ],
+      ],
+    });
+    if (!cliente) {
+      return res.status(404).json({
+        error: "El usuario cliente no existe",
+      });
+    }
+    res.status(200).json({
+      cliente,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: `Error en el servidor, en controller de getusuarioClientes, hable con el administrador: ${error}`,
+    });
+  }
+};
 const postUsuarioCliente = (req = request, res = response) => {
   const {
     uid_avatar,
@@ -588,12 +620,19 @@ const loginUsuario = async (req = request, res = response) => {
   }
 };
 const revalidarToken = async (req, res) => {
-  const { uid, name, rol_user } = req;
+  const { uid, name, rol_user, id_user } = req;
+  const user = await Usuario.findOne({ where: { uid: uid } });
   let ip_user = extraerIpUser(req, res);
-  const token = await generarJWT(uid, name, rol_user, ip_user);
+  const token = await generarJWT(
+    uid,
+    user.name,
+    user.rol_user,
+    ip_user,
+    user.id_user
+  );
   let MODULOS_ITEMS = [];
 
-  if (rol_user === 1) {
+  if (user.rol_user === 1) {
     MODULOS_ITEMS = [
       {
         name: "Ventas",
@@ -602,7 +641,7 @@ const revalidarToken = async (req, res) => {
       },
     ];
   }
-  if (rol_user === 2) {
+  if (user.rol_user === 2) {
     MODULOS_ITEMS = [
       {
         name: "Administracion",
@@ -616,7 +655,7 @@ const revalidarToken = async (req, res) => {
       },
     ];
   }
-  if (rol_user === 3) {
+  if (user.rol_user === 3) {
     MODULOS_ITEMS = [
       {
         name: "Ventas",
@@ -628,6 +667,7 @@ const revalidarToken = async (req, res) => {
   res.json({
     ok: true,
     msg: "renewed",
+    rol_user,
     uid,
     name,
     token,
@@ -641,6 +681,7 @@ module.exports = {
   getUsuarioCliente,
   deleteUsuarioCliente,
   putUsuarioCliente,
+  getUsuariosClientexID,
   //Empleado
   postUsuarioEmpleado,
   getUsuarioEmpleados,

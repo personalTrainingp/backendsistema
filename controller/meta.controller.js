@@ -28,10 +28,12 @@ const postMeta = async (req = request, res = response) => {
   }
 };
 const getOneMeta = async (req = request, res = response) => {
-  const { uid_meta } = req.params;
+  const { id } = req.params;
   try {
-    const meta = await Meta.findAll({ where: { uid: uid_meta } });
-    res.status(200).json(meta);
+    const meta = await Meta.findOne({ where: { id_meta: id } });
+    res.status(200).json({
+      meta,
+    });
   } catch (error) {
     res.status(500).json({
       error: `Error en el servidor, en controller(getOneMeta) de programa, hable con el administrador: ${error}`,

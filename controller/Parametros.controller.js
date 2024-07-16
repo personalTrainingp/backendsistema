@@ -286,7 +286,7 @@ const getParametrosEmpleadosxDep = async (req = request, res = response) => {
     console.log("funciona");
     const { departamento } = req.params;
     const empleados = await Empleado.findAll({
-      where: { departamento_empl: departamento },
+      where: { departamento_empl: departamento, estado_empl: true, flag: true },
       attributes: [
         ["id_empl", "value"],
         [

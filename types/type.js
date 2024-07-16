@@ -6502,6 +6502,7 @@ const empleados = [
     updatedAt: "2023-01-31T09:35:47.650",
   },
 ];
+
 module.exports = {
   empleados,
 };

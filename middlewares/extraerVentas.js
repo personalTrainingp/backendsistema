@@ -15,21 +15,26 @@ const { Venta } = require("../models/Venta");
   value: 3531,
   label: 'mmm mmmm mmmm'
  */
-const extraerCredencialesCliente = (req, res, next) => {
-  const venta = req.body.detalle_cli_modelo;
+const extraerCredencialesCliente = (req = request, res = response, next) => {
+  // console.log(venta);
+  const {
+    id_venta,
+    id_empl,
+    id_cliente,
+    id_tipo_transaccion,
+    numero_transac,
+    id_origen,
+    observacion,
+  } = req.body.detalle_cli_modelo;
+
   req.detalle_cli = {
-    id_cli: venta.id_cliente,
-    id_empl: venta.id_empl,
-    id_tipoFactura: venta.id_tipo_transaccion,
-    numero_transac: venta.numero_transac,
-    id_origen: venta.id_origen,
-    observacion: venta.observacion,
-    email_cli: venta.email_cli,
+    id_cli: id_cliente,
+    id_empl: id_empl,
+    id_tipoFactura: id_tipo_transaccion,
+    numero_transac: numero_transac,
+    id_origen: id_origen,
+    observacion: observacion,
     fecha_venta: new Date(),
-    label_cli: venta.label_cli,
-    label_empl: venta.label_empl,
-    label_tipo_transac: venta.label_tipo_transac,
-    numero_transac: venta.numero_transac,
   };
   next();
 };
@@ -39,6 +44,7 @@ const extraerFirma = (req, res, next) => {
   next();
 };
 const extraerVentaMembresia = (req, res, next) => {
+  if (!req.body.dataVenta.detalle_venta_programa) return next();
   const membresia = req.body.dataVenta.detalle_venta_programa.map((Pgm) => {
     return {
       id_pgm: Pgm.id_pgm,
@@ -63,6 +69,12 @@ const extraerVentaSuplementos = (req, res, next) => {
   next();
 };
 const extraerProductos = (req, res, next) => {
+  if (
+    req.body.dataVenta.detalle_venta_suplementos ||
+    req.body.dataVenta.detalle_venta_accesorio
+  ) {
+    return next();
+  }
   req.productos = [
     ...req.body.dataVenta.detalle_venta_suplementos,
     ...req.body.dataVenta.detalle_venta_accesorio,
@@ -70,18 +82,12 @@ const extraerProductos = (req, res, next) => {
   next();
 };
 const extraerCitas = (req, res, next) => {
-  let arrayCitasNutricionales = req.body.dataVenta.detalle_venta_nutricion.map(
-    (obj) => {
-      let objAct = { ...obj };
-      objAct.tipo_servicio = "NUTRI";
-    }
-  );
-  let arrayCitasFitology = req.body.dataVenta.detalle_venta_fitology.map(
-    (obj) => {
-      let objAct = { ...obj };
-      objAct.tipo_servicio = "FITOL";
-    }
-  );
+  if (
+    !req.body.dataVenta.detalle_venta_nutricion ||
+    !req.body.dataVenta.detalle_venta_fitology
+  ) {
+    return next();
+  }
   req.citas = [
     ...req.body.dataVenta.detalle_venta_nutricion,
     ...req.body.dataVenta.detalle_venta_fitology,
@@ -390,6 +396,7 @@ value: 7
   next();
 };
 const extraerPagos = async (req = request, res = response, next) => {
+  if (!req.body.datos_pagos) return next();
   const pagosExtraidos = req.body.datos_pagos.map((e) => {
     return {
       id_forma_pago: e.id_forma_pago,

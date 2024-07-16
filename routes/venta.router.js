@@ -30,7 +30,7 @@ router.post(
   extraerCitas,
   extraerPagos,
   postNewVenta,
-  mailMembresia,
+  // mailMembresia,
   postVenta
 );
 router.get("/get-ventas", get_VENTAS);

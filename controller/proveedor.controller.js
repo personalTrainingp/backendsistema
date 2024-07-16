@@ -4,8 +4,14 @@ const uid = require("uuid");
 const { capturarAUDIT } = require("../middlewares/auditoria");
 const { typesCRUD } = require("../types/types");
 
+/*
+ip_user: '127.0.0.1',
+  uid: 'b3b6be6f-5f21-4e49-a12b-40a8c7e24e35',
+  name: 'Carlos',
+*/
 const getTBProveedores = async (req = request, res = response) => {
   try {
+    console.log(req);
     const proveedores = await Proveedor.findAll({
       order: [["id", "desc"]],
       attributes: [
@@ -119,6 +125,14 @@ const deleteProveedor = async (req = request, res = response) => {
       });
     }
     proveedor.update({ flag: false });
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.DELETE,
+      observacion: `Se elimino: proveedor de id ${proveedor.id}`,
+      fecha_audit: new Date(),
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json({
       msg: proveedor,
     });
@@ -142,6 +156,14 @@ const updateProveedor = async (req = request, res = response) => {
     }
 
     proveedor.update(req.body);
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.PUT,
+      observacion: `Se edito: proveedor de id ${proveedor.id}`,
+      fecha_audit: new Date(),
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json({
       proveedor,
       msg: "Proveedor actualizado",

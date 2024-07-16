@@ -12,7 +12,12 @@ const extraerUser = (req, res, next) => {
   saveUser(req, res, next);
 };
 const extraerIpUser = (req, res) => {
-  let ip_user = req.socket.localAddress;
+  let ip_user =
+    req.headers["cf-connecting-ip"] ||
+    req.headers["x-real-ip"] ||
+    req.headers["x-forwarded-for"] ||
+    req.socket.localAddress ||
+    "";
 
   // Si la IP es una dirección IPv6 de loopback (::1), obtenemos la IPv4 de loopback
   if (ip_user === "::1" || ip_user === "127.0.0.1") {

@@ -14,7 +14,7 @@ const router = Router();
  * /api/meta/
  */
 router.post("/post_meta", postMeta);
-router.get("/getOneMeta", getOneMeta);
+router.get("/getOneMeta/:id", getOneMeta);
 router.get("/getMetas", getMetas);
 //meta vs asesor
 router.post("/meta_asesor/post_meta/:id_meta", postMetaAsesor);

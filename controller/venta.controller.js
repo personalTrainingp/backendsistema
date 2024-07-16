@@ -62,6 +62,9 @@ const postVenta = async (req = request, res = response) => {
       }));
       await detalleVenta_pagoVenta.bulkCreate(pagosVentasConIdVenta);
     }
+    res.status(200).json({
+      error: `Venta creada con exito`,
+    });
   } catch (error) {
     res.status(500).json({
       error: `Error en el servidor, en controller de postVenta, hable con el administrador: ${error}`,

@@ -9,8 +9,8 @@ const {
 const { validarJWT } = require("../middlewares/validarJWT");
 const router = Router();
 
-router.get("/obtener-proveedores", validarJWT, getTBProveedores);
-router.post("/post-proveedor", validarJWT, PostProveedores);
+router.get("/obtener-proveedores", getTBProveedores);
+router.post("/post-proveedor",  PostProveedores);
 router.get("/obtener-proveedor/:id", getProveedor);
 router.put("/remove-proveedor/:id", deleteProveedor);
 router.put("/update-proveedor/:id", updateProveedor);

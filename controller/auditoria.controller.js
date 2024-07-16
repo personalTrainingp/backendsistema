@@ -17,6 +17,7 @@ const getTBAudit = async (req, res) => {
   try {
     const audit = await Auditoria.findAll({
       where: { flag: true },
+      order: [["id", "desc"]],
       attributes: [
         "id_user",
         "ip_user",
@@ -27,7 +28,7 @@ const getTBAudit = async (req, res) => {
       include: [
         {
           model: Usuario,
-          attributes: ["nombres_user", "apellidos_user"],
+          attributes: ["usuario_user"],
         },
       ],
     });
