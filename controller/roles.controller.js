@@ -118,7 +118,7 @@ const seccionGET = async (req = request, res = response) => {
           label: "Congelamiento y regalos",
           isTitle: false,
           icon: "uil-calender",
-          url: "/extension/congelamiento",
+          url: "/extension-membresia",
         },
       ];
     }
@@ -202,15 +202,22 @@ const seccionGET = async (req = request, res = response) => {
         },
         {
           key: "gf-gv",
-          label: "Gastos fijos y variables",
+          label: "Egresos y Aportes",
           isTitle: true,
         },
         {
           key: "gestion-gfgv",
-          label: "Gastos fijos y variables",
+          label: "Egresos",
           isTitle: false,
           icon: "uil-calender",
           url: "/gestion-gastosF-gastosV",
+        },
+        {
+          key: "gestion-gfgv",
+          label: "Aportes",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/aporte-ingresos",
         },
         {
           key: "planilla",
@@ -363,7 +370,7 @@ const seccionGET = async (req = request, res = response) => {
           label: "Congelamiento y regalos",
           isTitle: false,
           icon: "uil-calender",
-          url: "/extension/congelamiento",
+          url: "/extension-membresia",
         },
         {
           key: "Metas",

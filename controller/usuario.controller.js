@@ -18,6 +18,7 @@ const { extraerIpUser } = require("../helpers/extraerUser");
 const { capturarAUDIT } = require("../middlewares/auditoria");
 const { typesCRUD } = require("../types/types");
 const { Producto } = require("../models/Producto");
+const { Inversionista } = require("../models/Aportes");
 
 const getUsuariosClientexID = async (req = request, res = response) => {
   try {
@@ -389,6 +390,27 @@ const putUsuarioEmpleado = async (req = request, res = response) => {
     });
   }
 };
+const postInversionista = async (req = request, res = response) => {
+  const { nombres_completos, id_tipo_doc, numDoc, telefono, email } = req.body;
+  try {
+    const inversionista = new Inversionista({
+      nombres_completos,
+      id_tipo_doc,
+      numDoc,
+      telefono,
+      email,
+    });
+    await inversionista.save();
+    res.status(200).json({
+      msg: "success",
+      inversionista,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: `Error en el servidor, en controller de postInversionista, hable con el administrador: ${error}`,
+    });
+  }
+};
 //Usuario
 const postUsuario = async (req = request, res = response) => {
   const {
@@ -688,6 +710,8 @@ module.exports = {
   getUsuarioEmpleado,
   deleteUsuarioEmpleado,
   putUsuarioEmpleado,
+  //Inversionista
+  postInversionista,
   //Usuario
   postUsuario,
   getUsuarios,

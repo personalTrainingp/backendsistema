@@ -10,6 +10,7 @@ const {
   getUsuarioEmpleado,
   putUsuarioEmpleado,
   deleteUsuarioEmpleado,
+  postInversionista,
   postUsuario,
   getUsuario,
   getUsuarios,
@@ -57,6 +58,9 @@ router.get("/get-empleados", validarJWT, getUsuarioEmpleados);
 router.get("/get-empleado/:uid_empleado", validarJWT, getUsuarioEmpleado);
 router.put("/put-empleado/:uid_empleado", validarJWT, putUsuarioEmpleado);
 router.get("/delete-empleado/:id_user", validarJWT, deleteUsuarioEmpleado);
+
+//usuario inversionista
+router.post("/post-inversionista", postInversionista)
 
 //usuario login
 router.post("/post-usuario", postUsuario);

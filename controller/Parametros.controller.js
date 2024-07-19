@@ -21,6 +21,7 @@ const {
 } = require("../models/Venta");
 const { Servicios } = require("../models/Servicios");
 const { ParametroGastos } = require("../models/GastosFyV");
+const { Inversionista } = require("../models/Aportes");
 const getParametrosporId = async (req = request, res = response) => {
   const { id_param } = req.params;
   try {
@@ -608,6 +609,53 @@ const getParametrosVendedoresVendiendoTodo = async (
     res.status(404).json(error);
   }
 };
+const getParametrosInversionistasRegistrados = async (
+  req = request,
+  res = response
+) => {
+  try {
+    const inversionistas = await Inversionista.findAll({
+      attributes: [
+        ["id", "value"],
+        ["nombres_completos", "label"],
+      ],
+    });
+    res.status(200).json({
+      msg: "ok",
+      inversionistas,
+    });
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
+const getParametrosColaboradoresRegistrados = async (
+  req = request,
+  res = response
+) => {
+  try {
+    const colaboradores = await Empleado.findAll({
+      attributes: [
+        ["id_empl", "value"],
+        [
+          Sequelize.literal(
+            "CONCAT(nombre_empl, ' ', apPaterno_empl, ' ', apMaterno_empl)"
+          ),
+          "label",
+        ],
+      ],
+      where: {
+        estado_empl: true,
+        flag: true,
+      },
+    });
+    res.status(200).json({
+      msg: "ok",
+      colaboradores,
+    });
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
 module.exports = {
   getParametros,
   postParametros,
@@ -632,4 +680,6 @@ module.exports = {
   getProgramasActivos,
   getLogicaEstadoMembresia,
   getParametrosVendedoresVendiendoTodo,
+  getParametrosInversionistasRegistrados,
+  getParametrosColaboradoresRegistrados,
 };

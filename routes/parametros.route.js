@@ -22,6 +22,8 @@ const {
   getProgramasActivos,
   getLogicaEstadoMembresia,
   getParametrosVendedoresVendiendoTodo,
+  getParametrosInversionistasRegistrados,
+  getParametrosColaboradoresRegistrados,
 } = require("../controller/Parametros.controller");
 const { obtener_estado_membresia } = require("../middlewares/logicaSistema");
 const router = Router();
@@ -30,6 +32,11 @@ const router = Router();
  * /api/parametros/
  */
 
+router.get("/get_params/colaboradores", getParametrosColaboradoresRegistrados);
+router.get(
+  "/get_params/inversionistas",
+  getParametrosInversionistasRegistrados
+);
 router.get(
   "/get_params/vendedores_vendiendo",
   getParametrosVendedoresVendiendoTodo
