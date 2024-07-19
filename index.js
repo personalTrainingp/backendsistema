@@ -206,7 +206,7 @@ app.use("/api/serviciospt", require("./routes/serviciosPT.router.js"));
 app.use("/api/cita", require("./routes/cita.router.js"));
 app.use("/api/prospecto", require("./routes/prospecto.router.js"));
 app.use("/api/auditoria", require("./routes/auditoria.router.js"));
-app.use("/api/aporte", require("./routes/aportes.router.js"));
+// app.use("/api/aporte", require("./routes/aportes.router.js"));
 //Escuchar peticiones
 app.listen(env.PORT || 4001, () => {
   console.log(`Servidor corriendo en el puerto ${env.PORT || 4001}`);
