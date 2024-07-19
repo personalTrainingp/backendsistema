@@ -170,43 +170,51 @@ app.use((req, res, next) => {
 //Lectura y parseo del body
 app.use(express.json());
 
-app.use("/api/tipocambio", require("./routes/tipocambio.route.js"));
+app.use("/api/tipocambio", validarJWT, require("./routes/tipocambio.route.js"));
 //RUTA FILES
 app.use("/api/file", fileServer(urlArchivos));
 app.use("/api/file/logo", fileServer(urlArchivoLogos));
 //Rutas
 // //TODO proveedores // sexo, tipoDoc, estadoCivil, etc
-app.use("/api/proveedor", require("./routes/proveedor.router.js"));
-app.use("/api/producto", require("./routes/producto.route.js"));
+app.use("/api/proveedor", validarJWT, require("./routes/proveedor.router.js"));
+app.use("/api/producto", validarJWT, require("./routes/producto.route.js"));
 //TODO: JUNTAR LOS DOS EN UNA RUTA
-app.use("/api/egreso", require("./routes/gastos.router.js"));
+app.use("/api/egreso", validarJWT, require("./routes/gastos.router.js"));
 //TODO: programas
-app.use("/api/programaTraining", require("./routes/programaTraining.route.js"));
+app.use(
+  "/api/programaTraining",
+  validarJWT,
+  require("./routes/programaTraining.route.js")
+);
 //TODO: PARAMETROS TODO TIPO(SEXO, TIPO DOC, NACIONALIDAD, TIPOCLIENTE, REFERENCIA DE CONTACTO, ETC)
-app.use("/api/parametros", require("./routes/parametros.route.js"));
+app.use("/api/parametros", validarJWT, require("./routes/parametros.route.js"));
 //TODO: USUARIOS(CLIENTES, COLABORADORES, USUARIOS LOGEADOS)
 app.use("/api/usuario", require("./routes/usuario.route.js"));
 
-app.use("/api/servicios", require("./routes/servicios.router.js"));
+app.use("/api/servicios", validarJWT, require("./routes/servicios.router.js"));
 
-app.use("/api/meta", require("./routes/meta.route.js"));
-app.use("/api/impuestos", require("./routes/impuestos.router.js"));
+app.use("/api/meta", validarJWT, require("./routes/meta.route.js"));
+app.use("/api/impuestos", validarJWT, require("./routes/impuestos.router.js"));
 //TODO upload // imgs
 app.use("/api", require("./routes/upload/upload.routes.js"));
 
-app.use("/api/reporte", require("./routes/reporte.router.js"));
-app.use("/api/comision", require("./routes/comision.router.js"));
+app.use("/api/reporte", validarJWT, require("./routes/reporte.router.js"));
+app.use("/api/comision", validarJWT, require("./routes/comision.router.js"));
 
 //TODO: FORMA PAGO
-app.use("/api/formPago", require("./routes/formaPago.router.js"));
-app.use("/api/rol", require("./routes/roles.router.js"));
-app.use("/api/venta", require("./routes/venta.router.js"));
-app.use("/api/serviciospt", require("./routes/serviciosPT.router.js"));
+app.use("/api/formPago", validarJWT, require("./routes/formaPago.router.js"));
+app.use("/api/rol", validarJWT, require("./routes/roles.router.js"));
+app.use("/api/venta", validarJWT, require("./routes/venta.router.js"));
+app.use(
+  "/api/serviciospt",
+  validarJWT,
+  require("./routes/serviciosPT.router.js")
+);
 
-app.use("/api/cita", require("./routes/cita.router.js"));
-app.use("/api/prospecto", require("./routes/prospecto.router.js"));
-app.use("/api/auditoria", require("./routes/auditoria.router.js"));
-// app.use("/api/aporte", require("./routes/aportes.router.js"));
+app.use("/api/cita", validarJWT, require("./routes/cita.router.js"));
+app.use("/api/prospecto", validarJWT, require("./routes/prospecto.router.js"));
+app.use("/api/auditoria", validarJWT, require("./routes/auditoria.router.js"));
+app.use("/api/aporte", validarJWT, require("./routes/aportes.router.js"));
 //Escuchar peticiones
 app.listen(env.PORT || 4001, () => {
   console.log(`Servidor corriendo en el puerto ${env.PORT || 4001}`);
