@@ -49,7 +49,7 @@ const detalleVenta_membresias = db.define("detalle_ventaMembresia", {
     type: DataTypes.DATE,
   },
   fec_fin_mem: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(12),
   },
   id_pgm: {
     type: DataTypes.INTEGER,

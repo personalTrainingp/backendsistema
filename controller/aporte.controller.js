@@ -6,12 +6,9 @@ const { Sequelize } = require("sequelize");
 const postAporte = async (req = request, res = response) => {
   const {
     id_inversionista,
-    grupo,
     fecha_aporte,
     moneda,
     monto_aporte,
-    id_receptor,
-    id_tipo_aporte,
     id_forma_pago,
     id_banco,
     fec_comprobante,
@@ -22,12 +19,9 @@ const postAporte = async (req = request, res = response) => {
   try {
     const aporte = new Aporte({
       id_inversionista,
-      grupo,
       fecha_aporte,
       moneda,
       monto_aporte,
-      id_receptor,
-      id_tipo_aporte,
       id_forma_pago,
       id_banco,
       fec_comprobante,
@@ -48,25 +42,12 @@ const getTBAportes = async (req = request, res = response) => {
     const aportes = await Aporte.findAll({
       attributes: [
         "id",
-        "grupo",
         "id_inversionista",
         "fecha_aporte",
         "moneda",
         "monto_aporte",
-        "id_receptor",
       ],
       include: [
-        {
-          model: Empleado,
-          attributes: [
-            [
-              Sequelize.literal(
-                "CONCAT(nombre_empl, ' ', apPaterno_empl, ' ', apMaterno_empl)"
-              ),
-              "nombres_apellidos_empl",
-            ],
-          ],
-        },
         {
           model: Inversionista,
           attributes: ["nombres_completos"],

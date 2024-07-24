@@ -144,6 +144,32 @@ const seccionGET = async (req = request, res = response) => {
           url: "/auditoria",
         },
         {
+          key: "conf-term",
+          label: "Terminologias",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/configuracion-terminos",
+        },
+        {
+          key: "reporte-admin",
+          label: "Reportes",
+          isTitle: true,
+        },
+        {
+          key: "reporte-gerencial",
+          label: "Reporte gerenciales",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/reporte-gerencial",
+        },
+        {
+          key: "reporte-egresos",
+          label: "Reporte egresos",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/reporte-egresos",
+        },
+        {
           key: "prov",
           label: "Proveedores",
           isTitle: true,

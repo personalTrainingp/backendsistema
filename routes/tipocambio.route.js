@@ -4,5 +4,5 @@ const {
 } = require("../controller/tipoCanbio.controller");
 const router = Router();
 
-router.get("/obtenerTipoCambio", obtenerTipoCambioxFecha);
+router.get("/obtener-tipo-cambio", obtenerTipoCambioxFecha);
 module.exports = router;

@@ -37,9 +37,6 @@ const Aporte = db.define("tb_aportes", {
   id_inversionista: {
     type: DataTypes.INTEGER,
   },
-  grupo: {
-    type: DataTypes.STRING(35),
-  },
   fecha_aporte: {
     type: DataTypes.STRING(90),
   },
@@ -49,17 +46,14 @@ const Aporte = db.define("tb_aportes", {
   monto_aporte: {
     type: DataTypes.DECIMAL(10, 2),
   },
-  id_receptor: {
-    type: DataTypes.INTEGER,
-  },
-  id_tipo_aporte: {
-    type: DataTypes.INTEGER,
-  },
   id_forma_pago: {
     type: DataTypes.INTEGER,
   },
   id_banco: {
     type: DataTypes.INTEGER,
+  },
+  n_operacion: {
+    type: DataTypes.STRING(35),
   },
   fec_comprobante: {
     type: DataTypes.STRING(20),
@@ -82,8 +76,6 @@ const Aporte = db.define("tb_aportes", {
 Inversionista.hasMany(Aporte, { foreignKey: "id_inversionista" });
 Aporte.belongsTo(Inversionista, { foreignKey: "id_inversionista" });
 
-Empleado.hasMany(Aporte, { foreignKey: "id_receptor" });
-Aporte.belongsTo(Empleado, { foreignKey: "id_receptor" });
 
 /*
 

@@ -14,6 +14,11 @@ const env = process.env;
 
 //Creando el servidor de express
 const app = express();
+
+
+
+
+// app.use(compression());
 // test();
 //Base de datos
 //dbConnection()
@@ -170,7 +175,8 @@ app.use((req, res, next) => {
 //Lectura y parseo del body
 app.use(express.json());
 
-app.use("/api/tipocambio", validarJWT, require("./routes/tipocambio.route.js"));
+app.use("/api/storage/blob", require("./routes/upload/blob.router.js"));
+app.use("/api/tipocambio", require("./routes/tipocambio.route.js"));
 //RUTA FILES
 app.use("/api/file", fileServer(urlArchivos));
 app.use("/api/file/logo", fileServer(urlArchivoLogos));
@@ -198,7 +204,7 @@ app.use("/api/impuestos", validarJWT, require("./routes/impuestos.router.js"));
 //TODO upload // imgs
 app.use("/api", require("./routes/upload/upload.routes.js"));
 
-app.use("/api/reporte", validarJWT, require("./routes/reporte.router.js"));
+app.use("/api/reporte", require("./routes/reporte.router.js"));
 app.use("/api/comision", validarJWT, require("./routes/comision.router.js"));
 
 //TODO: FORMA PAGO

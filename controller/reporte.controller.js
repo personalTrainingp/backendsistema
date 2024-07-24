@@ -8,28 +8,61 @@ const {
 } = require("../models/ProgramaTraining");
 const { request, response } = require("express");
 const { db } = require("../database/sequelizeConnection");
-const { log } = require("zklib-js/helpers/errorLog");
+const dayjs = require("dayjs");
+const { Proveedor } = require("../models/Proveedor");
+const { ParametroGastos, Gastos } = require("../models/GastosFyV");
+const { Parametros } = require("../models/Parametros");
+// Función para sumar días hábiles (lunes y viernes) a una fecha
+function addBusinessDays(startDate, numberOfDays) {
+  let currentDate = new Date(startDate);
+  let daysAdded = 0;
 
+  while (daysAdded < numberOfDays) {
+    currentDate.setDate(currentDate.getDate() + 1);
+
+    const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+      // Check if it's Monday to Friday
+      daysAdded++;
+    }
+  }
+
+  return currentDate;
+}
+const diasLaborables = (fechaInicio, fechaFin) => {
+  let diasLaborables = 0;
+  const fechaInicioParsed = dayjs(fechaInicio, "YYYY-MM-DD");
+  const fechaFinParsed = dayjs(fechaFin, "YYYY-MM-DD");
+
+  // Determina la dirección de la iteración
+  const direccion = fechaFinParsed.isAfter(fechaInicioParsed) ? 1 : -1;
+
+  // Calcula el número total de días
+  const totalDias = Math.abs(fechaFinParsed.diff(fechaInicioParsed, "day")) + 1;
+
+  // Inicializa fechaActual
+  let fechaActual = fechaInicioParsed;
+
+  // Itera sobre el rango de días
+  for (let i = 0; i < totalDias; i++) {
+    // Si el día actual es laborable (de lunes a viernes)
+    if (fechaActual.day() !== 0 && fechaActual.day() !== 6) {
+      diasLaborables += direccion;
+    }
+    fechaActual = fechaActual.add(direccion, "day");
+  }
+
+  return diasLaborables;
+};
 const getReporteSeguimiento = async (req, res) => {
-  const today = new Date();
-  const next30Days = new Date();
-  next30Days.setDate(today.getDate() + 30);
   try {
-    const membresias = await detalleVenta_membresias.findAll({
-      attributes: [
-        "id",
-        "id_venta",
-        "tarifa_monto",
-        "fec_inicio_mem",
-        "fec_fin_mem",
-      ],
-      order: [["fec_fin_mem", "ASC"]],
+    let membresias = await detalleVenta_membresias.findAll({
+      attributes: ["id", "fec_inicio_mem", "fec_fin_mem"],
+      order: [["id", "DESC"]],
       include: [
         {
           model: ExtensionMembresia,
           attributes: [
-            "id",
-            "id_venta",
             "tipo_extension",
             "extension_inicio",
             "extension_fin",
@@ -39,6 +72,7 @@ const getReporteSeguimiento = async (req, res) => {
         {
           model: Venta,
           attributes: ["id"],
+          raw: true,
           include: [
             {
               model: Cliente,
@@ -62,14 +96,50 @@ const getReporteSeguimiento = async (req, res) => {
         {
           model: ProgramaTraining,
           attributes: ["id_pgm", "name_pgm"],
+          raw: true,
         },
         {
           model: SemanasTraining,
           attributes: ["id_st", "semanas_st"],
+          raw: true,
         },
       ],
     });
-    res.status(200).json(membresias);
+
+    const newMembresias = membresias.map((item) => {
+      const itemJSON = item.toJSON();
+      const tbExtensionMembresia = itemJSON.tb_extension_membresia || [];
+
+      if (tbExtensionMembresia.length === 0) {
+        // Si tb_extension_membresia está vacío
+        return {
+          ...itemJSON,
+          dias: 0,
+          // diasPorTerminar: diasLaborables(
+          //   new Date(),
+          //   new Date(itemJSON.fec_fin_mem)
+          // ),
+          fec_fin_mem_new: itemJSON.fec_fin_mem, // La nueva fecha es igual a fec_fin_mem
+        };
+      }
+      const totalDiasHabiles = (itemJSON.tb_extension_membresia || []).reduce(
+        (total, ext) => total + parseInt(ext.dias_habiles, 10),
+        0
+      );
+
+      // Calcular la nueva fecha sumando los días hábiles a 'fec_fin_mem'
+      const fecFinMem = new Date(itemJSON.fec_fin_mem);
+      const fecFinMemNew = addBusinessDays(fecFinMem, totalDiasHabiles);
+      return {
+        dias: totalDiasHabiles,
+        // diasPorTerminar: diasLaborables(new Date(), fecFinMemNew.toISOString()),
+        fec_fin_mem_new: fecFinMemNew.toISOString(), // Ajusta el formato según tus necesidades
+        ...itemJSON,
+      };
+    });
+    res.status(200).json({
+      newMembresias,
+    });
   } catch (error) {
     console.log(error);
     res.status(505).json({
@@ -77,7 +147,6 @@ const getReporteSeguimiento = async (req, res) => {
     });
   }
 };
-const getReporteEgresos = async (req, res) => {};
 const getReporteProgramas = async (req, res) => {};
 const getReporteVentasPrograma_COMPARATIVACONMEJORANO = async (
   req = request,
@@ -751,13 +820,86 @@ const getReporteDeProgramasXsemanas = async (req = request, res = response) => {
     });
   }
 };
+const getReporteDeEgresos = async (req = request, res = response) => {
+  // console.log(req.query, "hola");
+  const { arrayDate } = req.query;
+  const fechaInicio = arrayDate[0];
+  const fechaFin = arrayDate[1];
+  try {
+    const gastos = await Gastos.findAll({
+      where: {
+        flag: true,
+        [Sequelize.Op.and]: Sequelize.where(
+          Sequelize.fn("YEAR", Sequelize.col("fec_pago")),
+          "<",
+          2030
+        ),
+        id: {
+          [Sequelize.Op.not]: 2548,
+        },
+        fec_pago: {
+          [Sequelize.Op.between]: [new Date(fechaInicio), new Date(fechaFin)],
+        },
+      },
+      order: [["fec_pago", "asc"]],
+      attributes: [
+        "id",
+        "moneda",
+        "monto",
+        "fec_pago",
+        "id_tipo_comprobante",
+        "n_comprabante",
+        "impuesto_igv",
+        "impuesto_renta",
+        "n_operacion",
+        "fec_registro",
+        "fec_comprobante",
+        "descripcion",
+        "id_prov",
+      ],
+      include: [
+        {
+          model: Proveedor,
+          attributes: ["razon_social_prov"],
+        },
+        {
+          model: ParametroGastos,
+          attributes: ["nombre_gasto", "grupo", "id_tipoGasto"],
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_banco",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_forma_pago",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_comprobante",
+        },
+      ],
+    });
+    res.status(200).json({
+      reporte: gastos,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(505).json({
+      error: error,
+    });
+  }
+};
 module.exports = {
   getReporteSeguimiento,
-  getReporteEgresos,
   getReporteProgramas,
   getReporteVentasPrograma_COMPARATIVACONMEJORANO,
   getReporteVentasPrograma_EstadoCliente,
   getReporteDeVentasTickets,
   getReporteDeClientesFrecuentes,
   getReporteDeProgramasXsemanas,
+  getReporteDeEgresos,
 };
