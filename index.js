@@ -15,9 +15,6 @@ const env = process.env;
 //Creando el servidor de express
 const app = express();
 
-
-
-
 // app.use(compression());
 // test();
 //Base de datos
@@ -182,10 +179,10 @@ app.use("/api/file", fileServer(urlArchivos));
 app.use("/api/file/logo", fileServer(urlArchivoLogos));
 //Rutas
 // //TODO proveedores // sexo, tipoDoc, estadoCivil, etc
-app.use("/api/proveedor", validarJWT, require("./routes/proveedor.router.js"));
+app.use("/api/proveedor", require("./routes/proveedor.router.js"));
 app.use("/api/producto", validarJWT, require("./routes/producto.route.js"));
 //TODO: JUNTAR LOS DOS EN UNA RUTA
-app.use("/api/egreso", validarJWT, require("./routes/gastos.router.js"));
+app.use("/api/egreso", require("./routes/gastos.router.js"));
 //TODO: programas
 app.use(
   "/api/programaTraining",

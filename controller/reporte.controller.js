@@ -1,7 +1,12 @@
 const { Op, fn, col, literal, QueryTypes, Sequelize } = require("sequelize");
 const { ExtensionMembresia } = require("../models/ExtensionMembresia");
 const { Cliente } = require("../models/Usuarios");
-const { detalleVenta_membresias, Venta } = require("../models/Venta");
+const {
+  detalleVenta_membresias,
+  Venta,
+  detalleVenta_producto,
+  detalleVenta_citas,
+} = require("../models/Venta");
 const {
   ProgramaTraining,
   SemanasTraining,
@@ -12,6 +17,7 @@ const dayjs = require("dayjs");
 const { Proveedor } = require("../models/Proveedor");
 const { ParametroGastos, Gastos } = require("../models/GastosFyV");
 const { Parametros } = require("../models/Parametros");
+const { Aporte } = require("../models/Aportes");
 // Función para sumar días hábiles (lunes y viernes) a una fecha
 function addBusinessDays(startDate, numberOfDays) {
   let currentDate = new Date(startDate);
@@ -893,6 +899,115 @@ const getReporteDeEgresos = async (req = request, res = response) => {
     });
   }
 };
+const getReporteDeUtilidadesTotal = async (req = request, res = response) => {
+  // const { arrayDate } = req.query;
+  const arrayDate = [
+    new Date(new Date().getFullYear(), 0, 1),
+    new Date(new Date().getFullYear(), 2, 1),
+  ];
+  const fechaInicio = arrayDate[0];
+  const fechaFin = arrayDate[1];
+  try {
+    let gastos = await Gastos.findAll({
+      where: {
+        flag: true,
+        [Sequelize.Op.and]: Sequelize.where(
+          Sequelize.fn("YEAR", Sequelize.col("fec_pago")),
+          "<",
+          2030
+        ),
+        id: {
+          [Sequelize.Op.not]: 2548,
+        },
+        fec_pago: {
+          [Sequelize.Op.between]: [new Date(fechaInicio), new Date(fechaFin)],
+        },
+      },
+      order: [["fec_pago", "asc"]],
+      attributes: ["id", "fec_pago", "moneda", "monto"],
+      // include: [
+      //   {
+      //     model: ParametroGastos,
+      //     attributes: ["nombre_gasto", "grupo", "id_tipoGasto"],
+      //   },
+      //   {
+      //     model: Parametros,
+      //     attributes: ["id_param", "label_param"],
+      //     as: "parametro_banco",
+      //   },
+      //   {
+      //     model: Parametros,
+      //     attributes: ["id_param", "label_param"],
+      //     as: "parametro_forma_pago",
+      //   },
+      //   {
+      //     model: Parametros,
+      //     attributes: ["id_param", "label_param"],
+      //     as: "parametro_comprobante",
+      //   },
+      // ],
+    });
+    let aportes = await Aporte.findAll({
+      attributes: ["fecha_aporte", "monto_aporte"],
+      where: {
+        fecha_aporte: {
+          [Sequelize.Op.between]: [new Date(fechaInicio), new Date(fechaFin)],
+        },
+      },
+    });
+    let ventas = await Venta.findAll({
+      attributes: ["id", "fecha_venta"],
+      order: [["id", "DESC"]],
+      where: {
+        fecha_venta: {
+          [Sequelize.Op.between]: [new Date(fechaInicio), new Date(fechaFin)],
+        },
+      },
+      include: [
+        {
+          model: detalleVenta_producto,
+          attributes: [
+            "id_venta",
+            "id_producto",
+            "cantidad",
+            "precio_unitario",
+            "tarifa_monto",
+          ],
+        },
+        {
+          model: detalleVenta_membresias,
+          attributes: [
+            "id_venta",
+            "id_pgm",
+            "id_tarifa",
+            "horario",
+            "id_st",
+            "tarifa_monto",
+          ],
+        },
+        {
+          model: detalleVenta_citas,
+          attributes: ["id_venta", "id_servicio", "tarifa_monto"],
+        },
+      ],
+    });
+
+    // gastos = gastos.reduce((acc, item) => {
+    //   acc += item.monto * item.tarifa_monto;
+    //   return acc;
+    // }, 0);
+
+    res.status(200).json({
+      msg: "success",
+      utilidades: [ventas, aportes, gastos],
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(505).json({
+      error: error,
+    });
+  }
+};
 module.exports = {
   getReporteSeguimiento,
   getReporteProgramas,
@@ -902,4 +1017,5 @@ module.exports = {
   getReporteDeClientesFrecuentes,
   getReporteDeProgramasXsemanas,
   getReporteDeEgresos,
+  getReporteDeUtilidadesTotal,
 };

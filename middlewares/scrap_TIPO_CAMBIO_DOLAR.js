@@ -2,9 +2,7 @@ const dayjs = require("dayjs");
 const { default: puppeteer } = require("puppeteer");
 
 const URL = "https://e-consulta.sunat.gob.pe/cl-at-ittipcam/tcS01Alias";
-const proxyURL = "gw.dataimpulse.com:823";
-const username = "254f3ddffbe380c876c2";
-const password = "5761be9e9c8a7a22";
+
 const extraerTipoCambioDeSUNAT_FECHA_ACTUAL = async () => {
   const browser = await puppeteer.launch({
     headless: true,
