@@ -10,6 +10,12 @@ const postGasto = async (req = request, res = response) => {
     await gasto.save();
     res.status(200).json({
       msg: "success",
+      toast: {
+        severity: "success",
+        summary: "Guardar gasto en bd",
+        detail: "Gasto agregado correctamente",
+        label: "success",
+      },
       gasto,
     });
   } catch (error) {

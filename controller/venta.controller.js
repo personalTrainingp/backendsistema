@@ -17,6 +17,7 @@ const {
   TarifaTraining,
 } = require("../models/ProgramaTraining");
 const { HorarioProgramaPT } = require("../models/HorarioProgramaPT");
+const { Parametros } = require("../models/Parametros");
 
 const postVenta = async (req = request, res = response) => {
   // const {} = req.body;
@@ -66,6 +67,7 @@ const postVenta = async (req = request, res = response) => {
       error: `Venta creada con exito`,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       error: `Error en el servidor, en controller de postVenta, hable con el administrador: ${error}`,
     });
@@ -289,7 +291,38 @@ const get_VENTA_ID = async (req = request, res = response) => {
         },
         {
           model: detalleVenta_pagoVenta,
-          attributes: ["id_venta", "parcial_monto"],
+          attributes: [
+            "fecha_pago",
+            "id_forma_pago",
+            "id_tipo_tarjeta",
+            "id_tarjeta",
+            "id_banco",
+            "parcial_monto",
+            "n_operacion",
+            "observacion",
+          ],
+          include: [
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_banco",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_forma_pago",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_tipo_tarjeta",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_tarjeta",
+            },
+          ],
         },
       ],
     });

@@ -12,14 +12,13 @@ const uploadBlob = async (req = request, res = response) => {
     const extension = extname(originalname);
     const name = originalname.split(extension)[0];
     // console.log(extname(originalname), originalname.split(extname(originalname))[0]);
+    const name_image = `${name}-${Date.now()}${extension}`;
     const containerClient = blobService.getContainerClient(container);
-    await containerClient
-      .getBlockBlobClient(`${name}-${Date.now()}${extension}`)
-      .uploadData(buffer);
+    await containerClient.getBlockBlobClient(name_image).uploadData(buffer);
 
     const img = new ImagePT({
       uid_location: uid_location,
-      name_image: name,
+      name_image: name_image,
       extension_image: extension,
       clasificacion_image: container,
       size_image: req.file.size,

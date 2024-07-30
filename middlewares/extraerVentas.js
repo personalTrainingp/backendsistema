@@ -50,14 +50,12 @@ const extraerVentaMembresia = (req, res, next) => {
       id_pgm: Pgm.id_pgm,
       id_tarifa: Pgm.id_tt,
       id_st: Pgm.id_st,
-      tarifa_monto: Pgm.tarifa,
       horario: Pgm.time_h,
-      cong: Pgm.cong,
+      tarifa_monto: Pgm.tarifa,
       semanas: Pgm.semanas,
       name_pgm: Pgm.name_pgm,
       fec_fin_mem: Pgm.fechaFinal,
       fec_inicio_mem: Pgm.fechaInicio_programa,
-      nutric: Pgm.nutric,
     };
   });
   req.ventaProgramas = membresia;
@@ -70,8 +68,10 @@ const extraerVentaSuplementos = (req, res, next) => {
 };
 const extraerProductos = (req, res, next) => {
   if (
-    req.body.dataVenta.detalle_venta_suplementos ||
-    req.body.dataVenta.detalle_venta_accesorio
+    !(
+      req.body.dataVenta.detalle_venta_suplementos ||
+      req.body.dataVenta.detalle_venta_accesorio
+    )
   ) {
     return next();
   }
@@ -95,6 +95,18 @@ const extraerCitas = (req, res, next) => {
   next();
 };
 const postNewVenta = async (req, res, next) => {
+  try {
+    const venta = new Venta(req.detalle_cli);
+    await venta.save();
+    req.ventaID = venta.id;
+    next();
+  } catch (error) {
+    res.status(500).json({
+      error: `Error en el servidor, en controller de postNewVenta, hable con el administrador: ${error}`,
+    });
+  }
+};
+const postVentaFormaPago = async (req, res, next) => {
   try {
     const venta = new Venta(req.detalle_cli);
     await venta.save();
@@ -400,13 +412,13 @@ const extraerPagos = async (req = request, res = response, next) => {
   const pagosExtraidos = req.body.datos_pagos.map((e) => {
     return {
       id_forma_pago: e.id_forma_pago,
+      fecha_pago: e.fecha_pago,
+      id_banco: e.id_banco,
       id_tipo_tarjeta: e.id_tipo_tarjeta,
       id_tarjeta: e.id_tarjeta,
-      id_banco: e.id_banco,
-      fecha_pago: e.fecha_pago,
-      parcial_monto: e.monto_pago,
       n_operacion: e.n_operacion,
       observacion: e.observacion_pago,
+      parcial_monto: e.monto_pago,
     };
   });
   req.pagosExtraidos = pagosExtraidos;
@@ -422,4 +434,5 @@ module.exports = {
   extraerProductos,
   extraerCitas,
   postNewVenta,
+  postVentaFormaPago,
 };

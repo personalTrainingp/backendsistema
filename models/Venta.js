@@ -3,6 +3,7 @@ const { DataTypes } = require("sequelize");
 const { db } = require("../database/sequelizeConnection");
 const { Cliente, Empleado } = require("./Usuarios");
 const { ProgramaTraining, SemanasTraining } = require("./ProgramaTraining");
+const { Parametros } = require("./Parametros");
 
 const Venta = db.define("tb_venta", {
   id: {
@@ -46,7 +47,7 @@ const detalleVenta_membresias = db.define("detalle_ventaMembresia", {
     type: DataTypes.INTEGER,
   },
   fec_inicio_mem: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING(12),
   },
   fec_fin_mem: {
     type: DataTypes.STRING(12),
@@ -153,6 +154,27 @@ const detalleVenta_pagoVenta = db.define("detalleVenta_pagoVenta", {
   parcial_monto: {
     type: DataTypes.DECIMAL(10, 2),
   },
+});
+
+detalleVenta_pagoVenta.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_forma_pago",
+  as: "parametro_forma_pago",
+});
+detalleVenta_pagoVenta.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_banco",
+  as: "parametro_banco",
+});
+detalleVenta_pagoVenta.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_tipo_tarjeta",
+  as: "parametro_tipo_tarjeta",
+});
+detalleVenta_pagoVenta.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_tarjeta",
+  as: "parametro_tarjeta",
 });
 
 detalleVenta_membresias.hasOne(ProgramaTraining, {

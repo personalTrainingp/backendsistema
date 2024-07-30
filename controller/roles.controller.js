@@ -422,10 +422,9 @@ const seccionGET = async (req = request, res = response) => {
     });
   }
 };
-const moduleGET = async (req = response, res = response) => {
+const moduleGET = async (req = request, res = response) => {
   try {
-    const { uid } = req;
-    console.log(uid, "en modulo");
+    const { uid } = req.params;
     const usuario = await Usuario.findOne({ where: { uid: uid } });
     // const { rol } = req.body;
     let MODULOS_ITEMS = [];

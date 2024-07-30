@@ -1,23 +1,56 @@
 const { DataTypes } = require("sequelize");
 const { db } = require("../database/sequelizeConnection");
 
+const ModuloItem = db.define("tb_moduloItem", {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  name: {
+    type: DataTypes.INTEGER,
+  },
+  path: {
+    type: DataTypes.INTEGER,
+  },
+  key: {
+    type: DataTypes.INTEGER,
+  },
+  flag: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+});
+
 const SeccionItem = db.define("tb_seccionItem", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  url_SI: {
+  url: {
     type: DataTypes.INTEGER,
   },
-  key_SI: {
-    type: DataTypes.STRING,
+  key: {
+    type: DataTypes.INTEGER,
   },
-  isTitle_SI: {
+  isTitle: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
-  icon_SI: {
+  parentKey: {
+    type: DataTypes.INTEGER,
+  },
+  icon: {
+    type: DataTypes.INTEGER,
+  },
+  children_1: {
+    type: DataTypes.INTEGER,
+  },
+  children_2: {
+    type: DataTypes.INTEGER,
+  },
+  children_3: {
     type: DataTypes.INTEGER,
   },
   flag: {
@@ -60,6 +93,17 @@ const rolesvsModulos = db.define("tb_modulo_vs_seccion", {
   },
 });
 
+ModuloItem.sync()
+  .then(() => {
+    console.log("La tabla ModuloItem ha sido creada o ya existe.");
+  })
+  .catch((error) => {
+    console.error(
+      "Error al sincronizar el modelo con la base de datos: ModuloItem",
+      error
+    );
+  });
+
 rolesvsModulos
   .sync()
   .then(() => {
@@ -67,7 +111,7 @@ rolesvsModulos
   })
   .catch((error) => {
     console.error(
-      "Error al sincronizar el modelo con la base de datos: Proveedor",
+      "Error al sincronizar el modelo con la base de datos: rolesvsModulos",
       error
     );
   });
@@ -78,18 +122,18 @@ ModulosVSseccion.sync()
   })
   .catch((error) => {
     console.error(
-      "Error al sincronizar el modelo con la base de datos: Proveedor",
+      "Error al sincronizar el modelo con la base de datos: ModulosVSseccion",
       error
     );
   });
 
-SeccionItem.sync()
+SeccionItem.drop()
   .then(() => {
     console.log("La tabla SeccionItem ha sido creada o ya existe.");
   })
   .catch((error) => {
     console.error(
-      "Error al sincronizar el modelo con la base de datos: Proveedor",
+      "Error al sincronizar el modelo con la base de datos: SeccionItem",
       error
     );
   });
