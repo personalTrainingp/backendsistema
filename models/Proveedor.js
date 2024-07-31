@@ -15,6 +15,15 @@ const Proveedor = db.define(
     ruc_prov: {
       type: DataTypes.STRING(30),
     },
+    id_tarjeta: {
+      type: DataTypes.INTEGER,
+    },
+    n_cuenta: {
+      type: DataTypes.STRING(50),
+    },
+    cci: {
+      type: DataTypes.STRING(50),
+    },
     razon_social_prov: {
       type: DataTypes.STRING(150),
     },

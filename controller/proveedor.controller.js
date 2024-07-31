@@ -11,7 +11,6 @@ ip_user: '127.0.0.1',
 */
 const getTBProveedores = async (req = request, res = response) => {
   try {
-    console.log(req);
     const proveedores = await Proveedor.findAll({
       order: [["id", "desc"]],
       attributes: [
@@ -48,6 +47,9 @@ const PostProveedores = async (req, res, next) => {
     nombre_vend_prov,
     cel_vend_prov,
     email_vend_prov,
+    id_tarjeta,
+    n_cuenta,
+    cci,
   } = req.body;
   try {
     const proveedor = new Proveedor({
@@ -63,6 +65,9 @@ const PostProveedores = async (req, res, next) => {
       nombre_vend_prov,
       cel_vend_prov,
       email_vend_prov,
+      cci,
+      n_cuenta,
+      id_tarjeta,
     });
     await proveedor.save();
     let formAUDIT = {
