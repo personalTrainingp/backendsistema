@@ -37,19 +37,33 @@ const FormaPago = db.define("tb_Forma_pago", {
   },
 });
 
-FormaPago.belongsTo(Parametros, {
-  foreignKey: "id_forma_pago",
+/*
+Gastos.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_tipo_comprobante",
+  as: "parametro_comprobante",
+});
+*/
+FormaPago.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_forma_pago",
   as: "FormaPagoLabel",
 });
-FormaPago.belongsTo(Parametros, {
-  foreignKey: "id_tipo_tarjeta",
+FormaPago.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_tipo_tarjeta",
   as: "TipoTarjetaLabel",
 });
-FormaPago.belongsTo(Parametros, {
-  foreignKey: "id_tarjeta",
+FormaPago.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_tarjeta",
   as: "TarjetaLabel",
 });
-FormaPago.belongsTo(Parametros, { foreignKey: "id_banco", as: "BancoLabel" });
+FormaPago.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_banco",
+  as: "BancoLabel",
+});
 
 FormaPago.sync()
   .then(() => {

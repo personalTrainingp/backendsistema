@@ -200,6 +200,7 @@ const getParametrosporCliente = async (req, res) => {
           "label",
         ],
         "email_cli",
+        "tipoCli_cli",
       ],
       // include: [
       //   {
@@ -437,11 +438,11 @@ const getParametrosFormaPago = async (req = request, res = response) => {
       const tarjetaLabel = item.TarjetaLabel
         ? item.TarjetaLabel.label_param
         : null;
-      const formattedLabel = `${formaPagoLabel ? `${formaPagoLabel}` : ""}${
-        bancoLabel ? `/${bancoLabel}` : ""
-      }${tipoTarjetaLabel ? `/${tipoTarjetaLabel}` : ""}${
-        tarjetaLabel ? `/${tarjetaLabel}` : ""
-      }`;
+      const formattedLabel = `FORMA DE PAGO: ${
+        formaPagoLabel ? `${formaPagoLabel}` : ""
+      }${bancoLabel ? ` | BANCO: ${bancoLabel} ` : ""}${
+        tipoTarjetaLabel ? `| ${tipoTarjetaLabel}` : ""
+      }${tarjetaLabel ? ` - ${tarjetaLabel}` : ""}`;
       return {
         value: item.id,
         label: formattedLabel,
@@ -519,6 +520,7 @@ const getProgramasActivos = async (req = request, res = response) => {
 };
 const getLogicaEstadoMembresia = async (req = request, res = response) => {
   const { id_cli } = req.params;
+  console.log(id_cli);
   try {
     const ultimaMembresiaPorCliente = await Venta.findOne({
       where: {

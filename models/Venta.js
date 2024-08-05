@@ -61,6 +61,9 @@ const detalleVenta_membresias = db.define("detalle_ventaMembresia", {
   id_st: {
     type: DataTypes.INTEGER,
   },
+  uid_firma: {
+    type: DataTypes.STRING(255),
+  },
   horario: {
     type: DataTypes.TIME,
   },

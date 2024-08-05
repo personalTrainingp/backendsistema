@@ -18,6 +18,7 @@ const {
 } = require("../models/ProgramaTraining");
 const { HorarioProgramaPT } = require("../models/HorarioProgramaPT");
 const { Parametros } = require("../models/Parametros");
+const { v4 } = require("uuid");
 
 const postVenta = async (req = request, res = response) => {
   // const {} = req.body;
@@ -25,6 +26,7 @@ const postVenta = async (req = request, res = response) => {
   // console.log(req.ventaProgramas);
   // if(req.ventaProgramas)
   // Venta(req.body);
+  const uid_firma = v4();
   try {
     if (req.productos && req.productos.length > 0) {
       const ventasProductosConIdVenta = await req.productos.map((producto) => ({
@@ -42,6 +44,7 @@ const postVenta = async (req = request, res = response) => {
       const ventasMembresiasConIdVenta = await req.ventaProgramas.map(
         (mem) => ({
           id_venta: req.ventaID,
+          uid_firma: uid_firma,
           ...mem,
         })
       );
@@ -64,7 +67,8 @@ const postVenta = async (req = request, res = response) => {
       await detalleVenta_pagoVenta.bulkCreate(pagosVentasConIdVenta);
     }
     res.status(200).json({
-      error: `Venta creada con exito`,
+      msg: `Venta creada con exito`,
+      uid_firma,
     });
   } catch (error) {
     console.log(error);

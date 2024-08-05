@@ -11,6 +11,7 @@ const postAporte = async (req = request, res = response) => {
     monto_aporte,
     id_forma_pago,
     id_banco,
+    n_operacion,
     fec_comprobante,
     id_tipo_comprobante,
     n_comprobante,
@@ -22,6 +23,7 @@ const postAporte = async (req = request, res = response) => {
       fecha_aporte,
       moneda,
       monto_aporte,
+      n_operacion,
       id_forma_pago,
       id_banco,
       fec_comprobante,
@@ -46,6 +48,8 @@ const getTBAportes = async (req = request, res = response) => {
         "fecha_aporte",
         "moneda",
         "monto_aporte",
+        "fec_comprobante",
+        "observacion",
       ],
       include: [
         {
@@ -64,7 +68,6 @@ const getTBAportes = async (req = request, res = response) => {
 const getAportePorID = async (req = request, res = response) => {
   try {
     const { id } = req.params;
-    console.log("estoy aca");
     if (!id) {
       return res.status(404).json({
         ok: false,

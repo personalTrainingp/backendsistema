@@ -73,9 +73,7 @@ const Aporte = db.define("tb_aportes", {
   },
 });
 
-Inversionista.hasMany(Aporte, { foreignKey: "id_inversionista" });
 Aporte.belongsTo(Inversionista, { foreignKey: "id_inversionista" });
-
 
 /*
 

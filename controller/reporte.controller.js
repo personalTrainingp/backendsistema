@@ -1,11 +1,12 @@
 const { Op, fn, col, literal, QueryTypes, Sequelize } = require("sequelize");
 const { ExtensionMembresia } = require("../models/ExtensionMembresia");
-const { Cliente } = require("../models/Usuarios");
+const { Cliente, Empleado } = require("../models/Usuarios");
 const {
   detalleVenta_membresias,
   Venta,
   detalleVenta_producto,
   detalleVenta_citas,
+  detalleVenta_pagoVenta,
 } = require("../models/Venta");
 const {
   ProgramaTraining,
@@ -18,6 +19,9 @@ const { Proveedor } = require("../models/Proveedor");
 const { ParametroGastos, Gastos } = require("../models/GastosFyV");
 const { Parametros } = require("../models/Parametros");
 const { Aporte } = require("../models/Aportes");
+const { ImagePT } = require("../models/Image");
+const { Producto } = require("../models/Producto");
+const { Servicios } = require("../models/Servicios");
 // Función para sumar días hábiles (lunes y viernes) a una fecha
 function addBusinessDays(startDate, numberOfDays) {
   let currentDate = new Date(startDate);
@@ -64,6 +68,7 @@ const getReporteSeguimiento = async (req, res) => {
   try {
     let membresias = await detalleVenta_membresias.findAll({
       attributes: ["id", "fec_inicio_mem", "fec_fin_mem"],
+      limit: 20,
       order: [["id", "DESC"]],
       include: [
         {
@@ -102,12 +107,16 @@ const getReporteSeguimiento = async (req, res) => {
         {
           model: ProgramaTraining,
           attributes: ["id_pgm", "name_pgm"],
-          raw: true,
+          include: [
+            {
+              model: ImagePT,
+              attributes: ["name_image", "id"],
+            },
+          ],
         },
         {
           model: SemanasTraining,
           attributes: ["id_st", "semanas_st"],
-          raw: true,
         },
       ],
     });
@@ -1008,6 +1017,236 @@ const getReporteDeUtilidadesTotal = async (req = request, res = response) => {
     });
   }
 };
+const getReporteDeTotalDeVentas_ClientesVendedores = async (
+  req = request,
+  res = response
+) => {
+  const { arrayDate } = req.query;
+  const fechaInicio = arrayDate[0];
+  const fechaFin = arrayDate[1];
+  try {
+    const TotalventasPorClientesYVendedores = await Venta.findAll({
+      where: {
+        flag: true,
+        fecha_venta: {
+          [Sequelize.Op.between]: [new Date(fechaInicio), new Date(fechaFin)],
+        },
+      },
+      order: [["fecha_venta", "desc"]],
+      attributes: ["id", "id_cli", "id_empl"],
+      include: [
+        {
+          model: Cliente,
+          attributes: [
+            "id_cli",
+            [
+              Sequelize.literal(
+                "CONCAT(nombre_cli, ' ', apPaterno_cli, ' ', apMaterno_cli)"
+              ),
+              "nombres_apellidos_clientes",
+            ],
+            "tipoCli_cli",
+          ],
+        },
+        {
+          model: Empleado,
+          attributes: [
+            "id_empl",
+            [
+              Sequelize.literal(
+                "CONCAT(nombre_empl, ' ', apPaterno_empl, ' ', apMaterno_empl)"
+              ),
+              "nombres_apellidos_clientes",
+            ],
+          ],
+        },
+      ],
+    });
+    res.status(200).json({
+      reporte: TotalventasPorClientesYVendedores,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(505).json({
+      error: error,
+    });
+  }
+};
+const getReporteVentas = async (req = request, res = response) => {
+  const { arrayDate } = req.query;
+  const fechaInicio = arrayDate[0];
+  const fechaFin = arrayDate[1];
+  try {
+    const ventas = await Venta.findAll({
+      attributes: [
+        "id",
+        "id_cli",
+        "id_empl",
+        "id_tipoFactura",
+        "numero_transac",
+        "fecha_venta",
+      ],
+      where: {
+        fecha_venta: {
+          [Sequelize.Op.between]: [new Date(fechaInicio), new Date(fechaFin)],
+        },
+      },
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: Cliente,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_cli"),
+                " ",
+                Sequelize.col("apPaterno_cli"),
+                " ",
+                Sequelize.col("apMaterno_cli")
+              ),
+              "nombres_apellidos_cli",
+            ],
+          ],
+        },
+        {
+          model: Empleado,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_empl"),
+                " ",
+                Sequelize.col("apPaterno_empl"),
+                " ",
+                Sequelize.col("apMaterno_empl")
+              ),
+              "nombres_apellidos_empl",
+            ],
+          ],
+        },
+        {
+          model: detalleVenta_producto,
+          attributes: [
+            "id_venta",
+            "id_producto",
+            "cantidad",
+            "precio_unitario",
+            "tarifa_monto",
+          ],
+          include: [
+            {
+              model: Producto,
+              attributes: ["id", "id_categoria"],
+            },
+          ],
+        },
+        {
+          model: detalleVenta_membresias,
+          attributes: [
+            "id_venta",
+            "id_pgm",
+            "id_tarifa",
+            "horario",
+            "id_st",
+            "tarifa_monto",
+          ],
+        },
+        {
+          model: detalleVenta_citas,
+          attributes: ["id_venta", "id_servicio", "tarifa_monto"],
+          include: [
+            {
+              model: Servicios,
+              attributes: ["id", "tipo_servicio"],
+            },
+          ],
+        },
+        {
+          model: detalleVenta_pagoVenta,
+          attributes: ["id_venta", "parcial_monto"],
+        },
+      ],
+    });
+    res.status(200).json({
+      ok: true,
+      reporte: ventas,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: `Error en el servidor, en controller de get_VENTAS, hable con el administrador: ${error}`,
+    });
+  }
+};
+const getReporteFormasDePago = async (req = request, res = response) => {
+  const { arrayDate } = req.query;
+  const fechaInicio = arrayDate[0];
+  const fechaFin = arrayDate[1];
+  try {
+    const ventasxFormasPago = await Venta.findAll({
+      attributes: [
+        "id",
+        "id_cli",
+        "id_empl",
+        "id_tipoFactura",
+        "numero_transac",
+        "fecha_venta",
+      ],
+      where: {
+        fecha_venta: {
+          [Sequelize.Op.between]: [new Date(fechaInicio), new Date(fechaFin)],
+        },
+      },
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: detalleVenta_pagoVenta,
+          attributes: [
+            "fecha_pago",
+            "id_forma_pago",
+            "id_tipo_tarjeta",
+            "id_tarjeta",
+            "id_banco",
+            "parcial_monto",
+            "n_operacion",
+            "observacion",
+          ],
+          include: [
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_banco",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_forma_pago",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_tipo_tarjeta",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_tarjeta",
+            },
+          ],
+        },
+      ],
+    });
+
+    res.status(200).json({
+      ok: true,
+      reporte: ventasxFormasPago,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: `Error en el servidor, en controller de get_VENTAS, hable con el administrador: ${error}`,
+    });
+  }
+};
 module.exports = {
   getReporteSeguimiento,
   getReporteProgramas,
@@ -1018,4 +1257,7 @@ module.exports = {
   getReporteDeProgramasXsemanas,
   getReporteDeEgresos,
   getReporteDeUtilidadesTotal,
+  getReporteDeTotalDeVentas_ClientesVendedores,
+  getReporteVentas,
+  getReporteFormasDePago,
 };

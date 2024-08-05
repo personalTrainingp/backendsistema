@@ -142,6 +142,7 @@ const checkMembresiaShips = () => {
 const allowedOrigins = [
   "https://personaltraining-sigma.vercel.app",
   "http://localhost:5173",
+  "http://localhost:5174",
 ];
 
 //CORS
@@ -186,15 +187,19 @@ app.use("/api/egreso", require("./routes/gastos.router.js"));
 //TODO: programas
 app.use(
   "/api/programaTraining",
-  validarJWT,
+  // validarJWT,
   require("./routes/programaTraining.route.js")
 );
 //TODO: PARAMETROS TODO TIPO(SEXO, TIPO DOC, NACIONALIDAD, TIPOCLIENTE, REFERENCIA DE CONTACTO, ETC)
-app.use("/api/parametros", validarJWT, require("./routes/parametros.route.js"));
+app.use("/api/parametros", require("./routes/parametros.route.js"));
 //TODO: USUARIOS(CLIENTES, COLABORADORES, USUARIOS LOGEADOS)
 app.use("/api/usuario", require("./routes/usuario.route.js"));
 
 app.use("/api/servicios", validarJWT, require("./routes/servicios.router.js"));
+app.use(
+  "/api/extension-membresia",
+  require("./routes/extension_mem.router.js")
+);
 
 app.use("/api/meta", validarJWT, require("./routes/meta.route.js"));
 app.use("/api/impuestos", validarJWT, require("./routes/impuestos.router.js"));
@@ -205,7 +210,11 @@ app.use("/api/reporte", require("./routes/reporte.router.js"));
 app.use("/api/comision", validarJWT, require("./routes/comision.router.js"));
 
 //TODO: FORMA PAGO
-app.use("/api/formPago", validarJWT, require("./routes/formaPago.router.js"));
+app.use(
+  "/api/formaPago",
+  // validarJWT,
+  require("./routes/formaPago.router.js")
+);
 app.use("/api/rol", validarJWT, require("./routes/roles.router.js"));
 app.use("/api/venta", validarJWT, require("./routes/venta.router.js"));
 app.use(

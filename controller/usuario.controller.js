@@ -148,72 +148,72 @@ const getUsuarioCliente = async (req = request, res = response) => {
     const cliente = await Cliente.findOne({
       where: { flag: true, uid: uid_cliente },
       include: [
-        // {
-        //   model: Venta,
-        //   include: [
-        //     {
-        //       model: detalleVenta_membresias,
-        //       attributes: [
-        //         "fec_inicio_mem",
-        //         "fec_fin_mem",
-        //         "id_pgm",
-        //         "id_st",
-        //         "id_tarifa",
-        //         "tarifa_monto",
-        //       ],
-        //       include: [
-        //         {
-        //           model: ProgramaTraining,
-        //           attributes: ["name_pgm"],
-        //         },
-        //         {
-        //           model: SemanasTraining,
-        //           attributes: ["semanas_st"],
-        //         },
-        //       ],
-        //       required: true,
-        //     },
-        //     {
-        //       model: detalleVenta_producto,
-        //       attributes: [
-        //         "id_venta",
-        //         "id_producto",
-        //         "cantidad",
-        //         "precio_unitario",
-        //         "tarifa_monto",
-        //       ],
-        //       include: [
-        //         {
-        //           model: Producto,
-        //           attributes: ["id", "nombre_producto", "id_categoria"],
-        //         },
-        //       ],
-        //     },
-        //   ],
-        // },
-        // {
-        //   model: Venta,
-        //   include: [
-        //     {
-        //       model: Empleado,
-        //       attributes: ["nombre_emp", "apPaterno_emp", "apMaterno_emp"],
-        //     },
-        //     {
-        //       model: detalleVenta_membresias,
-        //       // attributes: [
-        //       // ]
-        //     },
-        //     {
-        //       model: detalleVenta_citas,
-        //     },
-        //     {
-        //       model: detalleVenta_producto,
-        //     },
-        //     {
-        //       model: detalleVenta_pagoVenta
-        //     }
-        //   ],
-        // },
+        {
+          model: Venta,
+          include: [
+            {
+              model: detalleVenta_membresias,
+              attributes: [
+                "fec_inicio_mem",
+                "fec_fin_mem",
+                "id_pgm",
+                "id_st",
+                "id_tarifa",
+                "tarifa_monto",
+              ],
+              include: [
+                {
+                  model: ProgramaTraining,
+                  attributes: ["name_pgm"],
+                },
+                {
+                  model: SemanasTraining,
+                  attributes: ["semanas_st"],
+                },
+              ],
+              required: true,
+            },
+            {
+              model: detalleVenta_producto,
+              attributes: [
+                "id_venta",
+                "id_producto",
+                "cantidad",
+                "precio_unitario",
+                "tarifa_monto",
+              ],
+              include: [
+                {
+                  model: Producto,
+                  attributes: ["id", "nombre_producto", "id_categoria"],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          model: Venta,
+          include: [
+            {
+              model: Empleado,
+              attributes: ["nombre_empl", "apPaterno_empl", "apMaterno_empl"],
+            },
+            {
+              model: detalleVenta_membresias,
+              // attributes: [
+              // ]
+            },
+            {
+              model: detalleVenta_citas,
+            },
+            {
+              model: detalleVenta_producto,
+            },
+            {
+              model: detalleVenta_pagoVenta,
+            },
+          ],
+        },
       ],
     });
     res.status(200).json({
