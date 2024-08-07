@@ -8,10 +8,10 @@ const {
   getCitasxServicios,
 } = require("../controller/cita.controller.js");
 const { mailNutricion } = require("../middlewares/mails.js");
-const {
-  verifyWhatsAppNumber,
-  WspCitasServicio,
-} = require("../middlewares/WspMessageStore.js");
+// const {
+//   verifyWhatsAppNumber,
+//   WspCitasServicio,
+// } = require("../middlewares/WspMessageStore.js");
 const router = Router();
 /*
 /api/cita
@@ -19,9 +19,9 @@ const router = Router();
 
 router.get("/get-citas/:tipo_serv", getCitasxServicios);
 router.post(
-  "/post-cita",
-  verifyWhatsAppNumber,
-  WspCitasServicio
+  "/post-cita"
+  // verifyWhatsAppNumber,
+  // WspCitasServicio
   // mailNutricion,
   // postCita
 );
