@@ -7,7 +7,6 @@ const { db } = require("./database/sequelizeConnection.js");
 const { ImagePT } = require("./models/Image.js");
 const transporterU = require("./config/nodemailer.js");
 const { validarJWT } = require("./middlewares/validarJWT.js");
-const { clientWSP } = require("./config/whatssap-web.js");
 // const { test } = require("./config/zkteco.js");
 const fileServer = express.static;
 require("dotenv").config();
