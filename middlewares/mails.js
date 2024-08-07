@@ -1,7 +1,7 @@
 const transporterU = require("../config/nodemailer");
 
 const mailNutricion = (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   if (!req.body.email_cli || req.body.email_cli.length <= 0) {
     next();
     return;
@@ -21,7 +21,6 @@ const mailNutricion = (req, res, next) => {
     fec_servicio: fec_servicio,
     hora_servicio: hora_servicio,
   };
-  console.log(EMAIL_INFO);
   // Leer la imagen del sistema de archivos
   const LOGOFONDOAttachment = {
     filename: "logo-con-fondo.jpg",

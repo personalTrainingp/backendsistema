@@ -47,8 +47,8 @@ const extraerTipoCambioDeSUNAT_FECHA_ACTUAL = async () => {
       }
     });
   });
-  const hoy = dayjs().format("DD/MM/YYYY");
-  const resultado = processedData.find((item) => item.fecha === hoy);
+
+  const resultado = processedData[processedData.length - 1];
   return resultado;
 };
 module.exports = {

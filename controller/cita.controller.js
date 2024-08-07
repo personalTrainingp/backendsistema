@@ -122,7 +122,6 @@ const putCita = async (req = request, res = response) => {
 
 const getCitasxServicios = async (req = request, res = response) => {
   const { tipo_serv } = req.params;
-  console.log("tipo_serv", tipo_serv);
   try {
     const citas = await Cita.findAll({
       where: { flag: true },
