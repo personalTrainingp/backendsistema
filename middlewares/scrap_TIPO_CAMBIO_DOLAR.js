@@ -5,14 +5,8 @@ const URL = "https://e-consulta.sunat.gob.pe/cl-at-ittipcam/tcS01Alias";
 
 const extraerTipoCambioDeSUNAT_FECHA_ACTUAL = async () => {
   const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-gpu",
-      "--window-size=1200,800",
-      '--user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"',
-    ],
+    headless: false,
+    // executablePath: "/path/to/your/chrome", // Ajusta esta ruta si es necesario
   });
   const page = await browser.newPage();
 
