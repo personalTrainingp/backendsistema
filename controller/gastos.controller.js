@@ -3,11 +3,20 @@ const { Gastos, ParametroGastos } = require("../models/GastosFyV");
 const { Proveedor } = require("../models/Proveedor");
 const { Sequelize } = require("sequelize");
 const { Parametros } = require("../models/Parametros");
+const { capturarAUDIT } = require("../middlewares/auditoria");
+const { typesCRUD } = require("../types/types");
 
 const postGasto = async (req = request, res = response) => {
   try {
     const gasto = new Gastos(req.body);
     await gasto.save();
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.POST,
+      observacion: `Se registro: El gasto de id ${gasto.id}`,
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json({
       msg: "success",
       gasto,
@@ -156,6 +165,13 @@ const putGasto = async (req = request, res = response) => {
     const { id } = req.params;
     const gasto = await Gastos.findOne({ where: { flag: true, id } });
     await gasto.update(req.body);
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.PUT,
+      observacion: `Se actualizo: El gasto de id ${gasto.id}`,
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json({
       msg: "success",
     });
@@ -170,6 +186,13 @@ const deleteGasto = async (req = request, res = response) => {
     const { id } = req.params;
     const gasto = await Gastos.findByPk(id);
     await gasto.update({ flag: false });
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.DELETE,
+      observacion: `Se elimino: El gasto de id ${gasto.id}`,
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json({
       msg: "success",
     });

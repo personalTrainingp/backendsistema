@@ -37,6 +37,9 @@ const Aporte = db.define("tb_aportes", {
   id_inversionista: {
     type: DataTypes.INTEGER,
   },
+  tipo_aporte: {
+    type: DataTypes.INTEGER,
+  },
   fecha_aporte: {
     type: DataTypes.STRING(90),
   },

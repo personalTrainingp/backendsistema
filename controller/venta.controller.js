@@ -19,6 +19,7 @@ const {
 const { HorarioProgramaPT } = require("../models/HorarioProgramaPT");
 const { Parametros } = require("../models/Parametros");
 const { v4 } = require("uuid");
+const { typesCRUD } = require("../types/types");
 
 const postVenta = async (req = request, res = response) => {
   // const {} = req.body;
@@ -66,6 +67,13 @@ const postVenta = async (req = request, res = response) => {
       }));
       await detalleVenta_pagoVenta.bulkCreate(pagosVentasConIdVenta);
     }
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.POST,
+      observacion: `Se agrego: La venta de id ${req.ventaID}`,
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json({
       msg: `Venta creada con exito`,
       uid_firma,

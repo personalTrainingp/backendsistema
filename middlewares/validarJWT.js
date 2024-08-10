@@ -15,6 +15,7 @@ const validarJWT = (req, res = response, next) => {
       token,
       process.env.SECRET_KEY
     );
+
     // console.log(uid, name, rol_user, ip_user, id_user);
     req.ip_user = ip_user;
     req.uid = uid;

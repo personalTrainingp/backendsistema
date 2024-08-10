@@ -65,10 +65,13 @@ const diasLaborables = (fechaInicio, fechaFin) => {
   return diasLaborables;
 };
 const getReporteSeguimiento = async (req, res) => {
+  const { isClienteActive } = req.query;
+  console.log(isClienteActive);
+
   try {
     let membresias = await detalleVenta_membresias.findAll({
       attributes: ["id", "fec_inicio_mem", "fec_fin_mem"],
-      limit: 20,
+      // limit: 20,
       order: [["id", "DESC"]],
       include: [
         {
@@ -82,12 +85,13 @@ const getReporteSeguimiento = async (req, res) => {
         },
         {
           model: Venta,
-          attributes: ["id"],
+          attributes: ["id", "fecha_venta"],
           raw: true,
           include: [
             {
               model: Cliente,
               attributes: [
+                "id_cli",
                 [
                   Sequelize.fn(
                     "CONCAT",
@@ -120,38 +124,76 @@ const getReporteSeguimiento = async (req, res) => {
         },
       ],
     });
+    const currentDate = new Date();
+    let newMembresias = membresias
+      .map((item) => {
+        const itemJSON = item.toJSON();
+        const tbExtensionMembresia = itemJSON.tb_extension_membresia || [];
 
-    const newMembresias = membresias.map((item) => {
-      const itemJSON = item.toJSON();
-      const tbExtensionMembresia = itemJSON.tb_extension_membresia || [];
+        if (tbExtensionMembresia.length === 0) {
+          // Si tb_extension_membresia está vacío
+          return {
+            ...itemJSON,
+            dias: 0,
+            // diasPorTerminar: diasLaborables(
+            //   new Date(),
+            //   new Date(itemJSON.fec_fin_mem)
+            // ),
+            fec_fin_mem_new: itemJSON.fec_fin_mem, // La nueva fecha es igual a fec_fin_mem
+          };
+        }
+        const totalDiasHabiles = (itemJSON.tb_extension_membresia || []).reduce(
+          (total, ext) => total + parseInt(ext.dias_habiles, 10),
+          0
+        );
 
-      if (tbExtensionMembresia.length === 0) {
-        // Si tb_extension_membresia está vacío
+        // Calcular la nueva fecha sumando los días hábiles a 'fec_fin_mem'
+        const fecFinMem = new Date(itemJSON.fec_fin_mem);
+        const fecFinMemNew = addBusinessDays(fecFinMem, totalDiasHabiles);
         return {
+          dias: totalDiasHabiles,
+          // diasPorTerminar: diasLaborables(new Date(), fecFinMemNew.toISOString()),
+          fec_fin_mem_new: fecFinMemNew.toISOString(), // Ajusta el formato según tus necesidades
           ...itemJSON,
-          dias: 0,
-          // diasPorTerminar: diasLaborables(
-          //   new Date(),
-          //   new Date(itemJSON.fec_fin_mem)
-          // ),
-          fec_fin_mem_new: itemJSON.fec_fin_mem, // La nueva fecha es igual a fec_fin_mem
         };
-      }
-      const totalDiasHabiles = (itemJSON.tb_extension_membresia || []).reduce(
-        (total, ext) => total + parseInt(ext.dias_habiles, 10),
-        0
-      );
+      })
+      .filter((item) => {
+        const fecFinMemNewDate = new Date(item.fec_fin_mem_new);
+        if (isClienteActive === "true") {
+          return fecFinMemNewDate > currentDate;
+        } else if (isClienteActive === "false") {
+          return fecFinMemNewDate < currentDate;
+        }
+        return true; // Sin filtro si isClienteActive no está definido
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.fec_fin_mem_new);
+        const dateB = new Date(b.fec_fin_mem_new);
+        if (isClienteActive === "true") {
+          return dateA - dateB; // Ordenar de menor a mayor
+        } else if (isClienteActive === "false") {
+          return dateB - dateA; // Ordenar de mayor a menor
+        }
+        return 0; // No aplicar orden si isClienteActive no está definido
+      });
+    // Filtrar para mantener solo el objeto con la fecha_venta más reciente para cada cliente
+    const uniqueClientes = new Map();
+    newMembresias.forEach((item) => {
+      const idCli = item.tb_ventum.tb_cliente.id_cli;
+      const currentItem = uniqueClientes.get(idCli);
 
-      // Calcular la nueva fecha sumando los días hábiles a 'fec_fin_mem'
-      const fecFinMem = new Date(itemJSON.fec_fin_mem);
-      const fecFinMemNew = addBusinessDays(fecFinMem, totalDiasHabiles);
-      return {
-        dias: totalDiasHabiles,
-        // diasPorTerminar: diasLaborables(new Date(), fecFinMemNew.toISOString()),
-        fec_fin_mem_new: fecFinMemNew.toISOString(), // Ajusta el formato según tus necesidades
-        ...itemJSON,
-      };
+      if (
+        !currentItem ||
+        new Date(item.tb_ventum.fecha_venta) >
+          new Date(currentItem.tb_ventum.fecha_venta)
+      ) {
+        uniqueClientes.set(idCli, item);
+      }
     });
+
+    newMembresias = Array.from(uniqueClientes.values());
+    console.log(newMembresias);
+
     res.status(200).json({
       newMembresias,
     });

@@ -4,6 +4,8 @@ const uuid = require("uuid");
 const { ExtensionMembresia } = require("../models/ExtensionMembresia");
 const { Usuario } = require("../models/Usuarios");
 const { Sequelize } = require("sequelize");
+const { capturarAUDIT } = require("../middlewares/auditoria");
+const { typesCRUD } = require("../types/types");
 
 const postComentario = async (req, res) => {
   const { uid_usuario, comentario_com, uid_location } = req.body;
@@ -17,6 +19,13 @@ const postComentario = async (req, res) => {
       uid: uuid.v4(),
     });
     await comentario.save();
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.POST,
+      observacion: `Se agrego: El comentario de id ${comentario.id}`,
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json(comentario);
   } catch (error) {
     res.status(500).json({
@@ -81,6 +90,13 @@ const putComentarioxID = async (req = request, res = response) => {
       });
     }
     await comentario.update(req.body);
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.PUT,
+      observacion: `Se actualizo: El comentario de id ${comentario.id}`,
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json({
       msg: "success",
     });
@@ -100,6 +116,13 @@ const deleteComentarioxID = async (req = request, res = response) => {
       });
     }
     await comentario.update({ flag: false });
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.DELETE,
+      observacion: `Se Elimino: El comentario de id ${comentario.id}`,
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json({
       msg: "success",
     });

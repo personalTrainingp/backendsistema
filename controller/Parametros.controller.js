@@ -22,6 +22,12 @@ const {
 const { Servicios } = require("../models/Servicios");
 const { ParametroGastos } = require("../models/GastosFyV");
 const { Inversionista } = require("../models/Aportes");
+const getParametrosTipoAportes = async (req = request, res = response) => {
+  try {
+  } catch (error) {
+    console.log(error);
+  }
+};
 const getParametrosporId = async (req = request, res = response) => {
   const { id_param } = req.params;
   try {
@@ -607,6 +613,7 @@ const getParametrosColaboradoresRegistrados = async (
   }
 };
 module.exports = {
+  getParametrosTipoAportes,
   getParametros,
   postParametros,
   getParametrosporENTIDADyGRUPO,

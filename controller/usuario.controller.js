@@ -52,7 +52,7 @@ const getUsuariosClientexID = async (req = request, res = response) => {
     });
   }
 };
-const postUsuarioCliente = (req = request, res = response) => {
+const postUsuarioCliente = async (req = request, res = response) => {
   const {
     uid_avatar,
     nombre_cli,
@@ -96,7 +96,14 @@ const postUsuarioCliente = (req = request, res = response) => {
       uid_comentario: comentarioUnico_UID,
       uid_contactsEmergencia: contactoEmerg_UID,
     });
-    cliente.save();
+    await cliente.save();
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.POST,
+      observacion: `Se registro: El cliente de id ${cliente.id_cli}`,
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json({
       msg: "success",
       cliente,
@@ -238,7 +245,14 @@ const deleteUsuarioCliente = async (req = request, res = response) => {
         msg: `No existe un cliente con el id "${uid_cliente}"`,
       });
     }
-    clienteDelete.update({ flag: false });
+    await clienteDelete.update({ flag: false });
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.DELETE,
+      observacion: `Se elimino: El cliente de id ${clienteDelete.id_cli}`,
+    };
+    await capturarAUDIT(formAUDIT);
     res.status(200).json({
       msg: "Cliente eliminado",
     });
@@ -252,7 +266,15 @@ const putUsuarioCliente = async (req = request, res = response) => {
   const { uid_cliente } = req.params;
   try {
     const cliente = await Cliente.findOne({ where: { uid: uid_cliente } });
-    cliente.update(req.body);
+    await cliente.update(req.body);
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.PUT,
+      observacion: `Se actualizo: El cliente de id ${cliente.id_cli}`,
+    };
+    await capturarAUDIT(formAUDIT);
+
     res.status(200).json({
       msg: "success",
       cliente,
