@@ -175,6 +175,8 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 app.use("/api/storage/blob", require("./routes/upload/blob.router.js"));
+
+app.use("/api/zk", require("./routes/upload/zk.router"))
 app.use("/api/tipocambio", require("./routes/tipocambio.route.js"));
 //RUTA FILES
 app.use("/api/file", fileServer(urlArchivos));
@@ -192,7 +194,7 @@ app.use(
   require("./routes/programaTraining.route.js")
 );
 //TODO: PARAMETROS TODO TIPO(SEXO, TIPO DOC, NACIONALIDAD, TIPOCLIENTE, REFERENCIA DE CONTACTO, ETC)
-app.use("/api/parametros", validarJWT, require("./routes/parametros.route.js"));
+app.use("/api/parametros", require("./routes/parametros.route.js"));
 //TODO: USUARIOS(CLIENTES, COLABORADORES, USUARIOS LOGEADOS)
 app.use("/api/usuario", require("./routes/usuario.route.js"));
 

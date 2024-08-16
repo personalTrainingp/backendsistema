@@ -37,6 +37,22 @@ const Venta = db.define("tb_venta", {
     defaultValue: true,
   },
 });
+const detalleVenta_transferenciasMembresias = db.define(
+  "detalle_ventatransferencias_membresias",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    id_venta: {
+      type: DataTypes.INTEGER,
+    },
+    tarifa_monto: {
+      type: DataTypes.DECIMAL(10, 2),
+    },
+  }
+);
 const detalleVenta_membresias = db.define("detalle_ventaMembresia", {
   id: {
     type: DataTypes.INTEGER,

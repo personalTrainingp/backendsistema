@@ -20,6 +20,7 @@ const { HorarioProgramaPT } = require("../models/HorarioProgramaPT");
 const { Parametros } = require("../models/Parametros");
 const { v4 } = require("uuid");
 const { typesCRUD } = require("../types/types");
+const { capturarAUDIT } = require("../middlewares/auditoria");
 
 const postVenta = async (req = request, res = response) => {
   // const {} = req.body;

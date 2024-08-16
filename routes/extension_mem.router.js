@@ -12,7 +12,7 @@ const router = Router();
  */
 router.get("/get-extension/:tipo", obtenerExtensionesPorTipo);
 router.put("/get-extension/:id", obtenerExtensionPorId);
-router.post("/get-extension/:tipo/:idventa", postExtensionPorTipoPorId);
+router.post("/post-extension/:tipo/:idventa", postExtensionPorTipoPorId);
 // router.put("/update-extension/:id", putExtension);
 // router.put("/remove-extension/:id", removeExtension);
 

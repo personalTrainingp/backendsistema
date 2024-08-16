@@ -23,6 +23,10 @@ const Comentario = db.define("tb_comentarios", {
   fec_registro: {
     type: DataTypes.DATE,
   },
+  flag: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
 });
 
 Usuario.hasMany(Comentario, {

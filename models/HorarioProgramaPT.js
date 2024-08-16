@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { db } = require("../database/sequelizeConnection");
+const { Empleado } = require("./Usuarios");
 
 const HorarioProgramaPT = db.define(
   "tb_HorarioProgramaPT",
@@ -36,7 +37,14 @@ const HorarioProgramaPT = db.define(
   },
   { tableName: "tb_HorarioProgramaPT" }
 );
-
+Empleado.hasMany(HorarioProgramaPT, {
+  foreignKey: "trainer_HorarioPgm",
+  sourceKey: "id_empl",
+});
+HorarioProgramaPT.belongsTo(Empleado, {
+  foreignKey: "trainer_HorarioPgm",
+  sourceKey: "id_empl",
+});
 // Controlador para actualizar la longitud del campo
 const actualizarLongitudDelCampo = async () => {
   try {

@@ -9,7 +9,6 @@ const { typesCRUD } = require("../types/types");
 
 const postComentario = async (req, res) => {
   const { uid_usuario, comentario_com, uid_location } = req.body;
-  const fec_registro = new Date();
   try {
     const comentario = new Comentario({
       uid_usuario,
@@ -23,7 +22,7 @@ const postComentario = async (req, res) => {
       id_user: req.id_user,
       ip_user: req.ip_user,
       accion: typesCRUD.POST,
-      observacion: `Se agrego: El comentario de id ${comentario.id}`,
+      observacion: `Se agrego: El comentario de id ${comentario.id_comentario}`,
     };
     await capturarAUDIT(formAUDIT);
     res.status(200).json(comentario);
@@ -37,7 +36,7 @@ const getComentarioxLOCATION = async (req = request, res = response) => {
   const { location } = req.params;
   try {
     const comentarios = await Comentario.findAll({
-      where: { uid_location: location },
+      where: { uid_location: location, flag: true },
       attributes: ["fec_registro", "id_comentario", "comentario_com"],
       order: [["fec_registro", "desc"]],
       include: [
@@ -81,12 +80,12 @@ const getComentarioxID = async (req = request, res = response) => {
   }
 };
 const putComentarioxID = async (req = request, res = response) => {
-  const { id } = req.params;
+  const { id_comentario } = req.params;
   try {
-    const comentario = await Comentario.findByPk(id, { flag: true });
+    const comentario = await Comentario.findByPk(id_comentario, { flag: true });
     if (!comentario) {
       return res.status(404).json({
-        msg: `No existe un programa con el id "${id}"`,
+        msg: `No existe un comentario con el id "${id}"`,
       });
     }
     await comentario.update(req.body);
@@ -94,7 +93,7 @@ const putComentarioxID = async (req = request, res = response) => {
       id_user: req.id_user,
       ip_user: req.ip_user,
       accion: typesCRUD.PUT,
-      observacion: `Se actualizo: El comentario de id ${comentario.id}`,
+      observacion: `Se actualizo: El comentario de id ${comentario.id_comentario}`,
     };
     await capturarAUDIT(formAUDIT);
     res.status(200).json({
@@ -107,12 +106,12 @@ const putComentarioxID = async (req = request, res = response) => {
   }
 };
 const deleteComentarioxID = async (req = request, res = response) => {
-  const { id } = req.params;
+  const { id_comentario } = req.params;
   try {
-    const comentario = await Comentario.findByPk(id, { flag: true });
+    const comentario = await Comentario.findByPk(id_comentario, { flag: true });
     if (!comentario) {
       return res.status(404).json({
-        msg: `No existe un programa con el id "${id}"`,
+        msg: `No existe un comentario con el id "${id_comentario}"`,
       });
     }
     await comentario.update({ flag: false });
@@ -120,7 +119,7 @@ const deleteComentarioxID = async (req = request, res = response) => {
       id_user: req.id_user,
       ip_user: req.ip_user,
       accion: typesCRUD.DELETE,
-      observacion: `Se Elimino: El comentario de id ${comentario.id}`,
+      observacion: `Se Elimino: El comentario de id ${comentario.id_comentario}`,
     };
     await capturarAUDIT(formAUDIT);
     res.status(200).json({

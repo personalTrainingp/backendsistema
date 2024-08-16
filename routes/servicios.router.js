@@ -15,8 +15,8 @@ const router = Router();
 router.post("/comentario/post", postComentario);
 router.get(`/comentario/:location`, getComentarioxLOCATION);
 router.get(`/comentario/:id`, getComentarioxID);
-router.put(`/comentario/put/:id`, putComentarioxID);
-router.put(`/comentario/delete/:id`, deleteComentarioxID);
+router.put(`/comentario/put/:id_comentario`, putComentarioxID);
+router.put(`/comentario/delete/:id_comentario`, deleteComentarioxID);
 
 router.post("/contacto-emergencia/post", postCoctactoEmergencia);
 router.post("/extension-congelamiento/post", postExtensionCongelamiento);

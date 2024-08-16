@@ -19,11 +19,11 @@ const router = Router();
 
 router.get("/get-citas/:tipo_serv", getCitasxServicios);
 router.post(
-  "/post-cita"
+  "/post-cita",
   // verifyWhatsAppNumber,
   // WspCitasServicio
   // mailNutricion,
-  // postCita
+  postCita
 );
 router.get("/get-cita/:id", getCitaporID);
 router.put("/put-cita/:id", putCita);

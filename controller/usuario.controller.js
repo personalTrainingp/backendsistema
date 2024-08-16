@@ -19,6 +19,7 @@ const { capturarAUDIT } = require("../middlewares/auditoria");
 const { typesCRUD } = require("../types/types");
 const { Producto } = require("../models/Producto");
 const { Inversionista } = require("../models/Aportes");
+const { Servicios } = require("../models/Servicios");
 
 const getUsuariosClientexID = async (req = request, res = response) => {
   try {
@@ -178,7 +179,22 @@ const getUsuarioCliente = async (req = request, res = response) => {
                   attributes: ["semanas_st"],
                 },
               ],
-              required: true,
+            },
+            {
+              model: Empleado,
+              attributes: ["nombre_empl", "apPaterno_empl", "apMaterno_empl"],
+            },
+            {
+              model: detalleVenta_citas,
+              include: [
+                {
+                  model: Servicios,
+                  attributes: ["tipo_servicio"],
+                },
+              ],
+            },
+            {
+              model: detalleVenta_pagoVenta,
             },
             {
               model: detalleVenta_producto,
@@ -198,29 +214,29 @@ const getUsuarioCliente = async (req = request, res = response) => {
             },
           ],
         },
-        {
-          model: Venta,
-          include: [
-            {
-              model: Empleado,
-              attributes: ["nombre_empl", "apPaterno_empl", "apMaterno_empl"],
-            },
-            {
-              model: detalleVenta_membresias,
-              // attributes: [
-              // ]
-            },
-            {
-              model: detalleVenta_citas,
-            },
-            {
-              model: detalleVenta_producto,
-            },
-            {
-              model: detalleVenta_pagoVenta,
-            },
-          ],
-        },
+        // {
+        //   model: Venta,
+        //   include: [
+        //     {
+        //       model: Empleado,
+        //       attributes: ["nombre_empl", "apPaterno_empl", "apMaterno_empl"],
+        //     },
+        //     {
+        //       model: detalleVenta_membresias,
+        //       // attributes: [
+        //       // ]
+        //     },
+        //     {
+        //       model: detalleVenta_citas,
+        //     },
+        //     {
+        //       model: detalleVenta_producto,
+        //     },
+        //     {
+        //       model: detalleVenta_pagoVenta,
+        //     },
+        //   ],
+        // },
       ],
     });
     res.status(200).json({
@@ -351,6 +367,7 @@ const getUsuarioEmpleados = async (req = request, res = response) => {
     const empleados = await Empleado.findAll({
       attributes: [
         "uid",
+        "id_empl",
         [
           Sequelize.fn(
             "CONCAT",

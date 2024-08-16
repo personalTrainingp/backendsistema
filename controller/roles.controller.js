@@ -72,12 +72,12 @@ const seccionGET = async (req = request, res = response) => {
         },
         {
           key: "cliente",
-          label: "Cliente",
+          label: "SOCIO",
           isTitle: true,
         },
         {
           key: "cliente-admClientes",
-          label: "Administrador de clientes",
+          label: "Gestion de socios",
           isTitle: false,
           icon: "uil-calender",
           url: "/gestion-clientes",
@@ -96,14 +96,14 @@ const seccionGET = async (req = request, res = response) => {
         },
         {
           key: "citas-nutricional",
-          label: "Citas nutricionales",
+          label: "Citas nutricionista",
           isTitle: false,
           icon: "uil-calender",
           url: "/crear-citas-nutricion",
         },
         {
           key: "citas-fitology",
-          label: "Citas Fitology",
+          label: "Citas Tratamientos esteticos",
           isTitle: false,
           icon: "uil-calender",
           url: "/crear-citas-fitology",
@@ -350,12 +350,12 @@ const seccionGET = async (req = request, res = response) => {
         },
         {
           key: "cliente",
-          label: "Cliente",
+          label: "Socio",
           isTitle: true,
         },
         {
           key: "cliente-admClientes",
-          label: "Administrador de clientes",
+          label: "Gestion de socios",
           isTitle: false,
           icon: "uil-calender",
           url: "/gestion-clientes",
@@ -374,14 +374,14 @@ const seccionGET = async (req = request, res = response) => {
         },
         {
           key: "citas-NUT",
-          label: "Citas nutricionales",
+          label: "Citas nutricionista",
           isTitle: false,
           icon: "uil-calender",
           url: "/crear-citas-nutricion",
         },
         {
           key: "citas-FIT",
-          label: "Citas Fitology",
+          label: "tratamientos esteticos",
           isTitle: false,
           icon: "uil-calender",
           url: "/crear-citas-fitology",

@@ -363,7 +363,7 @@ value: 7
                         <td>${EMAIL_INFO.dias_cong}</td>
                     </tr>
                     <tr>
-                        <td class="bold param">Citas nutricionales:</td>
+                        <td class="bold param">Citas nutricionista:</td>
                         <td>${EMAIL_INFO.citas_nut}</td>
                     </tr>
                     <tr>

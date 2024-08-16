@@ -22,6 +22,23 @@ const {
 const { Servicios } = require("../models/Servicios");
 const { ParametroGastos } = require("../models/GastosFyV");
 const { Inversionista } = require("../models/Aportes");
+const { ExtensionMembresia } = require("../models/ExtensionMembresia");
+function addBusinessDays(startDate, numberOfDays) {
+  let currentDate = new Date(startDate);
+  let daysAdded = 0;
+
+  while (daysAdded < numberOfDays) {
+    currentDate.setDate(currentDate.getDate() + 1);
+
+    const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+      // Check if it's Monday to Friday
+      daysAdded++;
+    }
+  }
+
+  return currentDate;
+}
 const getParametrosTipoAportes = async (req = request, res = response) => {
   try {
   } catch (error) {
@@ -63,16 +80,15 @@ const getCitasDisponibleporClient = async (req = request, res = response) => {
   try {
     const { id_cli, tipo_serv } = req.params;
     // Obtener las citas disponibles desde la tabla tb_detallecita
-    const citasDisponibles = await Venta.findAll({
+    const CITASCOMPRADAS = await Venta.findAll({
+      raw: true,
       where: { flag: true, id_cli: id_cli },
-      attributes: [
-        ["id", "value"],
-        ["id_cli", "cliente"],
-      ],
+      attributes: ["id", "id_cli"],
       include: [
         {
           model: detalleVenta_citas,
           attributes: ["cantidad", "id"],
+          required: true,
           include: [
             {
               model: Servicios,
@@ -83,16 +99,44 @@ const getCitasDisponibleporClient = async (req = request, res = response) => {
         },
       ],
     });
-    console.log(citasDisponibles);
+    console.log(tipo_serv);
 
     // Obtener las citas programadas desde la tabla tb_citas
-    const citasProgramadas = await Cita.findAll({
+    const citasYaProgramadas = await Cita.findAll({
       where: { id_cli: id_cli },
       attributes: ["id_detallecita"],
+      raw: true,
     });
 
-    res.status(200).json(citasDisponibles);
+    // Crear un mapa para contar las citas programadas por cada detalleCita
+    // Crear un mapa para contar las citas programadas por cada id_detallecita
+    const citasProgramadasMap = citasYaProgramadas.reduce((acc, cita) => {
+      acc[cita.id_detallecita] = (acc[cita.id_detallecita] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Calcular las citas disponibles
+    // Calcular las citas disponibles y filtrar las que tienen cantidad <= 0
+    const citasDisponibles = CITASCOMPRADAS.map((compra) => {
+      const idDetalleCita = compra["detalle_ventaCitas.id"];
+      const cantidadComprada = compra["detalle_ventaCitas.cantidad"];
+      const cantidadProgramada = citasProgramadasMap[idDetalleCita] || 0;
+      const cantidadDisponible = cantidadComprada - cantidadProgramada;
+
+      if (cantidadDisponible > 0) {
+        return {
+          label: `${compra["detalle_ventaCitas.tb_servicio.nombre_servicio"]} | CANTIDAD: ${cantidadDisponible}`,
+          cantidad: cantidadDisponible,
+          value: idDetalleCita,
+        };
+      }
+    }).filter((cita) => cita);
+    console.log(citasDisponibles);
+
+    res.status(200).json({ citasDisponibles });
   } catch (error) {
+    console.log(error);
+
     res.status(505).json(error);
   }
 };
@@ -261,10 +305,14 @@ const getParametrosEmpleadosxDep = async (req = request, res = response) => {
 const getParametrosLogosProgramas = async (req = request, res = response) => {
   try {
     const logosPgm = await ProgramaTraining.findAll({
+      where: { estado_pgm: true, flag: true },
+
       include: [
         {
           model: ImagePT,
+          where: { flag: true },
           attributes: ["name_image"],
+          required: true,
         },
       ],
       attributes: ["id_pgm", "estado_pgm", "name_pgm"],
@@ -315,6 +363,19 @@ const getParametroHorariosPGM = async (req, res) => {
         ["time_HorarioPgm", "horario"],
         ["aforo_HorarioPgm", "aforo"],
         ["trainer_HorarioPgm", "trainer"],
+      ],
+      include: [
+        {
+          model: Empleado,
+          attributes: [
+            [
+              Sequelize.literal(
+                "CONCAT(nombre_empl, ' ', apPaterno_empl, ' ', apMaterno_empl)"
+              ),
+              "empl_trainer",
+            ],
+          ],
+        },
       ],
     });
     res.status(200).json(horarios);
@@ -476,42 +537,149 @@ const getProgramasActivos = async (req = request, res = response) => {
 const getLogicaEstadoMembresia = async (req = request, res = response) => {
   const { id_cli } = req.params;
   console.log(id_cli);
+
   try {
-    const ultimaMembresiaPorCliente = await Venta.findOne({
-      where: {
-        id_cli: id_cli,
-        flag: true,
-      },
-      order: [["fecha_venta", "DESC"]],
+    let membresias = await detalleVenta_membresias.findAll({
+      attributes: ["id", "fec_inicio_mem", "fec_fin_mem"],
+      // limit: 20,
+      order: [["id", "DESC"]],
       include: [
         {
-          model: detalleVenta_membresias,
+          model: ExtensionMembresia,
           attributes: [
-            "fec_inicio_mem",
-            "fec_fin_mem",
-            "id_pgm",
-            "id_st",
-            "id_tarifa",
-            "tarifa_monto",
+            "tipo_extension",
+            "extension_inicio",
+            "extension_fin",
+            "dias_habiles",
           ],
+        },
+        {
+          model: Venta,
+          attributes: ["id", "fecha_venta"],
+          raw: true,
           include: [
             {
-              model: ProgramaTraining,
-              attributes: ["name_pgm"],
-            },
-            {
-              model: SemanasTraining,
-              attributes: ["semanas_st"],
+              model: Cliente,
+              where: { uid: id_cli },
+              attributes: [
+                "id_cli",
+                [
+                  Sequelize.fn(
+                    "CONCAT",
+                    Sequelize.col("nombre_cli"),
+                    " ",
+                    Sequelize.col("apPaterno_cli"),
+                    " ",
+                    Sequelize.col("apMaterno_cli")
+                  ),
+                  "nombres_apellidos_cli",
+                ],
+                "email_cli",
+              ],
             },
           ],
-          required: true,
+        },
+        {
+          model: ProgramaTraining,
+          attributes: ["id_pgm", "name_pgm"],
+          include: [
+            {
+              model: ImagePT,
+              attributes: ["name_image", "id"],
+            },
+          ],
+        },
+        {
+          model: SemanasTraining,
+          attributes: ["id_st", "semanas_st"],
         },
       ],
     });
-    res.status(200).json(ultimaMembresiaPorCliente);
+    const currentDate = new Date();
+    let newMembresias = membresias.map((item) => {
+      const itemJSON = item.toJSON();
+      const tbExtensionMembresia = itemJSON.tb_extension_membresia || [];
+
+      if (tbExtensionMembresia.length === 0) {
+        // Si tb_extension_membresia está vacío
+        return {
+          ...itemJSON,
+          dias: 0,
+          // diasPorTerminar: diasLaborables(
+          //   new Date(),
+          //   new Date(itemJSON.fec_fin_mem)
+          // ),
+          fec_fin_mem_new: itemJSON.fec_fin_mem, // La nueva fecha es igual a fec_fin_mem
+        };
+      }
+      const totalDiasHabiles = (itemJSON.tb_extension_membresia || []).reduce(
+        (total, ext) => total + parseInt(ext.dias_habiles, 10),
+        0
+      );
+
+      // Calcular la nueva fecha sumando los días hábiles a 'fec_fin_mem'
+      const fecFinMem = new Date(itemJSON.fec_fin_mem);
+      const fecFinMemNew = addBusinessDays(fecFinMem, totalDiasHabiles);
+
+      return {
+        dias: totalDiasHabiles,
+        // diasPorTerminar: diasLaborables(new Date(), fecFinMemNew.toISOString()),
+        fec_fin_mem_new: fecFinMemNew.toISOString(), // Ajusta el formato según tus necesidades
+        ...itemJSON,
+      };
+    });
+    // .filter((item) => {
+    //   return item.tb_ventum.tb_cliente.id_cli === id_cli;
+    // });
+    console.log(newMembresias);
+
+    res.status(200).json({
+      membresias: newMembresias,
+    });
   } catch (error) {
-    res.status(404).json(error);
+    console.log(error);
+    res.status(505).json({
+      error: error,
+    });
   }
+
+  // console.log(id_cli);
+  // try {
+  //   const ultimaMembresiaPorCliente = await Venta.findOne({
+  //     where: {
+  //       id_cli: id_cli,
+  //       flag: true,
+  //     },
+  //     order: [["fecha_venta", "DESC"]],
+  //     include: [
+  //       {
+  //         model: detalleVenta_membresias,
+  //         attributes: [
+  //           "fec_inicio_mem",
+  //           "fec_fin_mem",
+  //           "id_pgm",
+  //           "id_st",
+  //           "id_tarifa",
+  //           "tarifa_monto",
+  //         ],
+  //         include: [
+  //           {
+  //             model: ProgramaTraining,
+  //             attributes: ["name_pgm"],
+  //           },
+  //           {
+  //             model: SemanasTraining,
+  //             attributes: ["semanas_st"],
+  //           },
+  //         ],
+  //         required: true,
+  //       },
+  //     ],
+  //   });
+  //   res.status(200).json(ultimaMembresiaPorCliente);
+  // } catch (error) {
+  //   res.status(404).json(error);
+  // }
 };
 const getParametrosVendedoresVendiendoTodo = async (
   req = request,
@@ -612,7 +780,31 @@ const getParametrosColaboradoresRegistrados = async (
     res.status(404).json(error);
   }
 };
+const getParametrosVentaFitology = async (req = request, res = response) => {
+  const { tipo_serv } = req.params;
+  try {
+    const fitology = await Servicios.findAll({
+      where: { flag: true, tipo_servicio: tipo_serv },
+      attributes: [
+        [
+          Sequelize.literal(
+            "CONCAT(nombre_servicio, ' | CANTIDAD: ', cantidad_servicio, ' | TARIFA: ', tarifa_servicio)"
+          ),
+          "label",
+        ],
+        ["id", "value"],
+      ],
+    });
+    res.status(200).json({
+      msg: "ok",
+      fitology,
+    });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
 module.exports = {
+  getParametrosVentaFitology,
   getParametrosTipoAportes,
   getParametros,
   postParametros,

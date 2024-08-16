@@ -29,9 +29,17 @@ const obtenerExtensionesPorTipo = async (req = request, res = response) => {
 };
 const postExtensionPorTipoPorId = async (req = request, res = response) => {
   const { tipo, idventa } = req.params;
-  const {} = req.body;
+  const { observacion, dias_habiles, extension_inicio, extension_fin } =
+    req.body;
   try {
-    const extension = new ExtensionMembresia({});
+    const extension = new ExtensionMembresia({
+      tipo_extension: tipo,
+      dias_habiles,
+      observacion,
+      extension_inicio,
+      extension_fin,
+      id_venta: idventa,
+    });
     await extension.save();
     res.status(200).json({
       msg: `Extension agregado con exito`,

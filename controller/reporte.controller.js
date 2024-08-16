@@ -66,8 +66,6 @@ const diasLaborables = (fechaInicio, fechaFin) => {
 };
 const getReporteSeguimiento = async (req, res) => {
   const { isClienteActive } = req.query;
-  console.log(isClienteActive);
-
   try {
     let membresias = await detalleVenta_membresias.findAll({
       attributes: ["id", "fec_inicio_mem", "fec_fin_mem"],
@@ -111,6 +109,7 @@ const getReporteSeguimiento = async (req, res) => {
         {
           model: ProgramaTraining,
           attributes: ["id_pgm", "name_pgm"],
+          where: { estado_pgm: true, flag: true },
           include: [
             {
               model: ImagePT,
@@ -192,7 +191,6 @@ const getReporteSeguimiento = async (req, res) => {
     });
 
     newMembresias = Array.from(uniqueClientes.values());
-    console.log(newMembresias);
 
     res.status(200).json({
       newMembresias,
@@ -951,15 +949,11 @@ const getReporteDeEgresos = async (req = request, res = response) => {
   }
 };
 const getReporteDeUtilidadesTotal = async (req = request, res = response) => {
-  // const { arrayDate } = req.query;
-  const arrayDate = [
-    new Date(new Date().getFullYear(), 0, 1),
-    new Date(new Date().getFullYear(), 2, 1),
-  ];
+  const { arrayDate } = req.query;
   const fechaInicio = arrayDate[0];
   const fechaFin = arrayDate[1];
   try {
-    let gastos = await Gastos.findAll({
+    let gastosTarata = await Gastos.findAll({
       where: {
         flag: true,
         [Sequelize.Op.and]: Sequelize.where(
@@ -976,27 +970,68 @@ const getReporteDeUtilidadesTotal = async (req = request, res = response) => {
       },
       order: [["fec_pago", "asc"]],
       attributes: ["id", "fec_pago", "moneda", "monto"],
-      // include: [
-      //   {
-      //     model: ParametroGastos,
-      //     attributes: ["nombre_gasto", "grupo", "id_tipoGasto"],
-      //   },
-      //   {
-      //     model: Parametros,
-      //     attributes: ["id_param", "label_param"],
-      //     as: "parametro_banco",
-      //   },
-      //   {
-      //     model: Parametros,
-      //     attributes: ["id_param", "label_param"],
-      //     as: "parametro_forma_pago",
-      //   },
-      //   {
-      //     model: Parametros,
-      //     attributes: ["id_param", "label_param"],
-      //     as: "parametro_comprobante",
-      //   },
-      // ],
+      include: [
+        {
+          model: ParametroGastos,
+          where: { grupo: "TARATA" },
+          attributes: ["nombre_gasto", "grupo", "id_tipoGasto"],
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_banco",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_forma_pago",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_comprobante",
+        },
+      ],
+    });
+    let gastosReducto = await Gastos.findAll({
+      where: {
+        flag: true,
+        [Sequelize.Op.and]: Sequelize.where(
+          Sequelize.fn("YEAR", Sequelize.col("fec_pago")),
+          "<",
+          2030
+        ),
+        id: {
+          [Sequelize.Op.not]: 2548,
+        },
+        fec_pago: {
+          [Sequelize.Op.between]: [new Date(fechaInicio), new Date(fechaFin)],
+        },
+      },
+      order: [["fec_pago", "asc"]],
+      attributes: ["id", "fec_pago", "moneda", "monto"],
+      include: [
+        {
+          model: ParametroGastos,
+          where: { grupo: "REDUCTO" },
+          attributes: ["nombre_gasto", "grupo", "id_tipoGasto"],
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_banco",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_forma_pago",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_comprobante",
+        },
+      ],
     });
     let aportes = await Aporte.findAll({
       attributes: ["fecha_aporte", "monto_aporte"],
@@ -1043,14 +1078,12 @@ const getReporteDeUtilidadesTotal = async (req = request, res = response) => {
       ],
     });
 
-    // gastos = gastos.reduce((acc, item) => {
-    //   acc += item.monto * item.tarifa_monto;
-    //   return acc;
-    // }, 0);
-
     res.status(200).json({
       msg: "success",
-      utilidades: [ventas, aportes, gastos],
+      ventas,
+      gastosTarata,
+      gastosReducto,
+      aportes,
     });
   } catch (error) {
     console.log(error);
