@@ -9,7 +9,7 @@ const {
   detalleVenta_pagoVenta,
 } = require("../models/Venta");
 const { Cliente, Empleado } = require("../models/Usuarios");
-const { Sequelize } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 const { Producto } = require("../models/Producto");
 const {
   ProgramaTraining,
@@ -21,6 +21,7 @@ const { Parametros } = require("../models/Parametros");
 const { v4 } = require("uuid");
 const { typesCRUD } = require("../types/types");
 const { capturarAUDIT } = require("../middlewares/auditoria");
+const { Servicios } = require("../models/Servicios");
 
 const postVenta = async (req = request, res = response) => {
   // const {} = req.body;
@@ -279,6 +280,10 @@ const get_VENTA_ID = async (req = request, res = response) => {
             "id_tarifa",
             "id_st",
             "tarifa_monto",
+            "fec_inicio_mem",
+            "fec_fin_mem",
+            "uid_firma",
+            "horario",
           ],
 
           include: [
@@ -289,12 +294,6 @@ const get_VENTA_ID = async (req = request, res = response) => {
             {
               model: SemanasTraining,
               attributes: ["semanas_st", "congelamiento_st", "nutricion_st"],
-              include: [
-                {
-                  model: TarifaTraining,
-                  attributes: ["tarifaCash_tt", "nombreTarifa_tt"],
-                },
-              ],
             },
           ],
         },
@@ -349,6 +348,142 @@ const get_VENTA_ID = async (req = request, res = response) => {
     });
   }
 };
+const getVentasxFecha = async (req = request, res = response) => {
+  const { arrayDate } = req.query;
+  try {
+    const ventas = await Venta.findAll({
+      attributes: [
+        "id",
+        "id_cli",
+        "id_empl",
+        "id_tipoFactura",
+        "numero_transac",
+        "fecha_venta",
+      ],
+      where: {
+        fecha_venta: {
+          [Op.between]: [arrayDate[0], arrayDate[1]],
+        },
+      },
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: Cliente,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_cli"),
+                " ",
+                Sequelize.col("apPaterno_cli"),
+                " ",
+                Sequelize.col("apMaterno_cli")
+              ),
+              "nombres_apellidos_cli",
+            ],
+          ],
+        },
+        {
+          model: Empleado,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_empl"),
+                " ",
+                Sequelize.col("apPaterno_empl"),
+                " ",
+                Sequelize.col("apMaterno_empl")
+              ),
+              "nombres_apellidos_empl",
+            ],
+          ],
+        },
+        {
+          model: detalleVenta_producto,
+          attributes: [
+            "id_venta",
+            "id_producto",
+            "cantidad",
+            "precio_unitario",
+            "tarifa_monto",
+          ],
+          include: [
+            {
+              model: Producto,
+              attributes: ["id", "id_categoria"],
+            },
+          ],
+        },
+        {
+          model: detalleVenta_membresias,
+          attributes: [
+            "id_venta",
+            "id_pgm",
+            "id_tarifa",
+            "horario",
+            "id_st",
+            "tarifa_monto",
+          ],
+          include: [
+            {
+              model: ProgramaTraining,
+              attributes: ["name_pgm"],
+            },
+            {
+              model: SemanasTraining,
+              attributes: ["semanas_st"],
+            },
+          ],
+        },
+        {
+          model: detalleVenta_citas,
+          attributes: ["id_venta", "id_servicio", "tarifa_monto"],
+          include: [
+            {
+              model: Servicios,
+              attributes: ["id", "nombre_servicio", "tipo_servicio"],
+            },
+          ],
+        },
+        {
+          model: detalleVenta_pagoVenta,
+          attributes: ["id_venta", "parcial_monto"],
+          include: [
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_banco",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_forma_pago",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_tipo_tarjeta",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_tarjeta",
+            },
+          ],
+        },
+      ],
+    });
+    res.status(200).json({
+      ok: true,
+      ventas,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: `Error en el servidor, en controller de get_VENTAS, hable con el administrador: ${error}`,
+    });
+  }
+};
 const get_VENTAS_detalle_PROGRAMA = async (req = request, res = response) => {};
 const get_VENTAS_detalle_PRODUCTO = async (req = request, res = response) => {};
 const get_VENTAS_detalle_CITAS = async (req = request, res = response) => {};
@@ -360,4 +495,5 @@ module.exports = {
   get_VENTAS_detalle_PRODUCTO,
   get_VENTAS_detalle_CITAS,
   getPDF_CONTRATO,
+  getVentasxFecha,
 };

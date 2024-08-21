@@ -22,6 +22,7 @@ const { Aporte } = require("../models/Aportes");
 const { ImagePT } = require("../models/Image");
 const { Producto } = require("../models/Producto");
 const { Servicios } = require("../models/Servicios");
+
 // Función para sumar días hábiles (lunes y viernes) a una fecha
 function addBusinessDays(startDate, numberOfDays) {
   let currentDate = new Date(startDate);
@@ -880,6 +881,7 @@ const getReporteDeEgresos = async (req = request, res = response) => {
   const { arrayDate } = req.query;
   const fechaInicio = arrayDate[0];
   const fechaFin = arrayDate[1];
+
   try {
     const gastos = await Gastos.findAll({
       where: {
@@ -893,10 +895,13 @@ const getReporteDeEgresos = async (req = request, res = response) => {
           [Sequelize.Op.not]: 2548,
         },
         fec_pago: {
-          [Sequelize.Op.between]: [new Date(fechaInicio), new Date(fechaFin)],
+          [Op.between]: [
+            dayjs(fechaInicio).format("YYYY-MM-DD"),
+            dayjs(fechaFin).format("YYYY-MM-DD"),
+          ],
         },
       },
-      order: [["fec_pago", "asc"]],
+      order: [["fec_pago", "desc"]],
       attributes: [
         "id",
         "moneda",
@@ -938,6 +943,7 @@ const getReporteDeEgresos = async (req = request, res = response) => {
         },
       ],
     });
+
     res.status(200).json({
       reporte: gastos,
     });
@@ -1074,6 +1080,12 @@ const getReporteDeUtilidadesTotal = async (req = request, res = response) => {
         {
           model: detalleVenta_citas,
           attributes: ["id_venta", "id_servicio", "tarifa_monto"],
+          include: [
+            {
+              model: Servicios,
+              attributes: ["id", "nombre_servicio"],
+            },
+          ],
         },
       ],
     });
@@ -1097,8 +1109,11 @@ const getReporteDeTotalDeVentas_ClientesVendedores = async (
   res = response
 ) => {
   const { arrayDate } = req.query;
+  console.log(arrayDate);
+
   const fechaInicio = arrayDate[0];
   const fechaFin = arrayDate[1];
+
   try {
     const TotalventasPorClientesYVendedores = await Venta.findAll({
       where: {
@@ -1240,6 +1255,28 @@ const getReporteVentas = async (req = request, res = response) => {
         {
           model: detalleVenta_pagoVenta,
           attributes: ["id_venta", "parcial_monto"],
+          include: [
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_banco",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_forma_pago",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_tipo_tarjeta",
+            },
+            {
+              model: Parametros,
+              attributes: ["id_param", "label_param"],
+              as: "parametro_tarjeta",
+            },
+          ],
         },
       ],
     });
