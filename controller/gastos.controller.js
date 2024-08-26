@@ -35,7 +35,7 @@ const getGastos = async (req = request, res = response) => {
       where: {
         flag: true,
         [Sequelize.Op.and]: Sequelize.where(
-          Sequelize.fn("YEAR", Sequelize.col("fec_pago")),
+          Sequelize.fn("YEAR", Sequelize.col("fec_comprobante")),
           "<",
           2030
         ),

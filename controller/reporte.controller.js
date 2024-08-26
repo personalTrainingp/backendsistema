@@ -896,7 +896,7 @@ const getReporteDeEgresos = async (req = request, res = response) => {
         id: {
           [Sequelize.Op.not]: 2548,
         },
-        fec_pago: {
+        fec_comprobante: {
           [Op.between]: [
             dayjs(fechaInicio).format("YYYY-MM-DD"),
             dayjs(fechaFin).format("YYYY-MM-DD"),
