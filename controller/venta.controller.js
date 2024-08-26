@@ -358,6 +358,7 @@ const getVentasxFecha = async (req = request, res = response) => {
         "id_empl",
         "id_tipoFactura",
         "numero_transac",
+        "flag",
         "fecha_venta",
       ],
       where: {

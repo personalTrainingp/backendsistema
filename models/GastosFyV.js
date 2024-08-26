@@ -9,6 +9,9 @@ const ParametroGastos = db.define("tb_parametros_gastos", {
     autoIncrement: true,
     primaryKey: true,
   },
+  id_empresa: {
+    type: DataTypes.INTEGER,
+  },
   grupo: {
     type: DataTypes.STRING(35),
   },

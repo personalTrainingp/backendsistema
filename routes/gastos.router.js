@@ -29,7 +29,7 @@ const router = Router();
 // router.put("/put_gv/:id", put_GV);
 
 router.post("/post-egreso", postGasto);
-router.get("/get-egresos", getGastos);
+router.get("/get-egresos/:id_enterp", getGastos);
 router.get("/get-egreso/:id", getGasto);
 router.put("/put-egreso/:id", putGasto);
 router.put("/delete-egreso/:id", deleteGasto);

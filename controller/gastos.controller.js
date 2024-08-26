@@ -29,6 +29,7 @@ const postGasto = async (req = request, res = response) => {
   }
 };
 const getGastos = async (req = request, res = response) => {
+  const { id_enterp } = req.params;
   try {
     const gastos = await Gastos.findAll({
       where: {
@@ -65,7 +66,10 @@ const getGastos = async (req = request, res = response) => {
         },
         {
           model: ParametroGastos,
-          attributes: ["nombre_gasto", "grupo", "id_tipoGasto"],
+          attributes: ["id_empresa", "nombre_gasto", "grupo", "id_tipoGasto"],
+          where: {
+            id_empresa: id_enterp,
+          },
         },
         {
           model: Parametros,

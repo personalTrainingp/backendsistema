@@ -757,6 +757,8 @@ const getReporteDeVentasTickets = async (req = request, res = response) => {
       (total, objeto) => total + objeto["tb_semana_training.semanas_st"],
       0
     );
+    console.log(datamembresias);
+
     res.status(200).json({
       data: {
         ventas_acumuladas: sumTarifa,
@@ -924,7 +926,7 @@ const getReporteDeEgresos = async (req = request, res = response) => {
         },
         {
           model: ParametroGastos,
-          attributes: ["nombre_gasto", "grupo", "id_tipoGasto"],
+          attributes: ["id_empresa", "nombre_gasto", "grupo", "id_tipoGasto"],
         },
         {
           model: Parametros,

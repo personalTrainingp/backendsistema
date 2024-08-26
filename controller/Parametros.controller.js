@@ -193,7 +193,7 @@ const getParametrosporCliente = async (req, res) => {
         ["id_cli", "value"],
         [
           Sequelize.literal(
-            "CONCAT(nombre_cli, ' ', apPaterno_cli, ' ', apMaterno_cli)"
+            "CONCAT(numDoc_cli, ' | ', nombre_cli, ' ', apPaterno_cli, ' ', apMaterno_cli)"
           ),
           "label",
         ],
@@ -476,7 +476,7 @@ const getParametrosFinanzas = async (req, res) => {
       where: {
         flag: true,
       },
-      attributes: ["id", "grupo", "id_tipoGasto", "nombre_gasto"],
+      attributes: ["id", "id_empresa", "grupo", "id_tipoGasto", "nombre_gasto"],
     });
     res.status(200).json(finanzas);
   } catch (error) {
@@ -536,7 +536,6 @@ const getProgramasActivos = async (req = request, res = response) => {
 };
 const getLogicaEstadoMembresia = async (req = request, res = response) => {
   const { id_cli } = req.params;
-  console.log(id_cli);
 
   try {
     let membresias = await detalleVenta_membresias.findAll({

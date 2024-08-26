@@ -334,12 +334,12 @@ const seccionGET = async (req = request, res = response) => {
               url: "/reporte/reporte-programa",
               parentKey: "reportes",
             },
-            {
-              key: "r-ventasAsesor",
-              label: "Ventas por asesor",
-              url: "/reporte/ventas-asesor",
-              parentKey: "reportes",
-            },
+            // {
+            //   key: "r-ventasAsesor",
+            //   label: "Ventas por asesor",
+            //   url: "/reporte/ventas-asesor",
+            //   parentKey: "reportes",
+            // },
             // {
             //   key: "r-ventasDia",
             //   label: "Ventas por metas",
