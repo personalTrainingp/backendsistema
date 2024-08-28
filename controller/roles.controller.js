@@ -163,6 +163,13 @@ const seccionGET = async (req = request, res = response) => {
           url: "/reporte-admin/reporte-gerencial",
         },
         {
+          key: "flujo-caja",
+          label: "Flujo de caja",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/flujo-caja",
+        },
+        {
           key: "reporte-egresos",
           label: "Reporte egresos",
           isTitle: false,

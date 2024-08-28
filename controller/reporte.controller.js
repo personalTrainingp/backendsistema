@@ -728,6 +728,7 @@ const getReporteDeVentasTickets = async (req = request, res = response) => {
       attributes: ["id_pgm", "tarifa_monto", "id_st"],
       where: {
         id_pgm: id_programa,
+        flag: true,
       },
       order: [["id", "DESC"]],
       include: [
@@ -748,6 +749,7 @@ const getReporteDeVentasTickets = async (req = request, res = response) => {
       required: true,
       raw: true,
     });
+    console.log(datamembresias);
 
     let sumTarifa = datamembresias.reduce(
       (total, objeto) => total + objeto.tarifa_monto,
@@ -757,7 +759,7 @@ const getReporteDeVentasTickets = async (req = request, res = response) => {
       (total, objeto) => total + objeto["tb_semana_training.semanas_st"],
       0
     );
-    console.log(datamembresias);
+    console.log(sumTarifa);
 
     res.status(200).json({
       data: {
@@ -830,11 +832,13 @@ const getReporteDeClientesFrecuentes = async (req, res) => {
   }
 };
 const getReporteDeProgramasXsemanas = async (req = request, res = response) => {
+  const { id_programa, dateRanges } = req.query;
+
   try {
     let dataSemanas = await detalleVenta_membresias.findAll({
       attributes: ["id_pgm", "id_st", "tarifa_monto"],
       where: {
-        id_pgm: 3,
+        id_pgm: id_programa,
       },
       include: [
         {
@@ -846,7 +850,7 @@ const getReporteDeProgramasXsemanas = async (req = request, res = response) => {
           attributes: ["id_cli", "fecha_venta"],
           where: {
             fecha_venta: {
-              [Op.between]: [new Date("2024-01-01"), new Date("2024-12-31")],
+              [Op.between]: [new Date(dateRanges[0]), new Date(dateRanges[1])],
             },
           },
         },
@@ -883,6 +887,10 @@ const getReporteDeEgresos = async (req = request, res = response) => {
   const { arrayDate } = req.query;
   const fechaInicio = arrayDate[0];
   const fechaFin = arrayDate[1];
+  console.log(
+    dayjs(fechaInicio).format("YYYY-MM-DD"),
+    dayjs(fechaFin).format("YYYY-MM-DD")
+  );
 
   try {
     const gastos = await Gastos.findAll({
@@ -926,7 +934,13 @@ const getReporteDeEgresos = async (req = request, res = response) => {
         },
         {
           model: ParametroGastos,
-          attributes: ["id_empresa", "nombre_gasto", "grupo", "id_tipoGasto"],
+          attributes: [
+            "id",
+            "id_empresa",
+            "nombre_gasto",
+            "grupo",
+            "id_tipoGasto",
+          ],
         },
         {
           model: Parametros,
