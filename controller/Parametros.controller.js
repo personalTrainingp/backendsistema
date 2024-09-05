@@ -200,6 +200,7 @@ const getParametrosporCliente = async (req, res) => {
         "email_cli",
         "tipoCli_cli",
         "tel_cli",
+        "uid",
       ],
       // include: [
       //   {
@@ -443,28 +444,30 @@ const getParametrosFormaPago = async (req = request, res = response) => {
         { model: Parametros, as: "BancoLabel", attributes: ["label_param"] },
       ],
     });
-    const formaPagoConLabels = formaPago.map((item) => {
-      const formaPagoLabel = item.FormaPagoLabel
-        ? item.FormaPagoLabel.label_param
-        : null;
-      const bancoLabel = item.BancoLabel ? item.BancoLabel.label_param : null;
-      const tipoTarjetaLabel = item.TipoTarjetaLabel
-        ? item.TipoTarjetaLabel.label_param
-        : null;
-      const tarjetaLabel = item.TarjetaLabel
-        ? item.TarjetaLabel.label_param
-        : null;
-      const formattedLabel = `FORMA DE PAGO: ${
-        formaPagoLabel ? `${formaPagoLabel}` : ""
-      }${bancoLabel ? ` | BANCO: ${bancoLabel} ` : ""}${
-        tipoTarjetaLabel ? `| ${tipoTarjetaLabel}` : ""
-      }${tarjetaLabel ? ` - ${tarjetaLabel}` : ""}`;
-      return {
-        value: item.id,
-        label: formattedLabel,
-      };
+    // const formaPagoConLabels = formaPago.map((item) => {
+    //   const formaPagoLabel = item.FormaPagoLabel
+    //     ? item.FormaPagoLabel.label_param
+    //     : null;
+    //   const bancoLabel = item.BancoLabel ? item.BancoLabel.label_param : null;
+    //   const tipoTarjetaLabel = item.TipoTarjetaLabel
+    //     ? item.TipoTarjetaLabel.label_param
+    //     : null;
+    //   const tarjetaLabel = item.TarjetaLabel
+    //     ? item.TarjetaLabel.label_param
+    //     : null;
+    //   const formattedLabel = `FORMA DE PAGO: ${
+    //     formaPagoLabel ? `${formaPagoLabel}` : ""
+    //   }${bancoLabel ? ` | BANCO: ${bancoLabel} ` : ""}${
+    //     tipoTarjetaLabel ? `| ${tipoTarjetaLabel}` : ""
+    //   }${tarjetaLabel ? ` - ${tarjetaLabel}` : ""}`;
+    //   return {
+    //     value: item.id,
+    //     label: formattedLabel,
+    //   };
+    // });
+    res.status(200).json({
+      formaPago,
     });
-    res.status(200).json(formaPagoConLabels);
   } catch (error) {
     console.log(error);
     res.status(404).json(error);

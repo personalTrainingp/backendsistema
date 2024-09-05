@@ -176,7 +176,7 @@ app.use(express.json());
 
 app.use("/api/storage/blob", require("./routes/upload/blob.router.js"));
 
-app.use("/api/zk", require("./routes/upload/zk.router"))
+app.use("/api/zk", require("./routes/upload/zk.router"));
 app.use("/api/tipocambio", require("./routes/tipocambio.route.js"));
 //RUTA FILES
 app.use("/api/file", fileServer(urlArchivos));

@@ -151,6 +151,13 @@ const seccionGET = async (req = request, res = response) => {
           url: "/configuracion-terminos",
         },
         {
+          key: "conf-tip-cambio",
+          label: "Tipo de cambio",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/tipo-cambio",
+        },
+        {
           key: "reporte-admin",
           label: "Reportes",
           isTitle: true,
@@ -333,13 +340,19 @@ const seccionGET = async (req = request, res = response) => {
               label: "Total de ventas",
               url: "/reporte/total-ventas",
               icon: "uil-home-alt",
-              parentKey: "reportes",
+              parentKey: "reportes-total",
             },
             {
               key: "r-ventasPrograma",
               label: "Ventas por programas",
               url: "/reporte/reporte-programa",
-              parentKey: "reportes",
+              parentKey: "reporte-programa",
+            },
+            {
+              key: "r-ventasPrograma",
+              label: "Ventas por metas",
+              url: "/reporte/reporte-metas",
+              parentKey: "reporte-meta",
             },
             // {
             //   key: "r-ventasAsesor",
@@ -387,6 +400,13 @@ const seccionGET = async (req = request, res = response) => {
           url: "/crear-citas-nutricion",
         },
         {
+          key: "hist-citas-NUT",
+          label: "Historial de citas nutricionista",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/history-citas-nutricion",
+        },
+        {
           key: "citas-FIT",
           label: "tratamientos esteticos",
           isTitle: false,
@@ -418,6 +438,68 @@ const seccionGET = async (req = request, res = response) => {
           url: "/metas",
         },
       ];
+    }
+    if (modulo === "mod-marketing") {
+      MENU_ITEMS = [
+        {
+          key: "mkt-ar",
+          label: "Actas de reunion",
+          isTitle: false,
+          icon: "pi pi-address-book",
+          url: "/trabajo-marketing",
+        },
+        {
+          key: "mkt-fb",
+          label: "Facebook",
+          isTitle: false,
+          icon: "pi pi-facebook",
+          url: "/trabajo-marketing",
+        },
+        {
+          key: "mkt-ig",
+          label: "Instagram",
+          isTitle: false,
+          icon: "pi pi-instagram",
+          url: "/trabajo-marketing",
+        },
+        {
+          key: "mkt-videos",
+          label: "Tik tok",
+          isTitle: false,
+          icon: "pi pi-tiktok",
+          url: "/trabajo-marketing",
+        },
+        {
+          key: "mkt-doc",
+          label: "Videos",
+          isTitle: false,
+          icon: "pi pi-video",
+          url: "/trabajo-marketing",
+        },
+        {
+          key: "mkt-disenio",
+          label: "Fotos",
+          isTitle: false,
+          icon: "uil-scenery",
+          url: "/trabajo-marketing",
+        },
+        {
+          key: "mkt-contratos",
+          label: "Diseños",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/trabajo-marketing",
+        },
+        {
+          key: "mkt-fotos",
+          label: "Documentos",
+          isTitle: false,
+          icon: "pi pi-file",
+          url: "/trabajo-marketing",
+        },
+      ];
+    }
+    if (modulo === "mod-inventario") {
     }
     res.status(200).json({
       msg: "success",
@@ -464,6 +546,15 @@ const moduleGET = async (req = request, res = response) => {
           name: "Ventas",
           path: "/venta",
           key: "mod-general-ventas",
+        },
+      ];
+    }
+    if (usuario.rol_user === 7) {
+      MODULOS_ITEMS = [
+        {
+          name: "MARKETING",
+          path: "/marketing",
+          key: "mod-marketing",
         },
       ];
     }

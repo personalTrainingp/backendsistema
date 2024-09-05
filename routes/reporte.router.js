@@ -12,6 +12,7 @@ const {
   getReporteDeUtilidadesTotal,
   getReporteVentas,
   getReporteFormasDePago,
+  getReporteDeMembresiasxFechaxPrograma,
 } = require("../controller/reporte.controller");
 const router = Router();
 /**
@@ -39,4 +40,9 @@ router.get(
 router.get("/reporte-ventas-tickets", getReporteDeVentasTickets);
 router.get("/reporte-programa-x-cliente", getReporteDeClientesFrecuentes);
 router.get("/reporte-programa-x-semanas", getReporteDeProgramasXsemanas);
+
+router.get(
+  "/reporte/programa/obtener-membresias-x-fecha-x-programa",
+  getReporteDeMembresiasxFechaxPrograma
+);
 module.exports = router;

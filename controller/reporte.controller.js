@@ -1375,6 +1375,25 @@ const getReporteFormasDePago = async (req = request, res = response) => {
     });
   }
 };
+const getReporteDeMembresiasxFechaxPrograma = async (
+  req = request,
+  res = response
+) => {
+  const { rangoDate } = req.query;
+  const fechaInicio = rangoDate[0];
+  const fechaFin = rangoDate[1];
+  try {
+    const { } = await 
+    res.status(200).json({
+      ok: true,
+      reporte: ventas,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: `Error en el servidor, en controller de get_VENTAS, hable con el administrador: ${error}`,
+    });
+  }
+};
 module.exports = {
   getReporteSeguimiento,
   getReporteProgramas,
@@ -1388,4 +1407,5 @@ module.exports = {
   getReporteDeTotalDeVentas_ClientesVendedores,
   getReporteVentas,
   getReporteFormasDePago,
+  getReporteDeMembresiasxFechaxPrograma,
 };

@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { db } = require("../database/sequelizeConnection");
-const { Cliente } = require("./Usuarios");
+const { Cliente, Empleado } = require("./Usuarios");
 const { detalleVenta_citas } = require("./Venta");
 
 const Cita = db.define(
@@ -26,6 +26,9 @@ const Cita = db.define(
     status_cita: {
       type: DataTypes.STRING,
     },
+    id_emp: {
+      type: DataTypes.INTEGER,
+    },
     flag: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
@@ -35,7 +38,8 @@ const Cita = db.define(
     tableName: "tb_cita",
   }
 );
-
+Cita.hasOne(Empleado, { sourceKey: "id_emp" });
+Empleado.belongsTo(Cita, { sourceKey: "id" });
 detalleVenta_citas.hasOne(Cita, { foreignKey: "id_detallecita" });
 Cita.belongsTo(detalleVenta_citas, {
   foreignKey: "id_detallecita",

@@ -1,6 +1,6 @@
 const { Sequelize } = require("sequelize");
 const { Cita } = require("../models/Cita");
-const { Cliente } = require("../models/Usuarios");
+const { Cliente, Empleado } = require("../models/Usuarios");
 const { detalleVenta_citas } = require("../models/Venta");
 const { Servicios } = require("../models/Servicios");
 const { request, response } = require("express");
@@ -36,6 +36,22 @@ const getCitas = async (req = request, res = response) => {
           ],
         },
         {
+          model: Empleado,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_empl"),
+                " ",
+                Sequelize.col("apPaterno_empl"),
+                " ",
+                Sequelize.col("apMaterno_empl")
+              ),
+              "nombres_apellidos_empl",
+            ],
+          ],
+        },
+        {
           model: detalleVenta_citas,
           include: [
             {
@@ -59,8 +75,14 @@ const getCitas = async (req = request, res = response) => {
   }
 };
 const postCita = async (req = request, res = response) => {
-  const { id_cli, id_detallecita, fecha_init, fecha_final, status_cita } =
-    req.body;
+  const {
+    id_cli,
+    id_detallecita,
+    fecha_init,
+    fecha_final,
+    status_cita,
+    id_emp,
+  } = req.body;
   try {
     const cita = new Cita({
       id_detallecita,
@@ -68,6 +90,7 @@ const postCita = async (req = request, res = response) => {
       fecha_init,
       fecha_final,
       status_cita,
+      id_emp,
     });
     await cita.save();
     res.status(200).json({
@@ -125,6 +148,7 @@ const getCitasxServicios = async (req = request, res = response) => {
   try {
     const citas = await Cita.findAll({
       where: { flag: true },
+      order: [["fecha_init", "desc"]],
       attributes: [
         "id",
         "id_detallecita",

@@ -74,7 +74,59 @@ const obtenerTipoCambiosxFechas = async (req = request, res = response) => {
     });
   }
 };
+const updateTipoCambio = async(req=request, res=response)=>{
+  const { id_tc } = req.params;
+  try {
+    const tipoCambio = await TipoCambio.findAll({
+      where:{
+        id: id_tc
+      }
+    })
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: `Error en el servidor, en controller de postTipoCambio, hable con el administrador: ${error}`,
+    });
+  }
+}
+const postTipoCambio = async (req = request, res = response) => {
+  try {
+    const tipoCambio = new TipoCambio(req.body);
+    tipoCambio.save();
+    res.status(200).json({
+      msg: "success",
+      data: tipoCambio,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: `Error en el servidor, en controller de postTipoCambio, hable con el administrador: ${error}`,
+    });
+  }
+};
+const obtenerTipoCambio = async (req = request, res = response) => {
+  try {
+    const tipoCambio = await TipoCambio.findAll({
+      where: {
+        flag: true,
+      },
+      attributes: ["id", "moneda", "fecha", "precio_compra", "precio_venta"],
+    });
+
+    res.status(200).json({
+      msg: "success",
+      tipoCambio,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: `Error en el servidor, en controller de obtenerTipoCambioxFecha, hable con el administrador: ${error}`,
+    });
+  }
+};
 module.exports = {
   obtenerTipoCambioxFecha,
   obtenerTipoCambiosxFechas,
+  obtenerTipoCambio,
+  postTipoCambio,
 };

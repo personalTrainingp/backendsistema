@@ -654,6 +654,17 @@ const loginUsuario = async (req = request, res = response) => {
         },
       ];
     }
+    
+  if (usuario.rol_user === 7) {
+    MODULOS_ITEMS = [
+      {
+        name: "MARKETING",
+        path: "/marketing",
+        key: "mod-marketing",
+      },
+    ];
+  }
+    
 
     let formAUDIT = {
       id_user: usuario.id_user,
@@ -722,6 +733,15 @@ const revalidarToken = async (req, res) => {
         name: "Ventas",
         path: "/venta",
         key: "mod-general-ventas",
+      },
+    ];
+  }
+  if (user.rol_user === 7) {
+    MODULOS_ITEMS = [
+      {
+        name: "MARKETING",
+        path: "/marketing",
+        key: "mod-marketing",
       },
     ];
   }
