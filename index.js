@@ -7,6 +7,19 @@ const { db } = require("./database/sequelizeConnection.js");
 const { ImagePT } = require("./models/Image.js");
 const transporterU = require("./config/nodemailer.js");
 const { validarJWT } = require("./middlewares/validarJWT.js");
+const cron = require("node-cron");
+const {
+  EnviarMensajeDeRecordatorioMembresia,
+} = require("./middlewares/tareasCron.js");
+// Programa una tarea para las 9 AM todos los días
+cron.schedule("0 9 * * *", () => {
+  try {
+    console.log("activado");
+  } catch (error) {
+    console.error("Error con cron:", error);
+  }
+});
+// EnviarMensajeDeRecordatorioMembresia();
 // const { test } = require("./config/zkteco.js");
 const fileServer = express.static;
 require("dotenv").config();
@@ -140,7 +153,6 @@ const checkMembresiaShips = () => {
 };
 
 const allowedOrigins = [
-  // "https://personaltraining-sigma.vercel.app",
   "https://change-the-slim-studio-sigma.vercel.app",
   "http://localhost:5173",
   "http://localhost:5174",
@@ -209,7 +221,7 @@ app.use("/api/impuestos", validarJWT, require("./routes/impuestos.router.js"));
 //TODO upload // imgs
 app.use("/api", require("./routes/upload/upload.routes.js"));
 
-app.use("/api/reporte", validarJWT, require("./routes/reporte.router.js"));
+app.use("/api/reporte", require("./routes/reporte.router.js"));
 app.use("/api/comision", validarJWT, require("./routes/comision.router.js"));
 
 //TODO: FORMA PAGO

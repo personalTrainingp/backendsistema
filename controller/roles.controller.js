@@ -76,6 +76,13 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: true,
         },
         {
+          key: "cliente-contratos",
+          label: "Contratos de clientes",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/contrato-clientes",
+        },
+        {
           key: "cliente-admClientes",
           label: "Gestion de socios",
           isTitle: false,
@@ -184,6 +191,25 @@ const seccionGET = async (req = request, res = response) => {
           url: "/reporte-admin/reporte-egresos",
         },
         {
+          key: "gf-gv",
+          label: "Egresos y Aportes",
+          isTitle: true,
+        },
+        {
+          key: "gestion-gfgv",
+          label: "Egresos",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-gastosF-gastosV",
+        },
+        {
+          key: "gestion-gfgv",
+          label: "Aportes",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/aporte-ingresos",
+        },
+        {
           key: "prov",
           label: "Proveedores",
           isTitle: true,
@@ -239,25 +265,6 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: false,
           icon: "uil-calender",
           url: "/serv-nutricion",
-        },
-        {
-          key: "gf-gv",
-          label: "Egresos y Aportes",
-          isTitle: true,
-        },
-        {
-          key: "gestion-gfgv",
-          label: "Egresos",
-          isTitle: false,
-          icon: "uil-calender",
-          url: "/gestion-gastosF-gastosV",
-        },
-        {
-          key: "gestion-gfgv",
-          label: "Aportes",
-          isTitle: false,
-          icon: "uil-calender",
-          url: "/aporte-ingresos",
         },
         {
           key: "planilla",
@@ -381,6 +388,13 @@ const seccionGET = async (req = request, res = response) => {
           url: "/gestion-clientes",
         },
         {
+          key: "cliente-contratos",
+          label: "Contratos de clientes",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/contrato-clientes",
+        },
+        {
           key: "cliente-prospecto",
           label: "Prospectos",
           isTitle: false,
@@ -446,7 +460,7 @@ const seccionGET = async (req = request, res = response) => {
           label: "Actas de reunion",
           isTitle: false,
           icon: "pi pi-address-book",
-          url: "/trabajo-marketing",
+          url: "/mkt-actas-reunion",
         },
         {
           key: "mkt-fb",

@@ -15,6 +15,7 @@ const env = process.env;
 //     rejectUnauthorized: false,
 //   },
 // });
+
 // transporterU.verify().then(() => {
 //   console.log("Listo para enviar mensajes");
 // });
