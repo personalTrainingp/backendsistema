@@ -1,6 +1,6 @@
 const { response, request } = require("express");
 const { generatePDFcontrato } = require("../config/pdfKit");
-const PDFDocument = require("pdfkit");
+const { PDFDocument, rgb } = require("pdf-lib");
 const {
   Venta,
   detalleVenta_producto,
@@ -22,7 +22,8 @@ const { v4 } = require("uuid");
 const { typesCRUD } = require("../types/types");
 const { capturarAUDIT } = require("../middlewares/auditoria");
 const { Servicios } = require("../models/Servicios");
-
+const fs = require("fs");
+const path = require("path");
 const postVenta = async (req = request, res = response) => {
   // const {} = req.body;
   // console.log(req, "en post ventas");
@@ -87,39 +88,727 @@ const postVenta = async (req = request, res = response) => {
     });
   }
 };
+const CONTRATO_CLIENT = async (req = request, res = response) => {
+  const {
+    firmaCli,
+    nutric,
+    cong,
+    time_h,
+    id_pgm,
+    name_pgm,
+    fechaInicio_programa,
+    fechaFinal,
+  } = req.body.dataVenta;
+  const dataInfo = {
+    nombresCliente: "Carlos Kenedy",
+    apPaternoCliente: "Rosales",
+    dni: "60936591",
+    DireccionCliente: "direccion avenida",
+    PaisCliente: "Peru",
+    CargoCliente: "Empleado",
+    EmailCliente: "carlosrosales21092002@gmail.com",
+    EdadCliente: "22",
+    apMaternoCliente: "Morales",
+    DistritoCliente: "Barranco",
+    FechaDeNacimientoCliente: "21 de setiembre del 2002",
+    CentroDeTrabajoCliente: "Empresa",
+    origenCliente: "Facebook",
+    sede: "Miraflores",
+    nContrato: "1234",
+    codigoSocio: "123",
+    fecha_venta: "21/09/2024",
+    hora_venta: "13:00:00 p.m.",
+    //datos de membresia
+    id_pgm: 4,
+    Programa: "Muscle",
+    fec_inicio: "21/09/2024",
+    fec_fin: "21/09/2025",
+    horario: "05:00 pm",
+    semanas: "4",
+    dias_cong: "5",
+    sesiones_nutricion: "8",
+    asesor: "Alvaro",
+    forma_pago: [
+      "Tarj. de credito Bbva",
+      "yape",
+      "plin",
+      "transferencia bancaria",
+    ],
+    monto: "1,150.00",
+    //Firma
+    firma_cli: firmaCli,
+  };
+  // Cargar el PDF existente
+  const existingPdfBytes = fs.readFileSync("input.pdf");
+  // Cargar el documento PDF en memoria
+  const pdfDoc = await PDFDocument.load(existingPdfBytes);
+  // Obtener la primera página del PDF
+  const pages = pdfDoc.getPages();
+  const firstPage = pages[0];
+  const page13 = pages[12];
+  const page10 = pages[9];
 
-const getPDF_CONTRATO = (req = request, res = response) => {
-  const { firmaCli } = req.body.dataVenta;
-  /**
-   * NEED:
-   * FIRMA,
-   */
-  // Crear un nuevo documento PDF
-  const doc = new PDFDocument();
+  //IMAGEN DE UN CHECK
+  const IMAGEcheck = path.join(__dirname, "..", "public", "Green_check.png");
+  // Leer la imagen como buffer
+  const imagecheckBuffer = fs.readFileSync(IMAGEcheck);
 
-  // Escribir contenido en el documento
-  doc.text("Este es un PDF generado dinámicamente con Express y PDFKit.");
-  // Agregar la imagen al documento
-  // Agregar la imagen al documento si está definida, de lo contrario, agregar el texto "Sin firma"
-  if (firmaCli) {
-    doc.image(firmaCli, {
-      fit: [250, 250], // Tamaño de la imagen (opcional)
-      align: "center", // Alineación de la imagen (opcional)
-      valign: "center", // Alineación vertical de la imagen (opcional)
+  const pngImage = await pdfDoc.embedPng(imagecheckBuffer);
+  switch (dataInfo.id_pgm) {
+    case 2:
+      // Dibujar la imagen en la primera página en una posición y tamaño especificado
+      const checkCHANGE45 = firstPage.drawImage(pngImage, {
+        x: 180,
+        y: 320,
+        width: 45,
+        height: 45,
+      });
+      break;
+    case 3:
+      const checkFS45 = firstPage.drawImage(pngImage, {
+        x: 295,
+        y: 320,
+        width: 45,
+        height: 45,
+      });
+      break;
+    case 4:
+      const checkMUSCLE45 = firstPage.drawImage(pngImage, {
+        x: 410,
+        y: 320,
+        width: 45,
+        height: 45,
+      });
+      break;
+    default:
+      break;
+  }
+
+  if (dataInfo.firma_cli) {
+    // Decodificar la imagen base64 en un buffer
+    const base64Data = dataInfo.firma_cli.split(",")[1]; // Obtener solo la parte base64 sin el encabezado
+    const imageBuffer = Buffer.from(base64Data, "base64");
+    // Incrustar la imagen PNG en el PDF
+    const pngImage = await pdfDoc.embedPng(imageBuffer); // O embedJpg si es una imagen JPG
+    // Dibujar la imagen en la primera página en una posición y tamaño especificado
+    firstPage.drawImage(pngImage, {
+      x: 255,
+      y: 60,
+      width: 100,
+      height: 60,
     });
-  } else {
-    doc.text("Sin firma", {
-      align: "center", // Alineación del texto (opcional)
-      valign: "center", // Alineación vertical del texto (opcional)
+    page10.drawImage(pngImage, {
+      x: 250,
+      y: 430,
+      width: 120,
+      height: 50,
+    });
+    page13.drawImage(pngImage, {
+      x: 250,
+      y: 166,
+      width: 120,
+      height: 50,
     });
   }
-  // Configurar el tipo de contenido como PDF
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", "attachment; filename=ejemplo.pdf");
 
-  // Transmitir el PDF al cliente
-  doc.pipe(res);
-  doc.end();
+  //*DATOS CABECERA
+  const sede = firstPage.drawText(dataInfo.sede, {
+    x: 110,
+    y: 650,
+    size: 12,
+    color: rgb(0, 0, 0),
+  });
+  const fecha_hora_venta = firstPage.drawText(
+    `${dataInfo.fecha_venta} ${dataInfo.hora_venta}`,
+    {
+      x: 390,
+      y: 650,
+      size: 12,
+      color: rgb(0, 0, 0),
+    }
+  );
+  const nContrato = firstPage.drawText(`#${dataInfo.nContrato}`, {
+    x: 67,
+    y: 720,
+    size: 33,
+    color: rgb(0, 0, 0),
+  });
+  const codigoSocio = firstPage.drawText(`#${dataInfo.codigoSocio}`, {
+    x: 440,
+    y: 720,
+    size: 33,
+    color: rgb(0, 0, 0),
+  });
+
+  //*DATOS PERSONALES DEL SOCIO
+  //Primera fila
+  const nombresCliente = firstPage.drawText(dataInfo.nombresCliente, {
+    x: 183,
+    y: 590,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const apPaternoCliente = firstPage.drawText(dataInfo.apPaternoCliente, {
+    x: 183,
+    y: 565,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const dniCliente = firstPage.drawText(dataInfo.dni, {
+    x: 183,
+    y: 539,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const DireccionCliente = firstPage.drawText(dataInfo.DireccionCliente, {
+    x: 183,
+    y: 510,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const PaisCliente = firstPage.drawText(dataInfo.PaisCliente, {
+    x: 183,
+    y: 478,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const CargoCliente = firstPage.drawText(dataInfo.CargoCliente, {
+    x: 183,
+    y: 448,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const EmailCliente = firstPage.drawText(dataInfo.EmailCliente, {
+    x: 183,
+    y: 418,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  //Segunda columna
+  const EdadCliente = firstPage.drawText(dataInfo.EdadCliente, {
+    x: 420,
+    y: 590,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const apMaternoCliente = firstPage.drawText(dataInfo.apMaternoCliente, {
+    x: 420,
+    y: 565,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const DistritoCliente = firstPage.drawText(dataInfo.DistritoCliente, {
+    x: 420,
+    y: 539,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const FechaDeNacimientoCliente = firstPage.drawText(
+    dataInfo.FechaDeNacimientoCliente,
+    {
+      x: 420,
+      y: 510,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  const CentroDeTrabajoCliente = firstPage.drawText(
+    dataInfo.CentroDeTrabajoCliente,
+    {
+      x: 420,
+      y: 478,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  const origenCliente = firstPage.drawText(dataInfo.origenCliente, {
+    x: 420,
+    y: 448,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+
+  //*DATOS DEL PROGRAMA
+  //Columna 1
+  const Programa = firstPage.drawText(dataInfo.Programa, {
+    x: 176,
+    y: 280,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const FecInicio = firstPage.drawText(dataInfo.fec_inicio, {
+    x: 176,
+    y: 252,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const FormaPago = firstPage.drawText(
+    dataInfo.forma_pago.length > 0
+      ? dataInfo.forma_pago.slice(0, -1).join(", ") +
+          " y " +
+          dataInfo.forma_pago.slice(-1)
+      : "Ninguna",
+    {
+      x: 176,
+      y: 225,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  const DiasDeCongelamiento = firstPage.drawText(dataInfo.dias_cong, {
+    x: 176,
+    y: 196,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  //Columna 2
+  const FechaFin = firstPage.drawText(dataInfo.fec_fin, {
+    x: 335,
+    y: 252,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const SesionesNutricionista = firstPage.drawText(
+    dataInfo.sesiones_nutricion,
+    {
+      x: 335,
+      y: 196,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  //Columna 3
+  const Sesiones = firstPage.drawText(`${dataInfo.semanas * 6}`, {
+    x: 476,
+    y: 280,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const horario = firstPage.drawText(`${dataInfo.horario}`, {
+    x: 476,
+    y: 252,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const asesor = firstPage.drawText(`${dataInfo.asesor}`, {
+    x: 476,
+    y: 196,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const Monto = firstPage.drawText(dataInfo.monto, {
+    x: 476,
+    y: 225,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  //*DATO DEL pag 09
+  page10.drawText(
+    `${dataInfo.nombresCliente} ${dataInfo.apPaternoCliente} ${dataInfo.apMaternoCliente}`,
+    {
+      x: 205,
+      y: 527,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  page10.drawText(`${dataInfo.dni}`, {
+    x: 205,
+    y: 502,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  //*DATO DEL pag 13
+  page13.drawText(`${dataInfo.fecha_venta} ${dataInfo.hora_venta}`, {
+    x: 397,
+    y: 306,
+    size: 12,
+    color: rgb(0, 0, 0),
+  });
+  page13.drawText(
+    `${dataInfo.nombresCliente} ${dataInfo.apPaternoCliente} ${dataInfo.apMaternoCliente}`,
+    {
+      x: 205,
+      y: 261,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  page13.drawText(`${dataInfo.dni}`, {
+    x: 205,
+    y: 234,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+
+  // Serializar el documento PDF a bytes
+  const pdfBytes = await pdfDoc.save();
+  req.byteContrato = pdfBytes;
+  next();
+};
+const getPDF_CONTRATO = async (req = request, res = response) => {
+  const {
+    firmaCli,
+    nutric,
+    cong,
+    time_h,
+    id_pgm,
+    name_pgm,
+    fechaInicio_programa,
+    fechaFinal,
+  } = req.body.dataVenta;
+  const dataInfo = {
+    nombresCliente: "Carlos Kenedy",
+    apPaternoCliente: "Rosales",
+    dni: "60936591",
+    DireccionCliente: "direccion avenida",
+    PaisCliente: "Peru",
+    CargoCliente: "Empleado",
+    EmailCliente: "carlosrosales21092002@gmail.com",
+    EdadCliente: "22",
+    apMaternoCliente: "Morales",
+    DistritoCliente: "Barranco",
+    FechaDeNacimientoCliente: "21 de setiembre del 2002",
+    CentroDeTrabajoCliente: "Empresa",
+    origenCliente: "Facebook",
+    sede: "Miraflores",
+    nContrato: "1234",
+    codigoSocio: "123",
+    fecha_venta: "21/09/2024",
+    hora_venta: "13:00:00 p.m.",
+    //datos de membresia
+    id_pgm: 4,
+    Programa: "Muscle",
+    fec_inicio: "21/09/2024",
+    fec_fin: "21/09/2025",
+    horario: "05:00 pm",
+    semanas: "4",
+    dias_cong: "5",
+    sesiones_nutricion: "8",
+    asesor: "Alvaro",
+    forma_pago: [
+      "Tarj. de credito Bbva",
+      "yape",
+      "plin",
+      "transferencia bancaria",
+    ],
+    monto: "1,150.00",
+    //Firma
+    firma_cli: firmaCli,
+  };
+  // Cargar el PDF existente
+  const existingPdfBytes = fs.readFileSync("input.pdf");
+  // Cargar el documento PDF en memoria
+  const pdfDoc = await PDFDocument.load(existingPdfBytes);
+  // Obtener la primera página del PDF
+  const pages = pdfDoc.getPages();
+  const firstPage = pages[0];
+  const page13 = pages[12];
+  const page10 = pages[9];
+
+  //IMAGEN DE UN CHECK
+  const IMAGEcheck = path.join(__dirname, "..", "public", "Green_check.png");
+  // Leer la imagen como buffer
+  const imagecheckBuffer = fs.readFileSync(IMAGEcheck);
+
+  const pngImage = await pdfDoc.embedPng(imagecheckBuffer);
+  switch (dataInfo.id_pgm) {
+    case 2:
+      // Dibujar la imagen en la primera página en una posición y tamaño especificado
+      const checkCHANGE45 = firstPage.drawImage(pngImage, {
+        x: 180,
+        y: 320,
+        width: 45,
+        height: 45,
+      });
+      break;
+    case 3:
+      const checkFS45 = firstPage.drawImage(pngImage, {
+        x: 295,
+        y: 320,
+        width: 45,
+        height: 45,
+      });
+      break;
+    case 4:
+      const checkMUSCLE45 = firstPage.drawImage(pngImage, {
+        x: 410,
+        y: 320,
+        width: 45,
+        height: 45,
+      });
+      break;
+    default:
+      break;
+  }
+
+  if (dataInfo.firma_cli) {
+    // Decodificar la imagen base64 en un buffer
+    const base64Data = dataInfo.firma_cli.split(",")[1]; // Obtener solo la parte base64 sin el encabezado
+    const imageBuffer = Buffer.from(base64Data, "base64");
+    // Incrustar la imagen PNG en el PDF
+    const pngImage = await pdfDoc.embedPng(imageBuffer); // O embedJpg si es una imagen JPG
+    // Dibujar la imagen en la primera página en una posición y tamaño especificado
+    firstPage.drawImage(pngImage, {
+      x: 255,
+      y: 60,
+      width: 100,
+      height: 60,
+    });
+    page10.drawImage(pngImage, {
+      x: 250,
+      y: 430,
+      width: 120,
+      height: 50,
+    });
+    page13.drawImage(pngImage, {
+      x: 250,
+      y: 166,
+      width: 120,
+      height: 50,
+    });
+  }
+
+  //*DATOS CABECERA
+  const sede = firstPage.drawText(dataInfo.sede, {
+    x: 110,
+    y: 650,
+    size: 12,
+    color: rgb(0, 0, 0),
+  });
+  const fecha_hora_venta = firstPage.drawText(
+    `${dataInfo.fecha_venta} ${dataInfo.hora_venta}`,
+    {
+      x: 390,
+      y: 650,
+      size: 12,
+      color: rgb(0, 0, 0),
+    }
+  );
+  const nContrato = firstPage.drawText(`#${dataInfo.nContrato}`, {
+    x: 67,
+    y: 720,
+    size: 33,
+    color: rgb(0, 0, 0),
+  });
+  const codigoSocio = firstPage.drawText(`#${dataInfo.codigoSocio}`, {
+    x: 440,
+    y: 720,
+    size: 33,
+    color: rgb(0, 0, 0),
+  });
+
+  //*DATOS PERSONALES DEL SOCIO
+  //Primera fila
+  const nombresCliente = firstPage.drawText(dataInfo.nombresCliente, {
+    x: 183,
+    y: 590,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const apPaternoCliente = firstPage.drawText(dataInfo.apPaternoCliente, {
+    x: 183,
+    y: 565,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const dniCliente = firstPage.drawText(dataInfo.dni, {
+    x: 183,
+    y: 539,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const DireccionCliente = firstPage.drawText(dataInfo.DireccionCliente, {
+    x: 183,
+    y: 510,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const PaisCliente = firstPage.drawText(dataInfo.PaisCliente, {
+    x: 183,
+    y: 478,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const CargoCliente = firstPage.drawText(dataInfo.CargoCliente, {
+    x: 183,
+    y: 448,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const EmailCliente = firstPage.drawText(dataInfo.EmailCliente, {
+    x: 183,
+    y: 418,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  //Segunda columna
+  const EdadCliente = firstPage.drawText(dataInfo.EdadCliente, {
+    x: 420,
+    y: 590,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const apMaternoCliente = firstPage.drawText(dataInfo.apMaternoCliente, {
+    x: 420,
+    y: 565,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const DistritoCliente = firstPage.drawText(dataInfo.DistritoCliente, {
+    x: 420,
+    y: 539,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const FechaDeNacimientoCliente = firstPage.drawText(
+    dataInfo.FechaDeNacimientoCliente,
+    {
+      x: 420,
+      y: 510,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  const CentroDeTrabajoCliente = firstPage.drawText(
+    dataInfo.CentroDeTrabajoCliente,
+    {
+      x: 420,
+      y: 478,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  const origenCliente = firstPage.drawText(dataInfo.origenCliente, {
+    x: 420,
+    y: 448,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+
+  //*DATOS DEL PROGRAMA
+  //Columna 1
+  const Programa = firstPage.drawText(dataInfo.Programa, {
+    x: 176,
+    y: 280,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const FecInicio = firstPage.drawText(dataInfo.fec_inicio, {
+    x: 176,
+    y: 252,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const FormaPago = firstPage.drawText(
+    dataInfo.forma_pago.length > 0
+      ? dataInfo.forma_pago.slice(0, -1).join(", ") +
+          " y " +
+          dataInfo.forma_pago.slice(-1)
+      : "Ninguna",
+    {
+      x: 176,
+      y: 225,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  const DiasDeCongelamiento = firstPage.drawText(dataInfo.dias_cong, {
+    x: 176,
+    y: 196,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  //Columna 2
+  const FechaFin = firstPage.drawText(dataInfo.fec_fin, {
+    x: 335,
+    y: 252,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const SesionesNutricionista = firstPage.drawText(
+    dataInfo.sesiones_nutricion,
+    {
+      x: 335,
+      y: 196,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  //Columna 3
+  const Sesiones = firstPage.drawText(`${dataInfo.semanas * 6}`, {
+    x: 476,
+    y: 280,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const horario = firstPage.drawText(`${dataInfo.horario}`, {
+    x: 476,
+    y: 252,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const asesor = firstPage.drawText(`${dataInfo.asesor}`, {
+    x: 476,
+    y: 196,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  const Monto = firstPage.drawText(dataInfo.monto, {
+    x: 476,
+    y: 225,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  //*DATO DEL pag 09
+  page10.drawText(
+    `${dataInfo.nombresCliente} ${dataInfo.apPaternoCliente} ${dataInfo.apMaternoCliente}`,
+    {
+      x: 205,
+      y: 527,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  page10.drawText(`${dataInfo.dni}`, {
+    x: 205,
+    y: 502,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+  //*DATO DEL pag 13
+  page13.drawText(`${dataInfo.fecha_venta} ${dataInfo.hora_venta}`, {
+    x: 397,
+    y: 306,
+    size: 12,
+    color: rgb(0, 0, 0),
+  });
+  page13.drawText(
+    `${dataInfo.nombresCliente} ${dataInfo.apPaternoCliente} ${dataInfo.apMaternoCliente}`,
+    {
+      x: 205,
+      y: 261,
+      size: 9,
+      color: rgb(0, 0, 0),
+    }
+  );
+  page13.drawText(`${dataInfo.dni}`, {
+    x: 205,
+    y: 234,
+    size: 9,
+    color: rgb(0, 0, 0),
+  });
+
+  // Serializar el documento PDF a bytes
+  const pdfBytes = await pdfDoc.save();
+
+  // Enviar el PDF como respuesta
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader(
+    "Content-Disposition",
+    "attachment; filename=CONTRATO-CLIENTE.pdf"
+  );
+  res.send(Buffer.from(pdfBytes));
 };
 const get_VENTAS = async (req = request, res = response) => {
   try {
@@ -496,5 +1185,6 @@ module.exports = {
   get_VENTAS_detalle_PRODUCTO,
   get_VENTAS_detalle_CITAS,
   getPDF_CONTRATO,
+  CONTRATO_CLIENT,
   getVentasxFecha,
 };

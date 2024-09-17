@@ -28,6 +28,56 @@ const Parametros = db.define("tb_parametro", {
     defaultValue: true,
   },
 });
+const Parametros_Nutricional = db.define("tb_parametros_nutricional", {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  clave_param_nutricional: {
+    type: DataTypes.STRING,
+  },
+  valor_param_nutricional: {
+    type: DataTypes.STRING,
+  },
+  estado_param_nutricional: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+  flag: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+});
+
+// const ParNutr_vs_consulta = db.define("tb_ParNutr_vs_consulta", {
+//   id: {
+//     type: DataTypes.INTEGER,
+//     autoIncrement: true,
+//     primaryKey: true,
+//   },
+//   id_param_nutricional: {
+//     type: DataTypes.STRING,
+//   },
+//   id_consulta_nutri: {
+//     type: DataTypes.STRING,
+//   }
+// });
+
+/*
+ */
+Parametros_Nutricional.sync()
+  .then(() => {
+    console.log(
+      "La tabla tb_parametros_nutricional ha sido creada o ya existe."
+    );
+  })
+  .catch((error) => {
+    console.error(
+      "Error al sincronizar el modelo con la base de datos:",
+      error
+    );
+  });
 
 Parametros.sync()
   .then(() => {

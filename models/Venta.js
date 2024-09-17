@@ -91,6 +91,38 @@ const detalleVenta_membresias = db.define("detalle_ventaMembresia", {
     defaultValue: true,
   },
 });
+const detalleVenta_Transferencia = db.define("detalle_ventaTransferencia", {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  id_venta: {
+    type: DataTypes.INTEGER,
+  },
+  id_transferencia: {
+    type: DataTypes.INTEGER,
+  },
+  tarifa_monto: {
+    type: DataTypes.DECIMAL(10, 2),
+  },
+  uid_firma: {
+    type: DataTypes.STRING(255),
+  },
+  horario: {
+    type: DataTypes.TIME,
+  },
+  fec_inicio_mem: {
+    type: DataTypes.STRING(12),
+  },
+  fec_fin_mem: {
+    type: DataTypes.STRING(12),
+  },
+  flag: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+});
 const detalleVenta_producto = db.define("detalle_ventaProducto", {
   id: {
     type: DataTypes.INTEGER,
@@ -253,7 +285,23 @@ detalleVenta_membresias.belongsTo(Venta, {
   foreignKey: "id_venta", // Este debe coincidir con el anterior
   targetKey: "id",
 });
-
+// Definición de la relación entre Venta y detalleVenta_membresias
+Venta.hasMany(detalleVenta_Transferencia, {
+  foreignKey: "id_venta", // Este debe ser el nombre de la columna en detalleVenta_membresias
+  sourceKey: "id",
+});
+detalleVenta_Transferencia.belongsTo(Venta, {
+  foreignKey: "id_venta", // Este debe coincidir con el anterior
+  targetKey: "id",
+});
+detalleVenta_Transferencia.hasMany(detalleVenta_membresias, {
+  foreignKey: "id", // Este debe ser el nombre de la columna en detalleVenta_membresias
+  sourceKey: "id_transferencia",
+});
+detalleVenta_membresias.belongsTo(detalleVenta_Transferencia, {
+  foreignKey: "id", // Este debe coincidir con el anterior
+  targetKey: "id_transferencia",
+});
 // Definición de la relación entre Venta y detalleVenta_citas
 Venta.hasMany(detalleVenta_citas, {
   foreignKey: "id_venta", // Este debe ser el nombre de la columna en detalleVenta_citas
@@ -273,7 +321,17 @@ detalleVenta_pagoVenta.belongsTo(Venta, {
   foreignKey: "id_venta", // Este debe coincidir con el anterior
   targetKey: "id",
 });
-
+detalleVenta_Transferencia
+  .sync()
+  .then(() => {
+    console.log("La tabla transferencia ha sido creada o ya existe.");
+  })
+  .catch((error) => {
+    console.error(
+      "Error al sincronizar el modelo con la base de datos:",
+      error
+    );
+  });
 Venta.sync()
   .then(() => {
     console.log("La tabla Venta ha sido creada o ya existe.");

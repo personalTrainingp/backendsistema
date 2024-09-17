@@ -158,6 +158,7 @@ const getUsuarioCliente = async (req = request, res = response) => {
       include: [
         {
           model: Venta,
+          order: [["fecha_venta", "desc"]],
           include: [
             {
               model: detalleVenta_membresias,
@@ -400,6 +401,8 @@ const getUsuarioEmpleados = async (req = request, res = response) => {
 const getUsuarioEmpleado = async (req = request, res = response) => {
   try {
     const { uid_empleado } = req.params;
+    console.log(uid_empleado);
+
     const empleado = await Empleado.findOne({
       where: { flag: true, uid: uid_empleado },
     });
@@ -408,8 +411,10 @@ const getUsuarioEmpleado = async (req = request, res = response) => {
       empleado,
     });
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
-      error: `Error en el servidor, en controller de getUsuarioCliente, hable con el administrador: ${error}`,
+      error: `Error en el servidor, en controller de getUsuarioEmpleado, hable con el administrador: ${error}`,
     });
   }
 };
@@ -654,17 +659,25 @@ const loginUsuario = async (req = request, res = response) => {
         },
       ];
     }
-    
-  if (usuario.rol_user === 7) {
-    MODULOS_ITEMS = [
-      {
-        name: "MARKETING",
-        path: "/marketing",
-        key: "mod-marketing",
-      },
-    ];
-  }
-    
+
+    if (usuario.rol_user === 7) {
+      MODULOS_ITEMS = [
+        {
+          name: "MARKETING",
+          path: "/marketing",
+          key: "mod-marketing",
+        },
+      ];
+    }
+    if (usuario.rol_user === 6) {
+      MODULOS_ITEMS = [
+        {
+          name: "MUTRICION",
+          path: "/nutricion",
+          key: "mod-nutricion",
+        },
+      ];
+    }
 
     let formAUDIT = {
       id_user: usuario.id_user,

@@ -19,7 +19,7 @@ cron.schedule("0 9 * * *", () => {
     console.error("Error con cron:", error);
   }
 });
-// EnviarMensajeDeRecordatorioMembresia();
+// EnviarMensajeDeRecordatorioMembresia(); 
 // const { test } = require("./config/zkteco.js");
 const fileServer = express.static;
 require("dotenv").config();

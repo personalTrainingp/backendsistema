@@ -81,7 +81,7 @@ const postCita = async (req = request, res = response) => {
     fecha_init,
     fecha_final,
     status_cita,
-    id_emp,
+    id_empl,
   } = req.body;
   try {
     const cita = new Cita({
@@ -90,7 +90,7 @@ const postCita = async (req = request, res = response) => {
       fecha_init,
       fecha_final,
       status_cita,
-      id_emp,
+      id_empl,
     });
     await cita.save();
     res.status(200).json({

@@ -1,6 +1,7 @@
 const { request, response } = require("express");
 const transporterU = require("../config/nodemailer");
 const { Venta } = require("../models/Venta");
+const { CONTRATO_CLIENT } = require("../controller/venta.controller");
 /**
  *  id_venta: '',
   id_empl: 3531,
@@ -38,6 +39,7 @@ const extraerCredencialesCliente = (req = request, res = response, next) => {
   };
   next();
 };
+
 const extraerFirma = (req, res, next) => {
   const { firmaCli } = req.body.dataVenta;
   req.firmaCli = firmaCli;
@@ -59,6 +61,22 @@ const extraerVentaMembresia = (req, res, next) => {
     };
   });
   req.ventaProgramas = membresia;
+  next();
+};
+const extraerVentaTransferenciaMembresia = (req, res, next) => {
+  if (!req.body.dataVenta.detalle_venta_transferencia) return next();
+  const membresia = req.body.dataVenta.detalle_venta_transferencia.map(
+    (Pgm) => {
+      return {
+        id__transferencia: Pgm.id_pgm,
+        horario: Pgm.horario,
+        fec_inicio_mem: Pgm.fec_inicio_mem,
+        fec_fin_mem: Pgm.fec_fin_mem,
+        tarifa_monto: Pgm.id_tt,
+      };
+    }
+  );
+  req.ventaTransferencia = membresia;
   next();
 };
 const extraerVentaSuplementos = (req, res, next) => {
@@ -120,37 +138,12 @@ const postVentaFormaPago = async (req, res, next) => {
 };
 const mailMembresia = async (req, res = response, next) => {
   // const { id } = req.params;
+  console.log(req.body);
+
   if (!req.ventaProgramas || req.ventaProgramas.length <= 0) {
     next();
     return;
   }
-  /**
-   * aforo
-: 
-20
-cong
-: 
-10
-estado_pgm
-: 
-true
-fechaFinal
-: 
-"2021-04-15"
-fechaInicio_programa: "2020-02-20"
-firmaCli: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXc
-horario: "01:00:00"
-id_pgm: 6
-label: "01:00:00 | Aforo: 20"
-name_pgm: "MUSCLE SOLID"
-nombre_tarifa: "TARIFA COMUN"
-nutric: 40
-semanas: 60
-tarifa: 30
-tb_image: {name_image: 'muscle solid-1714414949892.png'}
-trainer: 2
-value: 7
-   */
   const {
     nutric,
     semanas,
@@ -178,6 +171,10 @@ value: 7
     next();
     return;
   }
+  const contrato_CLIENT = await CONTRATO_CLIENT(
+    (req = request),
+    (res = response)
+  );
   const EMAIL_INFO = {
     regEmail: email_cli,
     nombre_cli: label_cli,
@@ -211,7 +208,7 @@ value: 7
     cid: "BANNER@nodemailer.com", // Identificador único para incrustar la imagen
   };
   const mailOptions = {
-    from: "notificaciones@personaltraining.com.pe",
+    from: "notificaciones@change.com.pe",
     to: `${EMAIL_INFO.regEmail}`,
     subject: "Asunto del correo",
     attachments: [
@@ -425,6 +422,7 @@ const extraerPagos = async (req = request, res = response, next) => {
   next();
 };
 module.exports = {
+  extraerVentaTransferenciaMembresia,
   extraerVentaMembresia,
   mailMembresia,
   extraerPagos,

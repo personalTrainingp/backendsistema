@@ -15,14 +15,14 @@ const {
   getPDF_CONTRATO,
   get_VENTAS,
   getVentasxFecha,
+  CONTRATO_CLIENT,
 } = require("../controller/venta.controller");
 const { obtener_estado_membresia } = require("../middlewares/logicaSistema");
 const router = Router();
 /*
 /api/venta
 */
-router.post("/testmail/venta", mailMembresia);
-
+router.post("send-email", mailMembresia);
 router.post(
   "/post-ventas",
   extraerCredencialesCliente,
@@ -31,7 +31,6 @@ router.post(
   extraerCitas,
   extraerPagos,
   postNewVenta,
-  // mailMembresia,
   postVenta
 );
 router.get("/get-ventas-x-fecha", getVentasxFecha);

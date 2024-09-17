@@ -49,6 +49,29 @@ const seccionGET = async (req = request, res = response) => {
   const { modulo } = req.params;
   try {
     let MENU_ITEMS = [];
+    if (modulo === "mod-nutricion") {
+      MENU_ITEMS = [
+        {
+          key: "cita",
+          label: "Citas",
+          isTitle: true,
+        },
+        {
+          key: "citas-NUT",
+          label: "Citas nutricionista",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/crear-citas-nutricion",
+        },
+        {
+          key: "hist-citas-NUT",
+          label: "Historial de citas nutricionista",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/history-citas-nutricion",
+        },
+      ];
+    }
     if (modulo === "mod-venta") {
       MENU_ITEMS = [
         {
@@ -166,22 +189,48 @@ const seccionGET = async (req = request, res = response) => {
         },
         {
           key: "reporte-admin",
-          label: "Reportes",
+          label: "Reporte de Utilidad",
           isTitle: true,
         },
         {
-          key: "reporte-gerencial",
-          label: "Reporte gerenciales",
+          key: "reporte-utilidad-pgm",
+          label: "Utilidad por programa",
           isTitle: false,
           icon: "uil-calender",
-          url: "/reporte-admin/reporte-gerencial",
+          url: "/reporte-admin/reporte-utilidad-programa",
         },
         {
-          key: "flujo-caja",
-          label: "Flujo de caja",
+          key: "reporte-utilidad-sup",
+          label: "Utilidad por suplementos",
           isTitle: false,
           icon: "uil-calender",
-          url: "/reporte-admin/flujo-caja",
+          url: "/reporte-admin/reporte-utilidad-supl",
+        },
+        {
+          key: "reporte-utilidad-acc",
+          label: "Utilidad por accesorios",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/reporte-utilidad-acc",
+        },
+        {
+          key: "reporte-utilidad-trat-estetico",
+          label: "Utilidad por tratamientos esteticos",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/reporte-utilidad-trat-estetico",
+        },
+        {
+          key: "reporte-utilidad-nutricion",
+          label: "Utilidad por nutricionista",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/reporte-utilidad-nutricionista",
+        },
+        {
+          key: "reporte-admin",
+          label: "Reportes",
+          isTitle: true,
         },
         {
           key: "reporte-egresos",
@@ -189,6 +238,13 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: false,
           icon: "uil-calender",
           url: "/reporte-admin/reporte-egresos",
+        },
+        {
+          key: "reporte-gerencial",
+          label: "Reporte Gerencial",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/reporte-gerencial",
         },
         {
           key: "gf-gv",
@@ -569,6 +625,15 @@ const moduleGET = async (req = request, res = response) => {
           name: "MARKETING",
           path: "/marketing",
           key: "mod-marketing",
+        },
+      ];
+    }
+    if (usuario.rol_user === 6) {
+      MODULOS_ITEMS = [
+        {
+          name: "NUTRICION",
+          path: "/nutricion",
+          key: "mod-nutricion",
         },
       ];
     }

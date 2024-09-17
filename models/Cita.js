@@ -26,7 +26,7 @@ const Cita = db.define(
     status_cita: {
       type: DataTypes.STRING,
     },
-    id_emp: {
+    id_empl: {
       type: DataTypes.INTEGER,
     },
     flag: {
@@ -38,8 +38,9 @@ const Cita = db.define(
     tableName: "tb_cita",
   }
 );
-Cita.hasOne(Empleado, { sourceKey: "id_emp" });
-Empleado.belongsTo(Cita, { sourceKey: "id" });
+Cita.hasOne(Empleado, { foreignKey: "id_empl" });
+Empleado.belongsTo(Cita, { foreignKey: "id_empl" });
+
 detalleVenta_citas.hasOne(Cita, { foreignKey: "id_detallecita" });
 Cita.belongsTo(detalleVenta_citas, {
   foreignKey: "id_detallecita",
