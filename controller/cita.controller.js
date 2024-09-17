@@ -83,6 +83,8 @@ const postCita = async (req = request, res = response) => {
     status_cita,
     id_empl,
   } = req.body;
+  console.log(req.body);
+
   try {
     const cita = new Cita({
       id_detallecita,
@@ -101,7 +103,7 @@ const postCita = async (req = request, res = response) => {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Hable con el administrador",
+      msg: "Hable con el administrador, problema en post cita",
     });
   }
 };

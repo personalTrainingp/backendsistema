@@ -19,7 +19,7 @@ cron.schedule("0 9 * * *", () => {
     console.error("Error con cron:", error);
   }
 });
-// EnviarMensajeDeRecordatorioMembresia(); 
+// EnviarMensajeDeRecordatorioMembresia();
 // const { test } = require("./config/zkteco.js");
 const fileServer = express.static;
 require("dotenv").config();
@@ -174,14 +174,6 @@ app.use(
 
 //Directorio publico
 app.use(express.static("public"));
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
 
 //Lectura y parseo del body
 app.use(express.json());

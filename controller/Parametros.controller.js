@@ -190,6 +190,7 @@ const getParametrosporCliente = async (req, res) => {
     const parametros = await Cliente.findAll({
       where: { flag: true },
       attributes: [
+        "uid",
         ["id_cli", "value"],
         [
           Sequelize.literal(
