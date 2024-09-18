@@ -153,26 +153,20 @@ const checkMembresiaShips = () => {
 };
 
 const allowedOrigins = [
-  /^https:\/\/change-the-slim-studio-sigma\.vercel\.app$/, // Permite todas las rutas bajo este dominio
-  /^http:\/\/localhost:5173$/,
-  /^http:\/\/localhost:5174$/,
+  "https://change-the-slim-studio-sigma.vercel.app/*",
+  "http://localhost:5173",
+  "http://localhost:5174",
 ];
 
 //CORS
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // Para solicitudes sin origen (como Postman)
-
-      const isAllowed = allowedOrigins.some((allowedOrigin) => {
-        return allowedOrigin.test(origin);
-      });
-
-      if (!isAllowed) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
         const msg = "El origen CORS no está permitido.";
         return callback(new Error(msg), false);
       }
-
       return callback(null, true);
     },
   })
@@ -180,18 +174,22 @@ app.use(
 
 //Directorio publico
 app.use(express.static("public"));
+// app.use((req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   next();
+// });
 
 //Lectura y parseo del body
 app.use(express.json());
 
-app.use(
-  "/api/storage/blob",
-  validarJWT,
-  require("./routes/upload/blob.router.js")
-);
+app.use("/api/storage/blob", require("./routes/upload/blob.router.js"));
 
-app.use("/api/zk", validarJWT, require("./routes/upload/zk.router"));
-app.use("/api/tipocambio", validarJWT, require("./routes/tipocambio.route.js"));
+app.use("/api/zk", require("./routes/upload/zk.router"));
+app.use("/api/tipocambio", require("./routes/tipocambio.route.js"));
 //RUTA FILES
 app.use("/api/file", fileServer(urlArchivos));
 app.use("/api/file/logo", fileServer(urlArchivoLogos));
@@ -221,7 +219,7 @@ app.use(
 app.use("/api/meta", validarJWT, require("./routes/meta.route.js"));
 app.use("/api/impuestos", validarJWT, require("./routes/impuestos.router.js"));
 //TODO upload // imgs
-app.use("/api", validarJWT, require("./routes/upload/upload.routes.js"));
+app.use("/api", require("./routes/upload/upload.routes.js"));
 
 app.use("/api/reporte", require("./routes/reporte.router.js"));
 app.use("/api/comision", validarJWT, require("./routes/comision.router.js"));
