@@ -153,20 +153,26 @@ const checkMembresiaShips = () => {
 };
 
 const allowedOrigins = [
-  "https://change-the-slim-studio-sigma.vercel.app",
-  "http://localhost:5173",
-  "http://localhost:5174",
+  /^https:\/\/change-the-slim-studio-sigma\.vercel\.app$/, // Permite todas las rutas bajo este dominio
+  /^http:\/\/localhost:5173$/,
+  /^http:\/\/localhost:5174$/,
 ];
 
 //CORS
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
+      if (!origin) return callback(null, true); // Para solicitudes sin origen (como Postman)
+
+      const isAllowed = allowedOrigins.some((allowedOrigin) => {
+        return allowedOrigin.test(origin);
+      });
+
+      if (!isAllowed) {
         const msg = "El origen CORS no está permitido.";
         return callback(new Error(msg), false);
       }
+
       return callback(null, true);
     },
   })
