@@ -70,6 +70,18 @@ const seccionGET = async (req = request, res = response) => {
           icon: "uil-calender",
           url: "/history-citas-nutricion",
         },
+        {
+          key: "cliente",
+          label: "SOCIO",
+          isTitle: true,
+        },
+        {
+          key: "cliente-admClientes",
+          label: "Gestion de socios",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-clientes",
+        },
       ];
     }
     if (modulo === "mod-venta") {
