@@ -178,10 +178,14 @@ app.use(express.static("public"));
 //Lectura y parseo del body
 app.use(express.json());
 
-app.use("/api/storage/blob", require("./routes/upload/blob.router.js"));
+app.use(
+  "/api/storage/blob",
+  validarJWT,
+  require("./routes/upload/blob.router.js")
+);
 
-app.use("/api/zk", require("./routes/upload/zk.router"));
-app.use("/api/tipocambio", require("./routes/tipocambio.route.js"));
+app.use("/api/zk", validarJWT, require("./routes/upload/zk.router"));
+app.use("/api/tipocambio", validarJWT, require("./routes/tipocambio.route.js"));
 //RUTA FILES
 app.use("/api/file", fileServer(urlArchivos));
 app.use("/api/file/logo", fileServer(urlArchivoLogos));
@@ -211,7 +215,7 @@ app.use(
 app.use("/api/meta", validarJWT, require("./routes/meta.route.js"));
 app.use("/api/impuestos", validarJWT, require("./routes/impuestos.router.js"));
 //TODO upload // imgs
-app.use("/api", require("./routes/upload/upload.routes.js"));
+app.use("/api", validarJWT, require("./routes/upload/upload.routes.js"));
 
 app.use("/api/reporte", require("./routes/reporte.router.js"));
 app.use("/api/comision", validarJWT, require("./routes/comision.router.js"));
