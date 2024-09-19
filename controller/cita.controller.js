@@ -10,13 +10,7 @@ const getCitas = async (req = request, res = response) => {
   try {
     const citas = await Cita.findAll({
       where: { flag: true },
-      attributes: [
-        "id",
-        "id_cli",
-        "fecha_init",
-        "fecha_final",
-        "status_cita",
-      ],
+      attributes: ["id", "id_cli", "fecha_init", "fecha_final", "status_cita"],
       include: [
         {
           model: Cliente,
@@ -111,6 +105,7 @@ const getCitaporID = async (req = request, res = response) => {
   const { id } = req.params;
   try {
     const cita = await Cita.findOne({ where: { flag: true, id } });
+
     res.status(200).json({
       ok: true,
       cita,
@@ -124,7 +119,23 @@ const getCitaporID = async (req = request, res = response) => {
   }
 };
 
-const deleteCita = async (req = request, res = response) => {};
+const deleteCita = async (req = request, res = response) => {
+  const { id } = req.params;
+  try {
+    const cita = await Cita.findOne({ where: { flag: true, id } });
+    await cita.update({ flag: false });
+    res.status(200).json({
+      ok: true,
+      cita,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Hable con el administrador: putCita",
+    });
+  }
+};
 
 const putCita = async (req = request, res = response) => {
   const { id } = req.params;
