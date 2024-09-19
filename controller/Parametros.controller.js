@@ -13,7 +13,7 @@ const { ImagePT } = require("../models/Image");
 const { HorarioProgramaPT } = require("../models/HorarioProgramaPT");
 const { MetaVSAsesor } = require("../models/Meta");
 const { FormaPago } = require("../models/Forma_Pago");
-const { Cita } = require("../models/Cita");
+const { Cita, CitasAdquiridas } = require("../models/Cita");
 const {
   detalleVenta_citas,
   Venta,
@@ -104,7 +104,7 @@ const getCitasDisponibleporClient = async (req = request, res = response) => {
     // Obtener las citas programadas desde la tabla tb_citas
     const citasYaProgramadas = await Cita.findAll({
       where: { id_cli: id_cli },
-      attributes: ["id_detallecita"],
+      attributes: [],
       raw: true,
     });
 
@@ -649,44 +649,6 @@ const getLogicaEstadoMembresia = async (req = request, res = response) => {
       error: error,
     });
   }
-
-  // console.log(id_cli);
-  // try {
-  //   const ultimaMembresiaPorCliente = await Venta.findOne({
-  //     where: {
-  //       id_cli: id_cli,
-  //       flag: true,
-  //     },
-  //     order: [["fecha_venta", "DESC"]],
-  //     include: [
-  //       {
-  //         model: detalleVenta_membresias,
-  //         attributes: [
-  //           "fec_inicio_mem",
-  //           "fec_fin_mem",
-  //           "id_pgm",
-  //           "id_st",
-  //           "id_tarifa",
-  //           "tarifa_monto",
-  //         ],
-  //         include: [
-  //           {
-  //             model: ProgramaTraining,
-  //             attributes: ["name_pgm"],
-  //           },
-  //           {
-  //             model: SemanasTraining,
-  //             attributes: ["semanas_st"],
-  //           },
-  //         ],
-  //         required: true,
-  //       },
-  //     ],
-  //   });
-  //   res.status(200).json(ultimaMembresiaPorCliente);
-  // } catch (error) {
-  //   res.status(404).json(error);
-  // }
 };
 const getParametrosVendedoresVendiendoTodo = async (
   req = request,
@@ -787,6 +749,98 @@ const getParametrosColaboradoresRegistrados = async (
     res.status(404).json(error);
   }
 };
+const getCitasServicioxCliente = async (req = request, res = response) => {
+  try {
+    const { id_cli } = req.params;
+    const { fecha_param } = req.query;
+    const citasAdquiridasxMembresia = await CitasAdquiridas.findAll({
+      where: { id_cli },
+      attributes: ["id"],
+      raw: true,
+      include: [
+        {
+          model: Cliente,
+          attributes: [],
+        },
+        {
+          model: detalleVenta_membresias,
+          attributes: [],
+          required: true,
+          include: [
+            {
+              model: SemanasTraining,
+              attributes: [
+                ["nutricion_st", "citas_cantidad"],
+                [
+                  Sequelize.fn(
+                    "CONCAT",
+                    "CITA POR MEMBRESIA: ",
+                    Sequelize.col("nutricion_st")
+                  ),
+                  "cita_label",
+                ],
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const citasAdquiridasxVentas = await CitasAdquiridas.findAll({
+      where: { id_cli },
+      attributes: ["id"],
+      raw: true,
+      include: [
+        {
+          model: Cliente,
+          attributes: [],
+        },
+        {
+          model: detalleVenta_citas,
+          attributes: [
+            ["cantidad", "citas_cantidad"],
+            [
+              Sequelize.fn(
+                "CONCAT",
+                "CITA POR VENTA: ",
+                Sequelize.col("cantidad")
+              ),
+              "cita_label",
+            ],
+          ],
+          required: true,
+        },
+      ],
+    });
+    const EventoCita = await Cita.findAll({
+      where: { id_cli },
+      raw: true,
+      include: [
+        {
+          model: CitasAdquiridas,
+          attributes: [],
+        },
+      ],
+    });
+
+    res.status(200).json({
+      msg: "ok",
+      // adquiridasCitas: [
+      //   ...citasAdquiridasxMembresia,
+      //   ...citasAdquiridasxVentas,
+      // ],
+      // EventoCita,
+      citasDisponibles: calcularCitasDisponibles(
+        [...citasAdquiridasxMembresia, ...citasAdquiridasxVentas],
+        EventoCita,
+        fecha_param
+      ),
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json(error);
+  }
+};
 const getParametrosVentaFitology = async (req = request, res = response) => {
   const { tipo_serv } = req.params;
   try {
@@ -809,6 +863,54 @@ const getParametrosVentaFitology = async (req = request, res = response) => {
   } catch (error) {
     res.status(500).json(error);
   }
+};
+const calcularCitasDisponibles = (
+  citasAdquiridas,
+  citasUsadas,
+  fecha_param
+) => {
+  // Crear un mapa de citas usadas por ID de cita adquirida y filtrarlas por la fecha_param
+  const citasUsadasMap = citasUsadas.reduce((map, citaUsada) => {
+    const idCitaAdquirida = citaUsada.id_cita_adquirida;
+
+    // Contabilizar solo las citas usadas que son anteriores a fecha_param
+    if (new Date(citaUsada.fecha_init) < new Date(fecha_param)) {
+      map[idCitaAdquirida] = (map[idCitaAdquirida] || 0) + 1; // Sumar 1 por cada cita usada
+    }
+    return map;
+  }, {});
+
+  // Calcular las citas disponibles restando las usadas
+  const citasDisponibles = citasAdquiridas.map((cita) => {
+    const id = cita.id;
+
+    // Determinar la cantidad de citas según el tipo de venta (membresía o venta de citas)
+    const citasCantidad =
+      cita["detalle_ventaMembresium.tb_semana_training.citas_cantidad"] ||
+      parseInt(cita["detalle_ventaCita.citas_cantidad"] || 0, 10);
+
+    const citasUsadas = citasUsadasMap[id] || 0; // Cantidad de citas usadas para esta cita adquirida
+
+    // Restar citas usadas
+    const citasRestantes = citasCantidad - citasUsadas;
+
+    // Si quedan citas disponibles, devolver el objeto actualizado
+    if (citasRestantes > 0) {
+      return {
+        id: cita.id, // ID de la cita adquirida
+        label_membresia:
+          cita["detalle_ventaMembresium.tb_semana_training.cita_label"],
+        label_venta_cita: cita["detalle_ventaCita.cita_label"],
+        citas_disponibles: citasRestantes, // Cantidad de citas restantes
+      };
+    }
+
+    // Si no quedan citas disponibles, no incluir este objeto
+    return null;
+  });
+
+  // Filtrar las citas con más de 0 citas disponibles
+  return citasDisponibles.filter((cita) => cita !== null);
 };
 module.exports = {
   getParametrosVentaFitology,
@@ -838,4 +940,5 @@ module.exports = {
   getParametrosVendedoresVendiendoTodo,
   getParametrosInversionistasRegistrados,
   getParametrosColaboradoresRegistrados,
+  getCitasServicioxCliente,
 };

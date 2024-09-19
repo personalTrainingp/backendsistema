@@ -12,7 +12,6 @@ const getCitas = async (req = request, res = response) => {
       where: { flag: true },
       attributes: [
         "id",
-        "id_detallecita",
         "id_cli",
         "fecha_init",
         "fecha_final",
@@ -77,18 +76,18 @@ const getCitas = async (req = request, res = response) => {
 const postCita = async (req = request, res = response) => {
   const {
     id_cli,
-    id_detallecita,
+    id_cita_adquirida,
     fecha_init,
     fecha_final,
     status_cita,
     id_empl,
   } = req.body;
-  console.log(req.body);
+  console.log(req.body, "acacacac");
 
   try {
     const cita = new Cita({
-      id_detallecita,
       id_cli,
+      id_cita_adquirida,
       fecha_init,
       fecha_final,
       status_cita,
@@ -146,19 +145,12 @@ const putCita = async (req = request, res = response) => {
 };
 
 const getCitasxServicios = async (req = request, res = response) => {
-  const { tipo_serv } = req.params;
+  // const { tipo_serv } = req.params;
   try {
     const citas = await Cita.findAll({
       where: { flag: true },
       order: [["fecha_init", "desc"]],
-      attributes: [
-        "id",
-        "id_detallecita",
-        "id_cli",
-        "fecha_init",
-        "fecha_final",
-        "status_cita",
-      ],
+      attributes: ["id", "id_cli", "fecha_init", "fecha_final", "status_cita"],
       include: [
         {
           model: Cliente,
@@ -174,18 +166,6 @@ const getCitasxServicios = async (req = request, res = response) => {
               ),
               "nombres_apellidos_cli",
             ],
-          ],
-        },
-        {
-          model: detalleVenta_citas,
-          required: true,
-          include: [
-            {
-              model: Servicios,
-              attributes: ["id", "tipo_servicio"],
-              where: { tipo_servicio: tipo_serv },
-              required: true,
-            },
           ],
         },
       ],
