@@ -221,6 +221,7 @@ const getReporteVentasPrograma_COMPARATIVACONMEJORANO = async (
           "total_mensual",
         ],
       ],
+      where: { flag: true },
       include: [
         {
           model: detalleVenta_membresias,
@@ -334,6 +335,7 @@ const getReporteVentasPrograma_COMPARATIVACONMEJORANO = async (
             new Date(new Date(rangoDate[1]).getFullYear(), 11, 31),
           ], // Suponiendo que fecha_inicial y fecha_final son variables con las fechas deseadas
         },
+        flag: true,
       },
       include: [
         {
@@ -656,7 +658,7 @@ const getReporteVentasPrograma_EstadoCliente = async (
     let ventas_Programas_x_Cliente = await Venta.findAll({
       attributes: ["id_cli", "fecha_venta"],
       order: [["fecha_venta", "ASC"]],
-      where: {},
+      where: { flag: true },
       include: [
         {
           model: detalleVenta_membresias,

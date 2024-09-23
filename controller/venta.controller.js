@@ -539,6 +539,7 @@ const getPDF_CONTRATO = async (req = request, res = response) => {
 const get_VENTAS = async (req = request, res = response) => {
   try {
     const ventas = await Venta.findAll({
+      where: { flag: true },
       attributes: [
         "id",
         "id_cli",
@@ -636,7 +637,7 @@ const get_VENTA_ID = async (req = request, res = response) => {
         "fecha_venta",
         "observacion",
       ],
-      where: { id: id },
+      where: { id: id, flag: true },
       order: [["id", "DESC"]],
       include: [
         {
@@ -780,6 +781,7 @@ const getVentasxFecha = async (req = request, res = response) => {
         fecha_venta: {
           [Op.between]: [arrayDate[0], arrayDate[1]],
         },
+        flag: true,
       },
       order: [["id", "DESC"]],
       include: [

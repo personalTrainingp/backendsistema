@@ -657,6 +657,7 @@ const getParametrosVendedoresVendiendoTodo = async (
   try {
     const filtroVendedores_ventas = await Venta.findAll({
       attributes: ["id_empl", "fecha_venta"],
+      where: { flag: true },
       include: [
         {
           model: Empleado,
