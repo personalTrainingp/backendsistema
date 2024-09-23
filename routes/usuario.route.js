@@ -44,6 +44,8 @@ router.get("/get-cliente/:uid_cliente", validarJWT, getUsuarioCliente);
 router.get("/get-cliente/id/:id_cli", validarJWT, getUsuariosClientexID);
 router.put("/put-cliente/:uid_cliente", validarJWT, putUsuarioCliente);
 router.get("/delete-cliente/:uid_cliente", validarJWT, deleteUsuarioCliente);
+router.post("/post-file-dieta/:uid_location", validarJWT, )
+
 
 //usuario empleado
 router.post(

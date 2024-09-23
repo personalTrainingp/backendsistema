@@ -233,11 +233,11 @@ app.use(
   validarJWT,
   require("./routes/serviciosPT.router.js")
 );
-
 app.use("/api/cita", validarJWT, require("./routes/cita.router.js"));
 app.use("/api/prospecto", validarJWT, require("./routes/prospecto.router.js"));
 app.use("/api/auditoria", validarJWT, require("./routes/auditoria.router.js"));
 app.use("/api/aporte", validarJWT, require("./routes/aportes.router.js"));
+app.use("/api/dieta", validarJWT, require("./routes/dieta.router.js"));
 //Escuchar peticiones
 app.listen(env.PORT || 4001, () => {
   console.log(`Servidor corriendo en el puerto ${env.PORT || 4001}`);

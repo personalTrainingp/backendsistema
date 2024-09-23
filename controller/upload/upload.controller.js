@@ -33,6 +33,31 @@ const obtenerUpload_AVATAR = async (req, res) => {
     res.status(500).send("Error downloading file.");
   }
 };
+const obtener_nutricion_DIETAS = async(req, res)=>{
+  const containerName = "nutricion-dietas"; // Reemplaza con tu contenedor
+  const blobName = req.params.filename;
+  const downloadFilePath = `downloads/${blobName}`;
+
+  try {
+    await downloadFile(containerName, blobName, downloadFilePath);
+    res.download(downloadFilePath);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error downloading file.");
+  }
+}
+const uploadPost_nutricion_DIETAS = async (req, res) => {
+  const containerName = "nutricion-dietas"; // Reemplaza con tu contenedor
+  const blobName = req.file.originalname;
+  const filePath = req.file.path;
+  try {
+    await uploadFile(containerName, blobName, filePath);
+    res.status(200).send("File uploaded successfully.");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error uploading file.");
+  }
+};
 
 const upload = async (req, res) => {
   const { file } = req;
@@ -93,6 +118,33 @@ const uploadLogo = async (req, res) => {
     }
   };
   saveImage(req, res);
+};
+const uploadDieta = async (req, res) => {
+  const saveFile = async (req, res) => {
+    try {
+      const { file } = req;
+      const { uidLocation } = req.params;
+      if (!file) return;
+      const img = new ImagePT({
+        uid_location: uidLocation,
+        name_image: file.filename,
+        extension_image: file.mimetype,
+        clasificacion_image: "FILE-DIETA",
+        size_image: file.size,
+        uid: uid.v4(),
+      });
+      await img.save();
+      return res.status(200).json({
+        uuid_image: img.uuid_image,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        msg: "Error en el servidor",
+        error: error,
+      });
+    }
+  };
+  saveFile(req, res);
 };
 const uploadUpdate = async (req = request, res = response) => {
   const { uid } = req.params;
@@ -190,8 +242,11 @@ module.exports = {
   uploadLogo,
   uploadUpdate,
   uploadAvatar,
+  uploadDieta,
   getUpload,
   uploadTarjeta,
+  uploadPost_nutricion_DIETAS,
+  obtener_nutricion_DIETAS,
 
   uploadPost_AVATAR,
   obtenerUpload_AVATAR,
