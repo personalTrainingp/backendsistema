@@ -27,6 +27,11 @@ const fontkit = require("fontkit");
 const path = require("path");
 const { Client_Contrato } = require("../helpers/pdf/Client_Contrato");
 const dayjs = require("dayjs");
+const transporterU = require("../config/nodemailer");
+const { mailMembresiaSTRING } = require("../middlewares/mails");
+require("dotenv").config();
+const env = process.env;
+
 function calcularEdad(fecha_nac) {
   const hoy = dayjs();
   const fechaNacimiento = dayjs(fecha_nac);
@@ -36,6 +41,7 @@ function calcularEdad(fecha_nac) {
 function formatearNumero(numero) {
   return numero.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
 }
+
 const postVenta = async (req = request, res = response) => {
   // const {} = req.body;
   // console.log(req, "en post ventas");
@@ -100,365 +106,22 @@ const postVenta = async (req = request, res = response) => {
     });
   }
 };
-const CONTRATO_CLIENT = async (req = request, res = response) => {
-  const {
-    firmaCli,
-    nutric,
-    cong,
-    time_h,
-    id_pgm,
-    name_pgm,
-    fechaInicio_programa,
-    fechaFinal,
-  } = req.body.dataVenta;
-  const dataInfo = {
-    nombresCliente: "Carlos Kenedy",
-    apPaternoCliente: "Rosales",
-    dni: "60936591",
-    DireccionCliente: "direccion avenida",
-    PaisCliente: "Peru",
-    CargoCliente: "Empleado",
-    EmailCliente: "carlosrosales21092002@gmail.com",
-    EdadCliente: "22",
-    apMaternoCliente: "Morales",
-    DistritoCliente: "Barranco",
-    FechaDeNacimientoCliente: "21 de setiembre del 2002",
-    CentroDeTrabajoCliente: "Empresa",
-    origenCliente: "Facebook",
-    sede: "Miraflores",
-    nContrato: "1234",
-    codigoSocio: "123",
-    fecha_venta: "21/09/2024",
-    hora_venta: "13:00:00 p.m.",
-    //datos de membresia
-    id_pgm: 4,
-    Programa: "MUSCLE",
-    fec_inicio: "21/09/2024",
-    fec_fin: "21/09/2025",
-    horario: "05:00 pm",
-    semanas: "4",
-    dias_cong: "5",
-    sesiones_nutricion: "8",
-    asesor: "Alvaro",
-    forma_pago: [
-      "Tarj. de credito Bbva",
-      "yape",
-      "plin",
-      "transferencia bancaria",
-    ],
-    monto: "1,150.00",
-    //Firma
-    firma_cli: firmaCli,
-  };
-  // Cargar el PDF existente
-  const existingPdfBytes = fs.readFileSync("input.pdf");
-  // Cargar el documento PDF en memoria
-  const pdfDoc = await PDFDocument.load(existingPdfBytes);
-  // Obtener la primera página del PDF
-  const pages = pdfDoc.getPages();
-  const firstPage = pages[0];
-  const page13 = pages[12];
-  const page10 = pages[9];
+const obtener_contrato_pdf = async (req = request, res = response) => {
+  try {
+    const { dataVenta, detalle_cli_modelo } = req.body;
 
-  //IMAGEN DE UN CHECK
-  const IMAGEcheck = path.join(__dirname, "..", "public", "Green_check.png");
-  // Leer la imagen como buffer
-  const imagecheckBuffer = fs.readFileSync(IMAGEcheck);
-
-  const pngImage = await pdfDoc.embedPng(imagecheckBuffer);
-  switch (dataInfo.id_pgm) {
-    case 2:
-      // Dibujar la imagen en la primera página en una posición y tamaño especificado
-      const checkCHANGE45 = firstPage.drawImage(pngImage, {
-        x: 180,
-        y: 320,
-        width: 45,
-        height: 45,
-      });
-      break;
-    case 3:
-      const checkFS45 = firstPage.drawImage(pngImage, {
-        x: 295,
-        y: 320,
-        width: 45,
-        height: 45,
-      });
-      break;
-    case 4:
-      const checkMUSCLE45 = firstPage.drawImage(pngImage, {
-        x: 410,
-        y: 320,
-        width: 45,
-        height: 45,
-      });
-      break;
-    default:
-      break;
+    const pdfContrato = await getPDF_CONTRATO(dataVenta, detalle_cli_modelo);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=CONTRATO-CLIENTE.pdf"
+    );
+    res.send(Buffer.from(pdfContrato));
+  } catch (error) {
+    console.log(error);
   }
-
-  if (dataInfo.firma_cli) {
-    // Decodificar la imagen base64 en un buffer
-    const base64Data = dataInfo.firma_cli.split(",")[1]; // Obtener solo la parte base64 sin el encabezado
-    const imageBuffer = Buffer.from(base64Data, "base64");
-    // Incrustar la imagen PNG en el PDF
-    const pngImage = await pdfDoc.embedPng(imageBuffer); // O embedJpg si es una imagen JPG
-    // Dibujar la imagen en la primera página en una posición y tamaño especificado
-    firstPage.drawImage(pngImage, {
-      x: 255,
-      y: 60,
-      width: 100,
-      height: 60,
-    });
-    page10.drawImage(pngImage, {
-      x: 250,
-      y: 430,
-      width: 120,
-      height: 50,
-    });
-    page13.drawImage(pngImage, {
-      x: 250,
-      y: 166,
-      width: 120,
-      height: 50,
-    });
-  }
-
-  //*DATOS CABECERA
-  const sede = firstPage.drawText(dataInfo.sede, {
-    x: 110,
-    y: 650,
-    size: 12,
-    color: rgb(0, 0, 0),
-  });
-  const fecha_hora_venta = firstPage.drawText(
-    `${dataInfo.fecha_venta} ${dataInfo.hora_venta}`,
-    {
-      x: 390,
-      y: 650,
-      size: 12,
-      color: rgb(0, 0, 0),
-    }
-  );
-  const nContrato = firstPage.drawText(`#${dataInfo.nContrato}`, {
-    x: 67,
-    y: 800,
-    size: 30,
-    color: rgb(0, 0, 0),
-  });
-  const codigoSocio = firstPage.drawText(`#${dataInfo.codigoSocio}`, {
-    x: 440,
-    y: 800,
-    size: 30,
-    color: rgb(0, 0, 0),
-  });
-
-  //*DATOS PERSONALES DEL SOCIO
-  //Primera fila
-  const nombresCliente = firstPage.drawText(dataInfo.nombresCliente, {
-    x: 183,
-    y: 590,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const apPaternoCliente = firstPage.drawText(dataInfo.apPaternoCliente, {
-    x: 183,
-    y: 565,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const dniCliente = firstPage.drawText(dataInfo.dni, {
-    x: 183,
-    y: 539,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const DireccionCliente = firstPage.drawText(dataInfo.DireccionCliente, {
-    x: 183,
-    y: 510,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const PaisCliente = firstPage.drawText(dataInfo.PaisCliente, {
-    x: 183,
-    y: 478,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const CargoCliente = firstPage.drawText(dataInfo.CargoCliente, {
-    x: 183,
-    y: 448,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const EmailCliente = firstPage.drawText(dataInfo.EmailCliente, {
-    x: 183,
-    y: 418,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  //Segunda columna
-  const EdadCliente = firstPage.drawText(dataInfo.EdadCliente, {
-    x: 420,
-    y: 590,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const apMaternoCliente = firstPage.drawText(dataInfo.apMaternoCliente, {
-    x: 420,
-    y: 565,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const DistritoCliente = firstPage.drawText(dataInfo.DistritoCliente, {
-    x: 420,
-    y: 539,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const FechaDeNacimientoCliente = firstPage.drawText(
-    dataInfo.FechaDeNacimientoCliente,
-    {
-      x: 420,
-      y: 510,
-      size: 9,
-      color: rgb(0, 0, 0),
-    }
-  );
-  const CentroDeTrabajoCliente = firstPage.drawText(
-    dataInfo.CentroDeTrabajoCliente,
-    {
-      x: 420,
-      y: 478,
-      size: 9,
-      color: rgb(0, 0, 0),
-    }
-  );
-  const origenCliente = firstPage.drawText(dataInfo.origenCliente, {
-    x: 420,
-    y: 448,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-
-  //*DATOS DEL PROGRAMA
-  //Columna 1
-  const Programa = firstPage.drawText(dataInfo.Programa, {
-    x: 176,
-    y: 280,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const FecInicio = firstPage.drawText(dataInfo.fec_inicio, {
-    x: 176,
-    y: 252,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const FormaPago = firstPage.drawText(
-    dataInfo.forma_pago.length > 0
-      ? dataInfo.forma_pago.slice(0, -1).join(", ") +
-          " y " +
-          dataInfo.forma_pago.slice(-1)
-      : "Ninguna",
-    {
-      x: 176,
-      y: 225,
-      size: 9,
-      color: rgb(0, 0, 0),
-    }
-  );
-  const DiasDeCongelamiento = firstPage.drawText(dataInfo.dias_cong, {
-    x: 176,
-    y: 196,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  //Columna 2
-  const FechaFin = firstPage.drawText(dataInfo.fec_fin, {
-    x: 335,
-    y: 252,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const SesionesNutricionista = firstPage.drawText(
-    dataInfo.sesiones_nutricion,
-    {
-      x: 335,
-      y: 196,
-      size: 9,
-      color: rgb(0, 0, 0),
-    }
-  );
-  //Columna 3
-  const Sesiones = firstPage.drawText(`${dataInfo.semanas * 6}`, {
-    x: 476,
-    y: 280,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const horario = firstPage.drawText(`${dataInfo.horario}`, {
-    x: 476,
-    y: 252,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const asesor = firstPage.drawText(`${dataInfo.asesor}`, {
-    x: 476,
-    y: 196,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  const Monto = firstPage.drawText(dataInfo.monto, {
-    x: 476,
-    y: 225,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  //*DATO DEL pag 09
-  page10.drawText(
-    `${dataInfo.nombresCliente} ${dataInfo.apPaternoCliente} ${dataInfo.apMaternoCliente}`,
-    {
-      x: 205,
-      y: 527,
-      size: 9,
-      color: rgb(0, 0, 0),
-    }
-  );
-  page10.drawText(`${dataInfo.dni}`, {
-    x: 205,
-    y: 502,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-  //*DATO DEL pag 13
-  page13.drawText(`${dataInfo.fecha_venta} ${dataInfo.hora_venta}`, {
-    x: 397,
-    y: 306,
-    size: 12,
-    color: rgb(0, 0, 0),
-  });
-  page13.drawText(
-    `${dataInfo.nombresCliente} ${dataInfo.apPaternoCliente} ${dataInfo.apMaternoCliente}`,
-    {
-      x: 205,
-      y: 261,
-      size: 9,
-      color: rgb(0, 0, 0),
-    }
-  );
-  page13.drawText(`${dataInfo.dni}`, {
-    x: 205,
-    y: 234,
-    size: 9,
-    color: rgb(0, 0, 0),
-  });
-
-  // Serializar el documento PDF a bytes
-  const pdfBytes = await pdfDoc.save();
-  req.byteContrato = pdfBytes;
-  next();
 };
-const getPDF_CONTRATO = async (req = request, res = response) => {
+const getPDF_CONTRATO = async (detalle_membresia, dataVenta) => {
   const {
     semanas,
     firmaCli,
@@ -470,20 +133,18 @@ const getPDF_CONTRATO = async (req = request, res = response) => {
     fechaInicio_programa,
     fechaFinal,
     tarifa,
-  } = req.body.dataVenta;
+  } = detalle_membresia;
   const fecha_Venta = new Date();
-  const { id_empl, id_cliente } = req.body.detalle_cli_modelo;
+  const { id_empl, id_cli } = dataVenta;
   const data_cliente = await Cliente.findOne({
-    where: { flag: true, id_cli: id_cliente },
+    where: { flag: true, id_cli: id_cli },
   });
   const data_empl = await Empleado.findOne({
     where: { flag: true, id_empl: id_empl },
   });
-  const data_tarifa = await TarifaTraining.findOne({
-    where: { flag: true, tarifaCash_tt: tarifa },
-  });
-  console.log(data_tarifa.tarifaCash_tt);
-
+  // const data_tarifa = await TarifaTraining.findOne({
+  //   where: { flag: true, tarifaCash_tt: tarifa },
+  // });
   const dataInfo = {
     nombresCliente: data_cliente.nombre_cli,
     apPaternoCliente: data_cliente.apPaterno_cli,
@@ -521,7 +182,7 @@ const getPDF_CONTRATO = async (req = request, res = response) => {
       "plin",
       "transferencia bancaria",
     ],
-    monto: `S/. ${formatearNumero(data_tarifa.tarifaCash_tt)}`,
+    monto: `S/. ${formatearNumero(tarifa)}`,
     //Firma
     firma_cli: firmaCli,
   };
@@ -529,12 +190,7 @@ const getPDF_CONTRATO = async (req = request, res = response) => {
   const pdfContrato = await Client_Contrato(dataInfo);
 
   // Enviar el PDF como respuesta
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader(
-    "Content-Disposition",
-    "attachment; filename=CONTRATO-CLIENTE.pdf"
-  );
-  res.send(Buffer.from(pdfContrato));
+  return pdfContrato;
 };
 const get_VENTAS = async (req = request, res = response) => {
   try {
@@ -902,6 +558,370 @@ const getVentasxFecha = async (req = request, res = response) => {
     });
   }
 };
+
+const mailMembresia = async (req = request, res = response) => {
+  const { id_venta } = req.params;
+  const { firma_base64 } = req.body;
+  const venta = await Venta.findOne({ where: { id: id_venta } });
+  const detalleMembresia = await detalleVenta_membresias.findOne({
+    where: { id_venta: id_venta },
+  });
+  const detalle_semana = await SemanasTraining.findOne({
+    where: { id_st: detalleMembresia.id_st },
+  });
+  const detalle_programa = await ProgramaTraining.findOne({
+    where: { id_pgm: detalleMembresia.id_pgm },
+  });
+
+  const detalle_membresia = {
+    semanas: detalle_semana.semanas_st,
+    firmaCli: firma_base64,
+    nutric: detalle_semana.nutricion_st,
+    cong: detalle_semana.congelamiento_st,
+    time_h: detalleMembresia.horario,
+    id_pgm: detalleMembresia.id_pgm,
+    name_pgm: detalle_programa.name_pgm,
+    fechaInicio_programa: `${new Date(detalleMembresia.fec_inicio_mem)}`,
+    fechaFinal: `${new Date(detalleMembresia.fec_fin_mem)}`,
+    tarifa: detalleMembresia.tarifa_monto,
+  };
+  const detalleVenta = { id_cli: venta.id_cli, id_empl: venta.id_empl };
+  const dataCliente = await Cliente.findOne({
+    where: { id_cli: detalleVenta.id_cli },
+  });
+  const dataEmpleado = await Empleado.findOne({
+    where: { id_empl: detalleVenta.id_empl },
+  });
+  try {
+    const pdfContrato = await getPDF_CONTRATO(detalle_membresia, detalleVenta);
+    const banner1_Attachment = {
+      filename: "mailing01.jpg",
+      path: "./public/mailingContrato/mailing01.png",
+      cid: "mailing1@nodemailer.com", // Identificador único para incrustar la imagen
+    };
+    const banner2_Attachment = {
+      filename: "mailing03.jpg",
+      path: "./public/mailingContrato/mailing03.png",
+      cid: "mailing2@nodemailer.com", // Identificador único para incrustar la imagen
+    };
+    const footer_Attachment = {
+      filename: "mailing04.jpg",
+      path: "./public/mailingContrato/mailing04.png",
+      cid: "footer_change@nodemailer.com", // Identificador único para incrustar la imagen
+    };
+    const mailOptions = {
+      from: env.EMAIL_CONTRATOS, // Remitente
+      to: "carlosrosales21092002@hotmail.com", // Destinatario(s)
+      subject: "Asunto del correo", // Asunto
+      text: "Contenido del mensaje", // Cuerpo del correo en texto plano
+      attachments: [
+        banner1_Attachment,
+        banner2_Attachment,
+        footer_Attachment,
+        {
+          filename: "contrato_servicios.pdf", // Nombre que verá el destinatario
+          content: Buffer.from(pdfContrato), // Los bytes del PDF en forma de Buffer
+          contentType: "application/pdf", // Tipo de contenido
+        },
+      ],
+      // Puedes usar `html` en lugar de `text` para enviar un correo con formato HTML
+      html: `${mailMembresiaSTRING(
+        `${dataCliente.nombre_cli} ${dataCliente.apPaterno_cli}`,
+        id_venta,
+        detalleVenta.id_cli,
+        detalle_membresia.semanas,
+        detalle_membresia.fechaInicio_programa,
+        detalle_membresia.fechaFinal,
+        detalle_membresia.time_h,
+        "Boleta",
+        venta.numero_transac,
+        detalle_membresia.tarifa,
+        detalle_membresia.cong,
+        detalle_membresia.nutric,
+        `${dataEmpleado.nombre_empl} ${dataEmpleado.apPaterno_empl}`
+      )}`,
+      headers: {
+        "List-Unsubscribe": `<mailto:${env.EMAIL_CONTRATOS}?subject=unsubscribe>`,
+      },
+    };
+    // Envía el correo
+    transporterU.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      console.log("Correo enviado: " + info.response);
+    });
+
+    res.status(200).json({
+      ok: true,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(501).json({
+      ok: false,
+    });
+  }
+  // const {
+  //   nutric,
+  //   semanas,
+  //   name_pgm,
+  //   fechaFinal,
+  //   fechaInicio_programa,
+  //   cong,
+  //   tarifa_monto,
+  //   horario,
+  // } = req.ventaProgramas[0];
+  // const {
+  //   id_cli,
+  //   label_cli,
+  //   label_empl,
+  //   label_tipo_transac,
+  //   numero_transac,
+  //   email_cli,
+  // } = req.detalle_cli;
+  // if (!email_cli) {
+  //   next();
+  //   return;
+  // }
+  // // Crear un objeto de mensaje para enviar por SMTP
+  // if (email_cli.trim().length <= 0) {
+  //   next();
+  //   return;
+  // }
+  // const contrato_CLIENT = await getPDF_CONTRATO(
+  //   req.ventaProgramas[0],
+  //   req.detalle_cli,
+  //   (res = response)
+  // );
+  // const EMAIL_INFO = {
+  //   regEmail: email_cli,
+  //   nombre_cli: label_cli,
+  //   n_contrato: req.ventaID,
+  //   cod_participante: id_cli,
+  //   membresia: name_pgm,
+  //   semanas: semanas,
+  //   fec_inicio: fechaInicio_programa,
+  //   fec_termino: fechaFinal,
+  //   horario: horario,
+  //   boleta: `${label_tipo_transac} ${numero_transac}`,
+  //   monto: `S/${tarifa_monto}`,
+  //   dias_cong: cong,
+  //   citas_nut: nutric,
+  //   asesor_Fitness: label_empl,
+  //   //informacion detail
+  //   ubicacion_empresa: "Av. Tarata N°226",
+  //   distrito_empresa: "Miraflores",
+  //   wsp1: "994 679 163",
+  //   wsp2: "960 270 237",
+  // };
+  // // Leer la imagen del sistema de archivos
+  // const imageLOGOAttachment = {
+  //   filename: "imageLOGO.jpg",
+  //   path: "./public/logo.png",
+  //   cid: "LOGO@nodemailer.com", // Identificador único para incrustar la imagen
+  // };
+  // const imageBANNERAttachment = {
+  //   filename: "imageBANNER.jpg",
+  //   path: "./public/banner.png",
+  //   cid: "BANNER@nodemailer.com", // Identificador único para incrustar la imagen
+  // };
+  // const mailOptions = {
+  //   from: "notificaciones@change.com.pe",
+  //   to: `${EMAIL_INFO.regEmail}`,
+  //   subject: "Asunto del correo",
+  //   attachments: [
+  //     imageLOGOAttachment,
+  //     imageBANNERAttachment,
+  //     {
+  //       filename: `${EMAIL_INFO.nombre_cli}.docx`,
+  //       path: "./middlewares/CORRECCION DE CONTRATO PT.docx", // Ruta absoluta del archivo que quieres adjuntar
+  //     },
+  //   ],
+  //   html: `
+  //   <!DOCTYPE html>
+  //   <html lang="en">
+  //   <head>
+  //       <meta charset="UTF-8">
+  //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  //       <title>${EMAIL_INFO.nombre_cli}</title>
+  //       <style>
+  //           body {
+  //               font-family: Arial, sans-serif;
+  //           }
+
+  //           table {
+  //               width: 100%;
+  //               border-collapse: collapse;
+  //           }
+
+  //           th {
+  //               background-color: #f2f2f2;
+  //           }
+
+  //           .logo {
+  //               width: 400px;
+  //               margin: 0 auto;
+  //               display: block;
+  //           }
+
+  //           .text-center {
+  //               text-align: center;
+  //           }
+
+  //           .bold {
+  //               font-weight: bold;
+  //           }
+  //           .bg-primary{
+  //               background-color: #FF5000;
+  //           }
+  //           .bg-black{
+  //               background-color: #000;
+  //           }
+  //           .m-0{
+  //               margin: 0;
+  //           }
+  //           .color-white{
+  //               color: #fff;
+  //           }
+  //           .body-table{
+  //               display: flex;
+  //               justify-content: center;
+  //           }
+  //           .dflex-jcenter{
+  //               display: flex;
+  //               justify-content: center;
+  //           }
+  //           .table-info tr{
+  //               display: flex;
+  //               justify-content: center;
+  //           }
+  //           .table-info td{
+  //               width: 100%;
+  //           }
+  //           .table-info .param{
+  //               text-align: right;
+  //           }
+  //           .table-info tr{
+  //               margin-bottom: 5px;
+  //           }
+  //           .table-info{
+  //               font-size: 18px;
+  //           }
+
+  //       </style>
+  //   </head>
+
+  //   <body>
+  //           <table class="body-table" style="margin-bottom: 50px;">
+  //               <tbody style="width: 650px;  display: flex; flex-direction: column;">
+  //                   <tr>
+  //                       <td colspan="2" class="dflex-jcenter">
+  //                           <img class="logo" src="cid:LOGO@nodemailer.com" style="display: block; height: 200px; margin: 0px auto 20px; width: 250px; cursor: pointer; min-height: auto; min-width: auto;" alt="Logo">
+  //                       </td>
+  //                   </tr>
+  //                   <tr style="display: flex; justify-content: space-between;">
+  //                       <td class="welcome">
+  //                           <div style="margin-bottom: 30px;">
+  //                               <h1 style="font-size: 25px; margin-bottom: 10px;">Bienvenido(a):</h1>
+  //                               <p class="bold m-0" style="font-size: 30px; text-decoration: underline; text-underline-offset: 10px;">${EMAIL_INFO.nombre_cli}</p>
+  //                           </div>
+  //                           <div style="font-style: italic;">
+  //                               <h1 style="margin: 0; font-size: 20px; font-weight: bold;">¡Gracias por unirte a</h1>
+  //                               <p style="margin: 0; font-family: 'Archivo Black', sans-serif; color: #FF5000; font-weight: bold; font-size: 30px;">Personal Training!</p>
+  //                           </div>
+  //                       </td>
+  //                       <td class="digitos">
+  //                       <div style="width: 140px;" class="bg-primary">
+  //                           <p class="bold text-center bg-black color-white bold m-0" style="font-size: 10px; padding: 5px;">CONTRATO N°</p>
+  //                           <p class="text-center m-0 color-white" style="font-size: 30px;">${EMAIL_INFO.n_contrato}</p>
+  //                       </div>
+  //                       <div style="width: 140px; margin-top: 20px;" class="bg-primary">
+  //                           <p class="bold text-center bg-black color-white bold m-0" style="font-size: 10px; padding: 5px;">COD. DEL PARTICIPANTE</p>
+  //                           <p class="text-center m-0 color-white" style="font-size: 30px;">${EMAIL_INFO.cod_participante}</p>
+  //                       </div>
+  //                       </td>
+  //                   </tr>
+  //               </tbody>
+  //           </table>
+
+  //               <div style="width: 100%;" class="text-center">
+  //                   <span style="background-color: black; color: #fff; padding: 10px 15px; position: relative; top: 10px; font-weight: bold;">
+  //                       R E S U M E N
+  //                   </span>
+  //               </div>
+
+  //               <table class="body-table table-info" style="margin-bottom: 50px;">
+  //               <tbody style="width: 500px;  display: flex; flex-direction: column; justify-content: center; border: 1px solid black; padding: 30px 10px; border-radius: 20px;">
+  //                   <tr>
+  //                       <td class="bold param">Programa: </td>
+  //                       <td>${EMAIL_INFO.membresia}</td>
+  //                   </tr>
+  //                   <tr>
+  //                       <td class="bold param">Semanas: </td>
+  //                       <td>${EMAIL_INFO.semanas}</td>
+  //                   </tr>
+  //                   <tr>
+  //                       <td class="bold param">Fecha de inicio: </td>
+  //                       <td>${EMAIL_INFO.fec_inicio}</td>
+  //                   </tr>
+  //                   <tr>
+  //                       <td class="bold param">Fecha de termino:</td>
+  //                       <td>${EMAIL_INFO.fec_termino}</td>
+  //                   </tr>
+  //                   <tr>
+  //                       <td class="bold param">Horario: </td>
+  //                       <td>${EMAIL_INFO.horario}</td>
+  //                   </tr>
+  //                   <tr>
+  //                       <td class="bold param">Dias de congelamiento: </td>
+  //                       <td>${EMAIL_INFO.dias_cong}</td>
+  //                   </tr>
+  //                   <tr>
+  //                       <td class="bold param">Citas nutricionista:</td>
+  //                       <td>${EMAIL_INFO.citas_nut}</td>
+  //                   </tr>
+  //                   <tr>
+  //                       <td class="bold param">Boleta:</td>
+  //                       <td>${EMAIL_INFO.boleta}</td>
+  //                   </tr>
+  //                   <tr>
+  //                       <td class="bold param">Monto:</td>
+  //                       <td>${EMAIL_INFO.monto}</td>
+  //                   </tr>
+  //                   <tr>
+  //                       <td class="bold param">Asesor Fitness:</td>
+  //                       <td>${EMAIL_INFO.asesor_Fitness}</td>
+  //                   </tr>
+  //               </tbody>
+  //           </table>
+  //           <tr>
+  //           <table class="body-table" style="margin-bottom: 50px;">
+  //           <tbody style="width: 650px;  display: flex; flex-direction: column;">
+  //                       <td colspan="2" class="dflex-jcenter">
+  //                           <img src="BANNER@nodemailer.com" alt="banner"/>
+  //                       </td>
+  //                   </tr>
+  //           </tbody>
+  //           </table>
+  //   </body>
+
+  //   </html>
+  //     `,
+  // };
+  // // Enviar correo electrónico por SMTP
+  // transporterU.sendMail(mailOptions, function (error, info) {
+  //   if (error) {
+  //     console.error(error);
+  //   } else {
+  //     console.log("Correo electrónico enviado: " + info.response);
+  //   }
+
+  //   // Cerrar la conexión SMTP
+  //   transporterU.close();
+  // });
+  // next();
+};
 const get_VENTAS_detalle_PROGRAMA = async (req = request, res = response) => {};
 const get_VENTAS_detalle_PRODUCTO = async (req = request, res = response) => {};
 const get_VENTAS_detalle_CITAS = async (req = request, res = response) => {};
@@ -913,6 +933,7 @@ module.exports = {
   get_VENTAS_detalle_PRODUCTO,
   get_VENTAS_detalle_CITAS,
   getPDF_CONTRATO,
-  CONTRATO_CLIENT,
+  obtener_contrato_pdf,
   getVentasxFecha,
+  mailMembresia,
 };

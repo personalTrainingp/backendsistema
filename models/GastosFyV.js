@@ -81,6 +81,9 @@ const Gastos = db.define("tb_egresos", {
   descripcion: {
     type: DataTypes.STRING(600),
   },
+  cod_trabajo: {
+    type: DataTypes.STRING(8),
+  },
   id_prov: {
     type: DataTypes.INTEGER,
   },

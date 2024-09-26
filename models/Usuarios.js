@@ -4,7 +4,6 @@ const { db } = require("../database/sequelizeConnection");
 const { ImagePT } = require("./Image");
 const { Parametros } = require("./Parametros");
 const uuid = require("uuid");
-const { empleados } = require("../types/type");
 //El usuario es todo aca, cuando registra un producto, el es al que se le notifica si el producto esta en stock minimo
 //Hay una pagina que se encarga de ver a quien notificar que hacen los usuarios
 const Usuario = db.define("auth_user", {
@@ -278,23 +277,23 @@ module.exports = {
   Usuario,
 };
 const carcel2 = () => {
-  const empleadosConUuid = empleados.map((empleado) => ({
-    ...empleado,
-    uid: uuid.v4(),
-    uid_avatar: uuid.v4(),
-    horario_empl: "",
-    cargo_empl: 0,
-    departamento_empl: 0,
-    salario_empl: 0.0,
-    uid_contactsEmergencia: uuid.v4(),
-    uid_comentario: uuid.v4(),
-    tipoContrato_empl: 0,
-  }));
-  Empleado.bulkCreate(empleadosConUuid)
-    .then(() => {
-      console.log("empleados successfully");
-    })
-    .catch((error) => {
-      console.error("Error inserting posts:");
-    });
+  // const empleadosConUuid = empleados.map((empleado) => ({
+  //   ...empleado,
+  //   uid: uuid.v4(),
+  //   uid_avatar: uuid.v4(),
+  //   horario_empl: "",
+  //   cargo_empl: 0,
+  //   departamento_empl: 0,
+  //   salario_empl: 0.0,
+  //   uid_contactsEmergencia: uuid.v4(),
+  //   uid_comentario: uuid.v4(),
+  //   tipoContrato_empl: 0,
+  // }));
+  // Empleado.bulkCreate(empleadosConUuid)
+  //   .then(() => {
+  //     console.log("empleados successfully");
+  //   })
+  //   .catch((error) => {
+  //     console.error("Error inserting posts:");
+  //   });
 };

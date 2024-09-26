@@ -9,6 +9,35 @@ ip_user: '127.0.0.1',
   uid: 'b3b6be6f-5f21-4e49-a12b-40a8c7e24e35',
   name: 'Carlos',
 */
+const getProveedorxUID = async (req = request, res = response) => {
+  try {
+    const { uid } = req.params;
+
+    if (!uid) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No hay uid",
+      });
+    }
+    const proveedor = await Proveedor.findOne({
+      where: { flag: true, uid: uid },
+    });
+    if (!proveedor) {
+      return res.status(404).json({
+        ok: false,
+        msg: `No existe un proveedor con el uid "${uid}"`,
+      });
+    }
+    res.status(200).json({
+      proveedor,
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: true,
+      msg: "Hable con el encargado de sistema",
+    });
+  }
+};
 const getTBProveedores = async (req = request, res = response) => {
   try {
     const proveedores = await Proveedor.findAll({
@@ -20,6 +49,7 @@ const getTBProveedores = async (req = request, res = response) => {
         "nombre_vend_prov",
         ["estado_prov", "estado"],
         "id",
+        "uid",
       ],
       where: { flag: true },
     });
@@ -187,4 +217,5 @@ module.exports = {
   getProveedor,
   deleteProveedor,
   updateProveedor,
+  getProveedorxUID,
 };

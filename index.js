@@ -227,7 +227,7 @@ app.use("/api/comision", validarJWT, require("./routes/comision.router.js"));
 //TODO: FORMA PAGO
 app.use("/api/formaPago", validarJWT, require("./routes/formaPago.router.js"));
 app.use("/api/rol", validarJWT, require("./routes/roles.router.js"));
-app.use("/api/venta", validarJWT, require("./routes/venta.router.js"));
+app.use("/api/venta", require("./routes/venta.router.js"));
 app.use(
   "/api/serviciospt",
   validarJWT,

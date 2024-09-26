@@ -772,14 +772,7 @@ const getCitasServicioxCliente = async (req = request, res = response) => {
               model: SemanasTraining,
               attributes: [
                 ["nutricion_st", "citas_cantidad"],
-                [
-                  Sequelize.fn(
-                    "CONCAT",
-                    "CITA POR MEMBRESIA: ",
-                    Sequelize.col("nutricion_st")
-                  ),
-                  "cita_label",
-                ],
+                [Sequelize.fn("CONCAT", "", "MEMBRESIA: "), "cita_label"],
               ],
             },
           ],
@@ -799,14 +792,7 @@ const getCitasServicioxCliente = async (req = request, res = response) => {
           model: detalleVenta_citas,
           attributes: [
             ["cantidad", "citas_cantidad"],
-            [
-              Sequelize.fn(
-                "CONCAT",
-                "CITA POR VENTA: ",
-                Sequelize.col("cantidad")
-              ),
-              "cita_label",
-            ],
+            [Sequelize.fn("CONCAT", "", "VENTA: "), "cita_label"],
           ],
           required: true,
         },
@@ -871,13 +857,14 @@ const calcularCitasDisponibles = (
   fecha_param
 ) => {
   // Crear un mapa de citas usadas por ID de cita adquirida y filtrarlas por la fecha_param
+
   const citasUsadasMap = citasUsadas.reduce((map, citaUsada) => {
     const idCitaAdquirida = citaUsada.id_cita_adquirida;
+    map[idCitaAdquirida] = (map[idCitaAdquirida] || 0) + 1; // Sumar 1 por cada cita usada
 
     // Contabilizar solo las citas usadas que son anteriores a fecha_param
-    if (new Date(citaUsada.fecha_init) < new Date(fecha_param)) {
-      map[idCitaAdquirida] = (map[idCitaAdquirida] || 0) + 1; // Sumar 1 por cada cita usada
-    }
+    // if (new Date(citaUsada.fecha_init) < new Date(fecha_param)) {
+    // }
     return map;
   }, {});
 

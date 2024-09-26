@@ -297,6 +297,13 @@ const seccionGET = async (req = request, res = response) => {
           url: "/gestion-proveedores",
         },
         {
+          key: "trab-prov",
+          label: "Trabajos de Proveedores",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/proveedores/trabajos-proveedores",
+        },
+        {
           key: "planilla",
           label: "Planilla",
           isTitle: true,

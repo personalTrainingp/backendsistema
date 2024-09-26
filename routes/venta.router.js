@@ -1,6 +1,5 @@
 const { Router } = require("express");
 const {
-  mailMembresia,
   extraerPagos,
   extraerVentaMembresia,
   extraerCredencialesCliente,
@@ -12,17 +11,17 @@ const {
 const {
   postVenta,
   get_VENTA_ID,
+  mailMembresia,
   getPDF_CONTRATO,
   get_VENTAS,
   getVentasxFecha,
-  CONTRATO_CLIENT,
+  obtener_contrato_pdf,
 } = require("../controller/venta.controller");
 const { obtener_estado_membresia } = require("../middlewares/logicaSistema");
 const router = Router();
 /*
 /api/venta
 */
-router.post("send-email", mailMembresia);
 router.post(
   "/post-ventas",
   extraerCredencialesCliente,
@@ -33,9 +32,10 @@ router.post(
   postNewVenta,
   postVenta
 );
+// router.post("/send-email", mailMembresia);
 router.get("/get-ventas-x-fecha", getVentasxFecha);
 router.get("/get-ventas", get_VENTAS);
+router.post("/invoice-mail/:id_venta", mailMembresia);
 router.get("/get-id-ventas/:id", get_VENTA_ID);
-router.post("/invoice-PDFcontrato", getPDF_CONTRATO);
-router.get("/invoice-mail", mailMembresia);
+router.post("/invoice-PDFcontrato", obtener_contrato_pdf);
 module.exports = router;

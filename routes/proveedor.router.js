@@ -3,6 +3,7 @@ const {
   getTBProveedores,
   PostProveedores,
   getProveedor,
+  getProveedorxUID,
   deleteProveedor,
   updateProveedor,
 } = require("../controller/proveedor.controller");
@@ -10,6 +11,7 @@ const { validarJWT } = require("../middlewares/validarJWT");
 const router = Router();
 
 router.get("/obtener-proveedores", getTBProveedores);
+router.get("/obtener-proveedor-uid/:uid", getProveedorxUID);
 router.post("/post-proveedor", PostProveedores);
 router.get("/obtener-proveedor/:id", getProveedor);
 router.put("/remove-proveedor/:id", deleteProveedor);

@@ -58,6 +58,7 @@ const getGastos = async (req = request, res = response) => {
         "fec_comprobante",
         "descripcion",
         "id_prov",
+        "cod_trabajo",
       ],
       include: [
         {
@@ -152,6 +153,7 @@ const getGasto = async (req = request, res = response) => {
         "id_rubro",
         "descripcion",
         "id_prov",
+        "cod_trabajo",
       ],
     });
     res.status(200).json({

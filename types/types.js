@@ -10,3 +10,4 @@ exports.typesCRUD = {
   DELETE: 4,
   PATCH: 5,
 };
+
