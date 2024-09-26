@@ -1,6 +1,7 @@
 const { db } = require("../database/sequelizeConnection");
 const { DataTypes } = require("sequelize");
 const uuid = require("uuid");
+const { Parametros } = require("./Parametros");
 
 const Proveedor = db.define(
   "tb_Proveedor",
@@ -51,6 +52,9 @@ const Proveedor = db.define(
     },
     email_vend_prov: {
       type: DataTypes.STRING(20),
+    },
+    id_oficio: {
+      type: DataTypes.INTEGER,
     },
     uid_comentario: {
       type: DataTypes.STRING,
@@ -133,6 +137,12 @@ const Trabajos_vs_Egresos = db.define("trabajos_vs_egresos", {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+});
+
+Proveedor.hasOne(Parametros, {
+  foreignKey: "id_param",
+  sourceKey: "id_oficio",
+  as: "parametro_oficio",
 });
 
 Proveedor.sync()

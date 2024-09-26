@@ -3,6 +3,7 @@ const { Proveedor } = require("../models/Proveedor");
 const uid = require("uuid");
 const { capturarAUDIT } = require("../middlewares/auditoria");
 const { typesCRUD } = require("../types/types");
+const { Parametros } = require("../models/Parametros");
 
 /*
 ip_user: '127.0.0.1',
@@ -21,6 +22,12 @@ const getProveedorxUID = async (req = request, res = response) => {
     }
     const proveedor = await Proveedor.findOne({
       where: { flag: true, uid: uid },
+      include: [
+        {
+          model: Parametros,
+          as: "parametro_oficio",
+        },
+      ],
     });
     if (!proveedor) {
       return res.status(404).json({
@@ -82,8 +89,16 @@ const PostProveedores = async (req, res, next) => {
     cci,
   } = req.body;
   try {
+    const uid_contrato = uid.v4()
+    const uid_comentario = uid.v4()
+    const uid_presupuesto_proveedor = uid.v4()
+    const uid_documento_proveedor = uid.v4()
     const proveedor = new Proveedor({
       uid: uid.v4(),
+      uid_contrato: uid_contrato,
+      uid_comentario: uid_comentario,
+      uid_presupuesto_proveedor: uid_presupuesto_proveedor,
+      uid_documento_proveedor: uid_documento_proveedor,
       ruc_prov,
       razon_social_prov,
       tel_prov,
@@ -132,6 +147,7 @@ const getProveedor = async (req = request, res = response) => {
     }
     const proveedor = await Proveedor.findOne({
       where: { flag: true, id: id },
+      
     });
     if (!proveedor) {
       return res.status(404).json({
