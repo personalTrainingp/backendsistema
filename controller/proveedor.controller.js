@@ -88,6 +88,7 @@ const PostProveedores = async (req, res, next) => {
     email_vend_prov,
     id_tarjeta,
     n_cuenta,
+    id_oficio,
     cci,
   } = req.body;
   try {
@@ -97,10 +98,11 @@ const PostProveedores = async (req, res, next) => {
     const uid_documento_proveedor = uid.v4();
     const proveedor = new Proveedor({
       uid: uid.v4(),
-      uid_contrato: uid_contrato,
+      id_oficio: id_oficio,
+      uid_contrato_proveedor: uid_contrato,
       uid_comentario: uid_comentario,
       uid_presupuesto_proveedor: uid_presupuesto_proveedor,
-      uid_documento_proveedor: uid_documento_proveedor,
+      uid_documentos_proveedor: uid_documento_proveedor,
       ruc_prov,
       razon_social_prov,
       tel_prov,
@@ -273,11 +275,15 @@ const getContratosxProv = async (req = request, res = response) => {
   }
 };
 const getGastosxCodProv = async (req = request, res = response) => {
-  const { cod_contrato } = req.params;
+  const { cod_trabajo, tipo_moneda } = req.params;
+
   try {
     const gastosxCodTrabajo = await Gastos.findAll({
-      where: { cod_trabajo: cod_contrato },
+      where: { cod_trabajo: cod_trabajo, moneda: tipo_moneda, flag: true },
+      order: [["fec_pago", "desc"]],
     });
+    console.log(gastosxCodTrabajo);
+
     res.status(200).json({
       gastosxCodTrabajo,
       ok: true,

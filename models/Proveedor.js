@@ -113,6 +113,9 @@ const ContratoProv = db.define("prov_contratos", {
   observacion: {
     type: DataTypes.STRING(660),
   },
+  tipo_moneda: {
+    type: DataTypes.STRING(4),
+  },
   estado_contrato: {
     type: DataTypes.INTEGER,
   },

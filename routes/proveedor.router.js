@@ -6,7 +6,7 @@ const {
   getProveedorxUID,
   deleteProveedor,
   updateProveedor,
-
+  getContratoxID,
   postContratoProv,
   getContratosxProv,
   getGastosxCodProv,
@@ -22,6 +22,7 @@ router.put("/remove-proveedor/:id", deleteProveedor);
 router.put("/update-proveedor/:id", updateProveedor);
 
 router.get("/obtener-contratos/:id_prov", getContratosxProv);
-router.get("/obtener-gastos/:cod_trabajo", getGastosxCodProv);
+router.get("/obtener-contrato/:id", getContratoxID);
+router.get("/obtener-gastos/:cod_trabajo/:tipo_moneda", getGastosxCodProv);
 router.post("/post-contrato-prov", postContratoProv);
 module.exports = router;
