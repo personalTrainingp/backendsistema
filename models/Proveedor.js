@@ -80,7 +80,7 @@ const Proveedor = db.define(
   { tableName: "tb_Proveedor" }
 );
 
-const TrabajosProv = db.define("prov_trabajos", {
+const ContratoProv = db.define("prov_contratos", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -107,31 +107,14 @@ const TrabajosProv = db.define("prov_trabajos", {
   penalidad_fijo: {
     type: DataTypes.DECIMAL(10, 2),
   },
-  estado_pro: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
+  monto_contrato: {
+    type: DataTypes.DECIMAL(10, 2),
   },
-  flag: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
+  observacion: {
+    type: DataTypes.STRING(660),
   },
-});
-
-const Trabajos_vs_Egresos = db.define("trabajos_vs_egresos", {
-  id: {
+  estado_contrato: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-  _prov_trab: {
-    type: DataTypes.INTEGER,
-  },
-  id_egreso: {
-    type: DataTypes.INTEGER,
-  },
-  estado: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
   },
   flag: {
     type: DataTypes.BOOLEAN,
@@ -156,6 +139,16 @@ Proveedor.sync()
     );
   });
 
+ContratoProv.sync()
+  .then(() => {
+    console.log("La tabla ContratoProv ha sido creada o ya existe.");
+  })
+  .catch((error) => {
+    console.error(
+      "Error al sincronizar el modelo con la base de datos: ContratoProv",
+      error
+    );
+  });
 const carcel = async () => {
   try {
     // Encuentra todas las filas de la tabla (o puedes hacerlo con un filtro específico)
@@ -164,11 +157,15 @@ const carcel = async () => {
     // Itera sobre cada fila para asignar un UUID distinto
     for (const fila of filas) {
       // Genera un nuevo UUID
+      const UUID = uuid.v4();
+      const UUIDComentario = uuid.v4();
       const UUIDcontrato = uuid.v4();
       const UUIDpresupuesto = uuid.v4();
       const uid_documentos_proveedor = uuid.v4();
       // Actualiza la fila con el nuevo UUID
       await fila.update({
+        uid: UUID,
+        uid_comentario: UUIDComentario,
         uid_contrato_proveedor: UUIDcontrato,
         uid_presupuesto_proveedor: UUIDpresupuesto,
         uid_documentos_proveedor: uid_documentos_proveedor,
@@ -183,4 +180,5 @@ const carcel = async () => {
 // carcel();
 module.exports = {
   Proveedor,
+  ContratoProv,
 };

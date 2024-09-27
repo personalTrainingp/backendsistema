@@ -1,9 +1,10 @@
 const { response, request } = require("express");
-const { Proveedor } = require("../models/Proveedor");
+const { Proveedor, ContratoProv } = require("../models/Proveedor");
 const uid = require("uuid");
 const { capturarAUDIT } = require("../middlewares/auditoria");
 const { typesCRUD } = require("../types/types");
 const { Parametros } = require("../models/Parametros");
+const { Gastos } = require("../models/GastosFyV");
 
 /*
 ip_user: '127.0.0.1',
@@ -47,6 +48,7 @@ const getProveedorxUID = async (req = request, res = response) => {
 };
 const getTBProveedores = async (req = request, res = response) => {
   try {
+    const { estado_prov } = req.query;
     const proveedores = await Proveedor.findAll({
       order: [["id", "desc"]],
       attributes: [
@@ -58,7 +60,7 @@ const getTBProveedores = async (req = request, res = response) => {
         "id",
         "uid",
       ],
-      where: { flag: true },
+      where: { flag: true, estado_prov: estado_prov },
     });
     res.status(200).json({
       msg: true,
@@ -89,10 +91,10 @@ const PostProveedores = async (req, res, next) => {
     cci,
   } = req.body;
   try {
-    const uid_contrato = uid.v4()
-    const uid_comentario = uid.v4()
-    const uid_presupuesto_proveedor = uid.v4()
-    const uid_documento_proveedor = uid.v4()
+    const uid_contrato = uid.v4();
+    const uid_comentario = uid.v4();
+    const uid_presupuesto_proveedor = uid.v4();
+    const uid_documento_proveedor = uid.v4();
     const proveedor = new Proveedor({
       uid: uid.v4(),
       uid_contrato: uid_contrato,
@@ -147,7 +149,6 @@ const getProveedor = async (req = request, res = response) => {
     }
     const proveedor = await Proveedor.findOne({
       where: { flag: true, id: id },
-      
     });
     if (!proveedor) {
       return res.status(404).json({
@@ -227,6 +228,105 @@ const updateProveedor = async (req = request, res = response) => {
     });
   }
 };
+const postContratoProv = async (req = request, res = response) => {
+  try {
+    // const { } = req.body;
+    const contratoProv = new ContratoProv(req.body);
+    await contratoProv.save();
+    let formAUDIT = {
+      id_user: req.id_user,
+      ip_user: req.ip_user,
+      accion: typesCRUD.POST,
+      observacion: `Se registro: contrato del proveedor de id ${contratoProv.id}`,
+      fecha_audit: new Date(),
+    };
+    await capturarAUDIT(formAUDIT);
+    res.status(200).json({
+      msg: "contrato del Proveedor creado con exito",
+      contratoProv,
+      ok: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Hable con el encargado de sistema",
+    });
+  }
+};
+const getContratosxProv = async (req = request, res = response) => {
+  const { id_prov } = req.params;
+  try {
+    const contratosxProv = await ContratoProv.findAll({
+      where: { id_prov: id_prov, flag: true },
+    });
+    res.status(200).json({
+      contratosxProv,
+      ok: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Hable con el encargado de sistema",
+    });
+  }
+};
+const getGastosxCodProv = async (req = request, res = response) => {
+  const { cod_contrato } = req.params;
+  try {
+    const gastosxCodTrabajo = await Gastos.findAll({
+      where: { cod_trabajo: cod_contrato },
+    });
+    res.status(200).json({
+      gastosxCodTrabajo,
+      ok: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Hable con el encargado de sistema",
+    });
+  }
+};
+const getContratoxID = async (req = request, res = response) => {
+  const { id } = req.params;
+  try {
+    const contratosProv = await ContratoProv.findOne({
+      where: { id: id, flag: true },
+    });
+    res.status(200).json({
+      contratosProv,
+      ok: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Hable con el encargado de sistema",
+    });
+  }
+};
+const deleteContratoxID = async (req = request, res = response) => {
+  const { id } = req.params;
+  try {
+    const contratosProv = await ContratoProv.findOne({
+      where: { id: id, flag: true },
+    });
+    contratosProv.update({ flag: false });
+    res.status(200).json({
+      contratosProv,
+      ok: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Hable con el encargado de sistema",
+    });
+  }
+};
 module.exports = {
   getTBProveedores,
   PostProveedores,
@@ -234,4 +334,9 @@ module.exports = {
   deleteProveedor,
   updateProveedor,
   getProveedorxUID,
+  postContratoProv,
+  getContratosxProv,
+  getContratoxID,
+  deleteContratoxID,
+  getGastosxCodProv,
 };
