@@ -177,7 +177,7 @@ const getUsuarioCliente = async (req = request, res = response) => {
                 },
                 {
                   model: SemanasTraining,
-                  attributes: ["semanas_st"],
+                  attributes: ["semanas_st", "sesiones"],
                 },
               ],
             },

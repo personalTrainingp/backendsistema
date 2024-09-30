@@ -27,6 +27,12 @@ const ImagePT = db.define(
     size_image: {
       type: DataTypes.INTEGER,
     },
+    width: {
+      type: DataTypes.STRING(8),
+    },
+    height: {
+      type: DataTypes.STRING(8),
+    },
     flag: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,

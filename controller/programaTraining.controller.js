@@ -9,6 +9,11 @@ const { Sequelize, where } = require("sequelize");
 const { ImagePT } = require("../models/Image");
 const { HorarioProgramaPT } = require("../models/HorarioProgramaPT");
 const uid = require("uuid");
+const {
+  ultimaMembresiaxCli,
+  detalle_sesionxMembresia,
+} = require("../middlewares/Logicamembresias");
+const { detalleVenta_membresias } = require("../models/Venta");
 
 const postProgramaTraining = async (req = request, res = response) => {
   const { nombre_pgm, desc_pgm, sigla_pgm, estado_pgm } = req.body;
@@ -355,6 +360,53 @@ const getTarifasTB = async () => {
     });
   }
 };
+const postSesiones = async (req = request, res = response) => {
+  try {
+    const membresia = await ultimaMembresiaxCli(
+      Number(req.body.detalle_cli_modelo.id_cli)
+    );
+    console.log(membresia);
+
+    if (membresia === null) {
+      return res.status(200).json({
+        ok: true,
+      });
+    }
+    const detalle_sesion = await detalle_sesionxMembresia(membresia.id);
+    const { sesiones, id_pgm } = req.body.dataVenta.detalle_traspaso[0];
+    const nuevaSesion = new SemanasTraining({
+      semanas_st: (sesiones / 5).toFixed(0),
+      id_pgm,
+      congelamiento_st: detalle_sesion.congelamiento_st,
+      nutricion_st: detalle_sesion.nutricion_st,
+      estado_st: false,
+      uid: uid.v4(),
+      sesiones: sesiones,
+    });
+    await nuevaSesion.save();
+    const tarifaNueva = new TarifaTraining({
+      id_st: nuevaSesion.id_st,
+      nombreTarifa_tt: "TARIFA APERTURA",
+      descripcionTarifa_tt: "TARIFA CREADA POR VENTAS",
+      tarifaCash_tt: 0,
+      estado_tt: false,
+    });
+    await tarifaNueva.save();
+
+    res.status(200).json({
+      ok: true,
+      tt: "algo pasa?",
+      id_tt: tarifaNueva.id_tt,
+      id_st: nuevaSesion.id_st,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      error: `Error en el servidor, en controller(post sesiones) de programa, hable con el administrador: ${error}`,
+    });
+  }
+};
 const postTarifaProgramaPT = async (req = request, res = response) => {
   const {
     id_st,
@@ -427,6 +479,7 @@ module.exports = {
   getHorariosProgramasPT,
 
   //Semanas programas
+  postSesiones,
   postSemanaProgramaPT,
   getSemanaProgramasPT,
   putSemanaProgramasPT,

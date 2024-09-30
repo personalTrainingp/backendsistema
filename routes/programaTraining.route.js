@@ -18,6 +18,7 @@ const {
   getHorariosTBPrograma,
   getSemanaProgramasPT,
   getSemanaxID,
+  postSesiones
 } = require("../controller/programaTraining.controller");
 const { extraerUpload } = require("../middlewares/extraerComentarios");
 const router = Router();
@@ -37,6 +38,8 @@ router.put("/horario/put_pgm/:id_hr", putHorarioProgramasPT);
 router.put("/horario/delete_pgm/:id_hr", deleteHorarioProgramasPT);
 
 //Semanas de programa
+router.post("/sesiones/post-sesion", postSesiones)
+
 router.post("/semana/post_pgm", postSemanaProgramaPT);
 router.get("/semana/get_tb_pgm/:id_pgm", getSemanaProgramasPT);
 router.get("/semana/get_sm/:id_sm", getSemanaxID);

@@ -925,6 +925,62 @@ const mailMembresia = async (req = request, res = response) => {
 const get_VENTAS_detalle_PROGRAMA = async (req = request, res = response) => {};
 const get_VENTAS_detalle_PRODUCTO = async (req = request, res = response) => {};
 const get_VENTAS_detalle_CITAS = async (req = request, res = response) => {};
+
+const postTraspasoMembresia = async (req = request, res = response) => {
+  const {
+    id_cli,
+    id_empl,
+    id_tipo_transaccion,
+    numero_transac,
+    observacion,
+    id_origen,
+  } = req.body.formState.detalle_cli_modelo;
+  console.log(req.body);
+
+  const { id_tt, id_st } = req.body.dataSesiones;
+  const {
+    tarifa,
+    sesiones,
+    id_horarioPgm,
+    id_pgm,
+    fechaInicio_programa,
+    fechaFinal,
+    time_h,
+  } = req.body.formState.dataVenta.detalle_traspaso[0];
+
+  try {
+    const venta = new Venta({
+      id_cli,
+      id_empl,
+      id_tipoFactura: id_tipo_transaccion,
+      numero_transac,
+      observacion,
+      id_origen,
+      fecha_venta: new Date(),
+    });
+    await venta.save();
+    const detalle_venta_programa = new detalleVenta_membresias({
+      id_venta: venta.id,
+      id_st: id_st,
+      fec_inicio_mem: `${fechaInicio_programa} 00:00:00.000`,
+      fec_fin_mem: `${fechaFinal.split("T")[0]}`,
+      id_pgm,
+      id_tarifa: id_tt,
+      horario: time_h,
+      tarifa_monto: tarifa,
+    });
+    await detalle_venta_programa.save();
+    res.status(200).json({
+      ok: true,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(501).json({
+      ok: false,
+    });
+  }
+};
 module.exports = {
   postVenta,
   get_VENTAS,
@@ -936,4 +992,5 @@ module.exports = {
   obtener_contrato_pdf,
   getVentasxFecha,
   mailMembresia,
+  postTraspasoMembresia,
 };

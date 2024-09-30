@@ -52,6 +52,9 @@ const SemanasTraining = db.define(
     semanas_st: {
       type: DataTypes.INTEGER,
     },
+    sesiones: {
+      type: DataTypes.INTEGER,
+    },
     congelamiento_st: {
       type: DataTypes.INTEGER,
     },

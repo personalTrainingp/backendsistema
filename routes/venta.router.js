@@ -16,6 +16,7 @@ const {
   get_VENTAS,
   getVentasxFecha,
   obtener_contrato_pdf,
+  postTraspasoMembresia,
 } = require("../controller/venta.controller");
 const { obtener_estado_membresia } = require("../middlewares/logicaSistema");
 const router = Router();
@@ -33,6 +34,7 @@ router.post(
   postVenta
 );
 // router.post("/send-email", mailMembresia);
+router.post("/traspaso-membresia", postTraspasoMembresia);
 router.get("/get-ventas-x-fecha", getVentasxFecha);
 router.get("/get-ventas", get_VENTAS);
 router.post("/invoice-mail/:id_venta", mailMembresia);

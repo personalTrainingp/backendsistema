@@ -313,7 +313,7 @@ const getParametrosLogosProgramas = async (req = request, res = response) => {
         {
           model: ImagePT,
           where: { flag: true },
-          attributes: ["name_image"],
+          attributes: ["name_image", "width", "height"],
           required: true,
         },
       ],
@@ -336,9 +336,10 @@ const getParametroSemanaPGM = async (req = request, res = response) => {
         ["semanas_st", "semanas"],
         ["congelamiento_st", "cong"],
         ["nutricion_st", "nutric"],
+        ["sesiones", "sesiones"],
         [
           Sequelize.literal(
-            "CONCAT(semanas_st, ' Semanas', ' | ', congelamiento_st, ' dias de congelamientos', ' | ', nutricion_st, ' dias de nutricion')"
+            "CONCAT(semanas_st, ' Semanas | ', sesiones, ' Sesiones', ' | ', congelamiento_st, ' dias de congelamientos', ' | ', nutricion_st, ' dias de nutricion')"
           ),
           "label",
         ],
