@@ -60,6 +60,12 @@ const getTBProveedores = async (req = request, res = response) => {
         "id",
         "uid",
       ],
+      include: [
+        {
+          model: Parametros,
+          as: "parametro_oficio",
+        },
+      ],
       where: { flag: true, estado_prov: estado_prov },
     });
     res.status(200).json({

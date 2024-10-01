@@ -3,19 +3,15 @@ const { Cliente } = require("../models/Usuarios");
 const { Venta, detalleVenta_membresias } = require("../models/Venta");
 
 const ultimaMembresiaxCli = async (id_cli) => {
+
   const venta = await Venta.findOne({
     where: { id_cli: id_cli },
     order: [["fecha_venta", "DESC"]],
+    raw: true,
+    include: [{ model: detalleVenta_membresias, required: true }],
   });
-  console.log(venta, "en venta");
 
-  if (venta === null) return {};
-  const membresia = await detalleVenta_membresias.findOne({
-    where: { id_venta: venta?.id },
-  });
-  console.log(membresia);
-
-  return membresia;
+  return venta;
 };
 const detalle_sesionxMembresia = async (id_membresia) => {
   const detalle_membresia = await detalleVenta_membresias.findOne({

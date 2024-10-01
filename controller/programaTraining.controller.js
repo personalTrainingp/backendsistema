@@ -365,14 +365,16 @@ const postSesiones = async (req = request, res = response) => {
     const membresia = await ultimaMembresiaxCli(
       Number(req.body.detalle_cli_modelo.id_cli)
     );
-    console.log(membresia);
 
     if (membresia === null) {
       return res.status(200).json({
         ok: true,
       });
     }
-    const detalle_sesion = await detalle_sesionxMembresia(membresia.id);
+    const detalle_sesion = await detalle_sesionxMembresia(
+      membresia["detalle_ventaMembresia.id"]
+    );
+    
     const { sesiones, id_pgm } = req.body.dataVenta.detalle_traspaso[0];
     const nuevaSesion = new SemanasTraining({
       semanas_st: (sesiones / 5).toFixed(0),

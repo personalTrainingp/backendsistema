@@ -20,6 +20,7 @@ const { typesCRUD } = require("../types/types");
 const { Producto } = require("../models/Producto");
 const { Inversionista } = require("../models/Aportes");
 const { Servicios } = require("../models/Servicios");
+const { Files } = require("../models/Image");
 
 const getUsuariosClientexID = async (req = request, res = response) => {
   try {
@@ -768,7 +769,27 @@ const revalidarToken = async (req, res) => {
     MODULOS_ITEMS,
   });
 };
+const postFiles = async (req = request, res = response) => {
+  const { observacion, tipo_doc, uid_File } = req.body;
+  try {
+    const files = new Files({
+      uid_File,
+      tipo_doc,
+      uid: uuid.v4(),
+      observacion,
+    });
+    await files.save();
+    res.status(200).json({
+      msg: "Files agregado con exito",
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: `Error en el servidor, en controller de deleteUsuario, hable con el administrador: ${error}`,
+    });
+  }
+};
 module.exports = {
+  postFiles,
   //Cliente
   postUsuarioCliente,
   getUsuarioClientes,

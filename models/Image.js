@@ -40,6 +40,39 @@ const ImagePT = db.define(
   },
   { tableName: "tb_image" }
 );
+const Files = db.define("tb_files", {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  uid_File: {
+    type: DataTypes.STRING,
+  },
+  tipo_doc: {
+    type: DataTypes.INTEGER,
+  },
+  uid: {
+    type: DataTypes.STRING,
+  },
+  observacion: {
+    type: DataTypes.STRING(225),
+  },
+  flag: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+});
+Files.sync()
+  .then(() => {
+    console.log("La tabla files ha sido creada o ya existe.");
+  })
+  .catch((error) => {
+    console.error(
+      "Error al sincronizar el modelo con la base de datos:",
+      error
+    );
+  });
 // Sincroniza el modelo con la base de datos (crea la tabla si no existe)
 ImagePT.sync()
   .then(() => {
@@ -53,4 +86,5 @@ ImagePT.sync()
   });
 module.exports = {
   ImagePT,
+  Files
 };

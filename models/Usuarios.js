@@ -150,6 +150,9 @@ const Cliente = db.define("tb_cliente", {
   uid: {
     type: DataTypes.STRING,
   },
+  uid_file_adj: {
+    type: DataTypes.STRING,
+  },
   nombre_cli: {
     type: DataTypes.STRING,
   },
@@ -214,7 +217,6 @@ const Cliente = db.define("tb_cliente", {
   },
 });
 
-
 const test = () => {};
 
 Cliente.sync()
@@ -248,29 +250,51 @@ Usuario.sync()
     );
   });
 
-const carcel = () => {
-  // (async () => {
-  //   try {
+const carcel = async () => {
+  try {
+    // Encuentra todas las filas de la tabla (o puedes hacerlo con un filtro específico)
+    const filas = await Cliente.findAll();
 
-  //     await Cliente.update(
-  //       {
-  //         uid: uuid.v4()
-  //       },
-  //       {
-  //         where: {
-  //           uid: null,
-  //         },
-  //       }
-  //     );
+    // Itera sobre cada fila para asignar un UUID distinto
+    for (const fila of filas) {
+      // Genera un nuevo UUID
+      const UUID = uuid.v4();
+      // Actualiza la fila con el nuevo UUID
+      await fila.update({
+        uid_file_adj: UUID,
+      });
+    }
 
-  //     console.log(
-  //       "Todos los valores null en la columna uid han sido actualizados."
-  //     );
-  //   } catch (error) {
-  //     console.error("Unable to connect to the database:", error);
-  //   }
-  // })();
+    console.log("UUID asignados correctamente.");
+  } catch (error) {
+    console.error("Error al asignar UUID:", error);
+  }
 };
+// carcel();
+
+// const carcel = () => {
+// (async () => {
+//   try {
+
+//     await Cliente.update(
+//       {
+//         uid: uuid.v4()
+//       },
+//       {
+//         where: {
+//           uid: null,
+//         },
+//       }
+//     );
+
+//     console.log(
+//       "Todos los valores null en la columna uid han sido actualizados."
+//     );
+//   } catch (error) {
+//     console.error("Unable to connect to the database:", error);
+//   }
+// })();
+// };
 module.exports = {
   Cliente,
   Empleado,
