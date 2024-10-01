@@ -46,13 +46,16 @@ const Files = db.define("tb_files", {
     autoIncrement: true,
     primaryKey: true,
   },
-  uid_File: {
+  fecha_file: {
+    type: DataTypes.DATE,
+  },
+  uid_Location: {
     type: DataTypes.STRING,
   },
-  tipo_doc: {
+  id_tipo_file: {
     type: DataTypes.INTEGER,
   },
-  uid: {
+  uid_file: {
     type: DataTypes.STRING,
   },
   observacion: {
@@ -62,6 +65,15 @@ const Files = db.define("tb_files", {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+});
+
+Files.hasOne(ImagePT, {
+  foreignKey: "uid_location",
+  sourceKey: "uid_file",
+});
+ImagePT.belongsTo(Files, {
+  foreignKey: "uid_location",
+  sourceKey: "uid_file",
 });
 Files.sync()
   .then(() => {
@@ -86,5 +98,5 @@ ImagePT.sync()
   });
 module.exports = {
   ImagePT,
-  Files
+  Files,
 };

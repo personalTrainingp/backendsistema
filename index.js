@@ -194,7 +194,7 @@ app.use("/api/tipocambio", require("./routes/tipocambio.route.js"));
 app.use("/api/file", fileServer(urlArchivos));
 app.use("/api/file/logo", fileServer(urlArchivoLogos));
 
-app.use("/api/file-doc", require("./routes/file.router.js"))
+app.use("/api/fils", require("./routes/file.router.js"))
 //Rutas
 // //TODO proveedores // sexo, tipoDoc, estadoCivil, etc
 app.use("/api/proveedor", validarJWT, require("./routes/proveedor.router.js"));
