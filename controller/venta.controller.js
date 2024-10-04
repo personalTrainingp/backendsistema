@@ -1,6 +1,5 @@
 const { response, request } = require("express");
 const { generatePDFcontrato } = require("../config/pdfKit");
-const { PDFDocument, rgb } = require("pdf-lib");
 const {
   Venta,
   detalleVenta_producto,

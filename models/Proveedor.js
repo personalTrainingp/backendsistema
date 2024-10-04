@@ -119,6 +119,32 @@ const ContratoProv = db.define("prov_contratos", {
   estado_contrato: {
     type: DataTypes.INTEGER,
   },
+  uid_presupuesto: {
+    type: DataTypes.STRING,
+  },
+  flag: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+});
+const PagosContratoProv = db.define("contratos_prov_pagos", {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  id_contrato_prov: {
+    type: DataTypes.INTEGER,
+  },
+  fecha_pago: {
+    type: DataTypes.STRING(24),
+  },
+  monto_pagado: {
+    type: DataTypes.DECIMAL(10, 2),
+  },
+  observacion_pagado: {
+    type: DataTypes.STRING(660),
+  },
   flag: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
@@ -155,27 +181,19 @@ ContratoProv.sync()
 const carcel = async () => {
   try {
     // Encuentra todas las filas de la tabla (o puedes hacerlo con un filtro específico)
-    const filas = await Proveedor.findAll();
+    const filas = await ContratoProv.findAll();
 
     // Itera sobre cada fila para asignar un UUID distinto
     for (const fila of filas) {
       // Genera un nuevo UUID
       const UUID = uuid.v4();
-      const UUIDComentario = uuid.v4();
-      const UUIDcontrato = uuid.v4();
-      const UUIDpresupuesto = uuid.v4();
-      const uid_documentos_proveedor = uuid.v4();
       // Actualiza la fila con el nuevo UUID
       await fila.update({
-        uid: UUID,
-        uid_comentario: UUIDComentario,
-        uid_contrato_proveedor: UUIDcontrato,
-        uid_presupuesto_proveedor: UUIDpresupuesto,
-        uid_documentos_proveedor: uid_documentos_proveedor,
+        uid_presupuesto: UUID,
       });
     }
 
-    console.log("UUIDcomentario asignados correctamente.");
+    console.log("ContratoProv  asignados correctamente.");
   } catch (error) {
     console.error("Error al asignar UUID:", error);
   }

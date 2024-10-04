@@ -5,7 +5,8 @@ const { capturarAUDIT } = require("../middlewares/auditoria");
 const { typesCRUD } = require("../types/types");
 const { Parametros } = require("../models/Parametros");
 const { Gastos } = require("../models/GastosFyV");
-
+const PDFDocument = require("pdfkit");
+const { convertirNumeroATexto } = require("../helpers/isFormat");
 /*
 ip_user: '127.0.0.1',
   uid: 'b3b6be6f-5f21-4e49-a12b-40a8c7e24e35',
@@ -103,6 +104,7 @@ const PostProveedores = async (req, res, next) => {
     const uid_presupuesto_proveedor = uid.v4();
     const uid_documento_proveedor = uid.v4();
     const proveedor = new Proveedor({
+      estado_prov: false,
       uid: uid.v4(),
       id_oficio: id_oficio,
       uid_contrato_proveedor: uid_contrato,
@@ -339,6 +341,184 @@ const deleteContratoxID = async (req = request, res = response) => {
     });
   }
 };
+const descargarContratoProvPDF = async (req = request, res = response) => {
+  const { id_contratoprov } = req.params;
+  // const contratoProv = await ContratoProv.findOne({
+  //   where: { id: id_contratoprov },
+  // });
+  // const proveedor = await Proveedor.findOne({
+  //   where: { id: contratoProv.id_prov },
+  // });
+  try {
+    const doc = new PDFDocument({
+      margins: {
+        top: 40, // Margen superior de 10 píxeles
+        bottom: 20, // Margen inferior de 10 píxeles
+        left: 30, // Margen izquierdo de 10 píxeles
+        right: 30, // Margen derecho de 10 píxeles
+      },
+    });
+    const dataProv = {
+      ruc_empr: "20610496866",
+      direccion_empr: "Calle Tarata 226 Miraflores",
+      base64_firma_gerente: "",
+
+      razon_social_prov: "CORPORACION HIRE S.A.C.",
+      telefono_prov: "942017872",
+      cci_prov: "001108140256506586",
+
+      titular_cci_representante: "José Manuel Guevara Milian",
+      nombre_representante: "José Manuel Guevara Milian",
+      dni_representante: "08007729",
+      direc_representante: "Mz A X2 Lote 22 Virgen De Lourdes",
+      distrito_representante: "Villa Maria Del Triunfo",
+      provincia_representante: "Lima",
+      departamento_representante: "Lima",
+      telefono_representante: "942017872",
+      base64_firma_representante: "",
+      //TRABAJO
+      direccion_trabajo: "Av. Reducto",
+      distrito_trabajo: "Miraflores",
+      provincia_trabajo: "Lima",
+      departamento_trabajo: "Lima",
+      duracion_trabajo: "4",
+      moneda: "$",
+      penalidad: "5%",
+      pago1: "",
+      pago2: "",
+      pago3: "",
+      pago4: "",
+      pago5: "",
+      Ubicacion_trabajo: "Av. Reducto",
+      fec_inicio_trabajo: new Date(),
+      fec_fin_trabajo: new Date(+3),
+      trabajo_realizar: "TRABAJO DE GASFITERIA Y MANTENIMIENTO DE 5 BAÑOS",
+    };
+    // Ahora puedes acceder a dataProv.moneda
+    dataProv.formaPago_importe = `${
+      dataProv.moneda
+    }1000.00 (${convertirNumeroATexto(`1000.00`, dataProv.moneda)})`;
+
+    // Usar una fuente en negrita
+
+    doc.font("Helvetica-Bold");
+    doc.fontSize(13);
+    doc.text("CONTRATO DE LOCACION DE SERVICIOS", {
+      align: "center",
+      underline: true,
+      lineGap: 10,
+    });
+    doc.fontSize(11);
+    doc.font("Helvetica");
+    doc.text(
+      `Conste por el presente documento el CONTRATO DE LOCACION DE SERVICIOS, que celebran de una parte INVERSIONES LUROGA S.A.C con RUC No 20601185785, con domicilio en Calle Tarata 226 – Miraflores, debidamente representada por su Gerente General  Sr. Luis Alberto Roy Gagliuffi, identificado con DNI No. 09151250, y a quien se le denominará "LA EMPRESA" y de la otra parte el Sr(a). ${dataProv.nombre_representante} identificado con DNI N° ${dataProv.dni_representante} con domicilio en ${dataProv.direc_representante}, Distrito de ${dataProv.distrito_representante}, Provincia ${dataProv.provincia_representante} y Departamento de ${dataProv.departamento_representante} con el teléfono ${dataProv.telefono_representante} a quien en adelante se le denominara “EL PROVEEDOR”, en los términos y condiciones siguientes:`
+    );
+    //ITEM
+    doc.font("Helvetica-Bold");
+    doc.fontSize(11);
+    doc.text(`
+1.       OBJETO DEL CONTRATO.
+      `);
+    doc.font("Helvetica");
+    doc.fontSize(11);
+    doc.text(
+      `LA EMPRESA declara tener interés en contratar los servicios de EL PROVEEDOR para que realice los trabajos de ${dataProv.trabajo_realizar}, en el local ubicado ${dataProv.direccion_trabajo} en el distrito de ${dataProv.distrito_trabajo}, Provincia ${dataProv.provincia_trabajo} y Departamento de ${dataProv.departamento_trabajo}.  Para tal fin EL PROVEEDOR realizará los servicios detallados en el PRESUPUESTO ENTREGADO. `
+    );
+    //ITEM
+    doc.font("Helvetica-Bold");
+    doc.fontSize(11);
+    doc.text(`
+2.       FORMA DE PAGO.
+      `);
+
+    doc.font("Helvetica");
+    doc.fontSize(11);
+    doc.text(
+      `a)       EL PROVEEDOR  recibirá el importe de ${dataProv.formaPago_importe}  "LA EMPRESA" acepta la propuesta efectuada por EL PROVEEDOR y se obliga a pagar dicho importe de la siguiente manera:
+      
+      `
+    );
+    // doc.text(`-         Adelanto a la firma del contrato: S/. 567.00`);
+    // doc.text(`-         Cancelación al termino del servicio: S/. 150.00
+    //   `);
+    doc.text(`Los importes serán realizados en la siguiente Cuenta Bancaria :`);
+    doc.text(
+      `CCI: ${dataProv.cci_prov}     TITULAR : ${dataProv.titular_cci_representante}`
+    );
+    //ITEM
+    doc.font("Helvetica-Bold");
+    doc.fontSize(11);
+    doc.text(`
+3.       FECHA DE INICIO Y PLAZO DE ENTREGA.
+      `);
+    doc.font("Helvetica");
+    doc.fontSize(11);
+    doc.text(
+      `Queda establecido que EL PROVEEDOR se compromete a entregar el trabajo en ${dataProv.duracion_trabajo} días hábiles laborales y a estar durante todo el tiempo de ejecución del local en las intervenciones estructurales.`
+    );
+
+    doc
+      .text("     El proveedor se obliga a cumplir con el ", {
+        continued: true,
+      })
+      .font("Helvetica-Bold")
+      .text("CRONOGRAMA", { continued: true });
+    doc.font("Helvetica").text(" establecido por la EMPRESA.");
+    doc.text(`FECHA INICIO: ${dataProv.fec_inicio_trabajo}`);
+    doc.text(`FECHA DE TERMINO: ${dataProv.fec_fin_trabajo}`);
+
+    //ITEM
+    doc.font("Helvetica-Bold");
+    doc.fontSize(11);
+    doc.text(
+      `
+4.       PENALIDADES.
+      `
+    );
+    doc.font("Helvetica");
+    doc.fontSize(11);
+    doc.text(
+      `a)     En caso de que EL PROVEEDOR no cumpla con las fechas y horas acordadas asumirá un descuento de ${dataProv.penalidad} por cada día de retraso.`
+    );
+    doc.text(
+      `b)     Los horarios de trabajo en el local descrito en la cláusula 1 es de lunes a viernes de 7:30am a 5:00pm y sábado de 8:00am a 1:00pm, cualquier incumplimiento de EL PROVEEDOR en los horarios establecidos serán responsables de cualquier multa que sea emitida por la Municipalidad de Miraflores.`
+    );
+    doc.text(
+      `En fe de lo cual firman en dos ejemplares el presente contrato en Lima, a los 25 días del mes de Abril del 2024`
+    );
+    doc.text(
+      `
+
+              INVERSIONES LUROGA SAC                                                                El PROVEEDOR
+                          20601185785                                                                                    ${dataProv.dni_representante}
+                Luis Alberto Roy Gagliuffi                                                              ${dataProv.nombre_representante}
+                      Gerente General
+      `
+    );
+    // doc.text(
+    //   `
+
+    //       EL PROVEEDOR
+    //         10084914
+    // José Manuel Guevara Milian
+    //   `,
+    //   {
+    //     align: "right",
+    //     text: "center",
+    //     width: "200",
+    //   }
+    // );
+
+    doc.pipe(res);
+    doc.end();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Hable con el encargado de sistema",
+    });
+  }
+};
 module.exports = {
   getTBProveedores,
   PostProveedores,
@@ -351,4 +531,5 @@ module.exports = {
   getContratoxID,
   deleteContratoxID,
   getGastosxCodProv,
+  descargarContratoProvPDF,
 };

@@ -15,4 +15,5 @@ router.post("/post-file/:uid_file", postFiles);
 
 router.put("/delete-file/:id_file", deleteFilexID);
 router.get("/get-files/:uid_Location", obtenerFilesxUIDFILE);
+
 module.exports = router;

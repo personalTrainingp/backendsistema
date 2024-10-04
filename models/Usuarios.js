@@ -217,7 +217,41 @@ const Cliente = db.define("tb_cliente", {
   },
 });
 
+const Empresa = db.define("tb_empresa", {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  domicilio: {
+    type: DataTypes.STRING,
+  },
+  razon_social: {
+    type: DataTypes.STRING,
+  },
+  ruc: {
+    type: DataTypes.STRING(20),
+  },
+  id_duenio: {
+    type: DataTypes.INTEGER,
+  },
+  telefono: {
+    type: DataTypes.STRING(30),
+  },
+});
+
 const test = () => {};
+
+Empresa.sync()
+  .then(() => {
+    console.log("La tabla Empresa ha sido sync o ya existe.");
+  })
+  .catch((error) => {
+    console.error(
+      "Error al sincronizar el modelo con la base de datos:",
+      error
+    );
+  });
 
 Cliente.sync()
   .then(() => {
