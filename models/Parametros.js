@@ -28,21 +28,23 @@ const Parametros = db.define("tb_parametro", {
     defaultValue: true,
   },
 });
-const Parametros_Nutricional = db.define("tb_parametros_nutricional", {
+const Parametros_3 = db.define("tb_parametros_3", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  clave_param_nutricional: {
-    type: DataTypes.STRING,
+  entidad: {
+    type: DataTypes.STRING(25),
   },
-  valor_param_nutricional: {
-    type: DataTypes.STRING,
+  id_1: {
+    type: DataTypes.INTEGER,
   },
-  estado_param_nutricional: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
+  id_2: {
+    type: DataTypes.INTEGER,
+  },
+  id_3: {
+    type: DataTypes.INTEGER,
   },
   flag: {
     type: DataTypes.BOOLEAN,
@@ -66,11 +68,9 @@ const Parametros_Nutricional = db.define("tb_parametros_nutricional", {
 
 /*
  */
-Parametros_Nutricional.sync()
+Parametros_3.sync()
   .then(() => {
-    console.log(
-      "La tabla tb_parametros_nutricional ha sido creada o ya existe."
-    );
+    console.log("La tabla Parametros_3 ha sido creada o ya existe.");
   })
   .catch((error) => {
     console.error(
@@ -92,4 +92,5 @@ Parametros.sync()
 
 module.exports = {
   Parametros,
+  Parametros_3,
 };

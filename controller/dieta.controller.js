@@ -1,7 +1,10 @@
 const { request, response } = require("express");
 const { Auditoria } = require("../models/Auditoria");
 const { Usuario } = require("../models/Usuarios");
-const { plan_Alimenticio_x_cliente } = require("../models/FileForUser");
+const {
+  plan_Alimenticio_x_cliente,
+  HistorialClinico,
+} = require("../models/FileForUser");
 const { v4 } = require("uuid");
 const { ImagePT } = require("../models/Image");
 
@@ -67,8 +70,33 @@ const deleteDieta = async (req = request, res = response) => {
     });
   }
 };
+const postClinico = async (req = request, res = response) => {
+  const { id_cli } = req.params;
+  const uid_FILE = v4();
+  try {
+    const { formState } = req.body;
+    const { id, ...restFormState } = formState;
+    const dieta = new HistorialClinico({
+      uid_file: uid_FILE,
+      id_cli,
+      ...restFormState,
+    });
+    await dieta.save();
+    res.status(201).json({
+      ok: true,
+      uid_FILE: uid_FILE,
+      id_hist_clinico: dieta.id,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(501).json({
+      error: error,
+    });
+  }
+};
 module.exports = {
   postDieta,
   deleteDieta,
   obtenerDietasxCliente,
+  postClinico,
 };

@@ -7,6 +7,7 @@ const { Parametros } = require("../models/Parametros");
 const { Gastos } = require("../models/GastosFyV");
 const PDFDocument = require("pdfkit");
 const { convertirNumeroATexto } = require("../helpers/isFormat");
+const dayjs = require("dayjs");
 /*
 ip_user: '127.0.0.1',
   uid: 'b3b6be6f-5f21-4e49-a12b-40a8c7e24e35',
@@ -390,7 +391,7 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
       pago4: "",
       pago5: "",
       Ubicacion_trabajo: "Av. Reducto",
-      fec_inicio_trabajo: new Date(),
+      fec_inicio_trabajo: dayjs(new Date()).format("dd.MM.YYYY"),
       fec_fin_trabajo: new Date(+3),
       trabajo_realizar: "TRABAJO DE GASFITERIA Y MANTENIMIENTO DE 5 BAÑOS",
     };
@@ -411,7 +412,7 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     doc.fontSize(11);
     doc.font("Helvetica");
     doc.text(
-      `Conste por el presente documento el CONTRATO DE LOCACION DE SERVICIOS, que celebran de una parte INVERSIONES LUROGA S.A.C con RUC No 20601185785, con domicilio en Calle Tarata 226 – Miraflores, debidamente representada por su Gerente General  Sr. Luis Alberto Roy Gagliuffi, identificado con DNI No. 09151250, y a quien se le denominará "LA EMPRESA" y de la otra parte el Sr(a). ${dataProv.nombre_representante} identificado con DNI N° ${dataProv.dni_representante} con domicilio en ${dataProv.direc_representante}, Distrito de ${dataProv.distrito_representante}, Provincia ${dataProv.provincia_representante} y Departamento de ${dataProv.departamento_representante} con el teléfono ${dataProv.telefono_representante} a quien en adelante se le denominara “EL PROVEEDOR”, en los términos y condiciones siguientes:`
+      `Conste por el presente documento el CONTRATO DE LOCACION DE SERVICIOS, que celebran de una parte INVERSIONES LUROGA S.A.C con RUC No 20601185785, con domicilio en Calle Tarata 226 Distrito de Miraflores, Provincia y Departamento de Lima, debidamente representada por su Gerente General Sr. Luis Alberto Roy Gagliuffi, identificado con DNI No. 09151250, y a quien se le denominará "LA EMPRESA" y de la otra parte el Sr(a). ${dataProv.nombre_representante} identificado con DNI N° ${dataProv.dni_representante} con domicilio en ${dataProv.direc_representante}, Distrito de ${dataProv.distrito_representante}, Provincia ${dataProv.provincia_representante} y Departamento de ${dataProv.departamento_representante} con el teléfono ${dataProv.telefono_representante} a quien en adelante se le denominara “EL PROVEEDOR”, en los términos y condiciones siguientes:`
     );
     //ITEM
     doc.font("Helvetica-Bold");
@@ -422,7 +423,7 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     doc.font("Helvetica");
     doc.fontSize(11);
     doc.text(
-      `LA EMPRESA declara tener interés en contratar los servicios de EL PROVEEDOR para que realice los trabajos de ${dataProv.trabajo_realizar}, en el local ubicado ${dataProv.direccion_trabajo} en el distrito de ${dataProv.distrito_trabajo}, Provincia ${dataProv.provincia_trabajo} y Departamento de ${dataProv.departamento_trabajo}.  Para tal fin EL PROVEEDOR realizará los servicios detallados en el PRESUPUESTO ENTREGADO. `
+      `LA EMPRESA declara tener interés en contratar los servicios de EL PROVEEDOR para que realice los trabajos de ${dataProv.trabajo_realizar}, en el local ubicado en ${dataProv.direccion_trabajo}, Distrito de ${dataProv.distrito_trabajo}, Provincia ${dataProv.provincia_trabajo} y Departamento de ${dataProv.departamento_trabajo}.  Para tal fin EL PROVEEDOR realizará los servicios detallados en el PRESUPUESTO ENTREGADO. `
     );
     //ITEM
     doc.font("Helvetica-Bold");
@@ -434,10 +435,19 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     doc.font("Helvetica");
     doc.fontSize(11);
     doc.text(
-      `a)       EL PROVEEDOR  recibirá el importe de ${dataProv.formaPago_importe}  "LA EMPRESA" acepta la propuesta efectuada por EL PROVEEDOR y se obliga a pagar dicho importe de la siguiente manera:
+      `a)       EL PROVEEDOR se obliga a realizar los servicios de ${dataProv.trabajo_realizar}, por el importe de ${dataProv.formaPago_importe} no incluye IGV, este monto corresponde a la mano de obra, materiales y movilidad.  Se realizará un RHE por los trabajos realizados.
       
       `
     );
+    doc.text(
+      `b)       LA EMPRESA acepta la propuesta efectuada por EL PROVEEDOR y se obliga a pagar dicho importe de la siguiente manera:
+      
+      `
+    );
+    doc.text(
+      `       b.1) LA EMPRESA comprará todos los materiales según los requerimientos realizados por EL PROVEEDOR como consta en los documentos que dicho proveedor anexa a este contrato.`
+    );
+
     // doc.text(`-         Adelanto a la firma del contrato: S/. 567.00`);
     // doc.text(`-         Cancelación al termino del servicio: S/. 150.00
     //   `);
@@ -488,6 +498,8 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     );
     doc.text(
       `
+
+      _________________________________                                       ______________________________
 
               INVERSIONES LUROGA SAC                                                                El PROVEEDOR
                           20601185785                                                                                    ${dataProv.dni_representante}

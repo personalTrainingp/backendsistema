@@ -27,6 +27,7 @@ const {
   getParametrosTipoAportes,
   getParametrosVentaFitology,
   getCitasServicioxCliente,
+  postParametros3,
 } = require("../controller/Parametros.controller");
 const { obtener_estado_membresia } = require("../middlewares/logicaSistema");
 const router = Router();
@@ -83,4 +84,6 @@ router.get("/get_params/:id_param", getParametrosporId);
 
 router.post("/post_param/:entidad/:sigla", postParametros);
 router.get("/get_params/:entidad/:grupo", getParametrosporENTIDADyGRUPO);
+
+router.post("/post-param-3/:entidad", postParametros3);
 module.exports = router;

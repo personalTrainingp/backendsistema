@@ -1,5 +1,5 @@
 const { request, response } = require("express");
-const { Parametros } = require("../models/Parametros");
+const { Parametros, Parametros_3 } = require("../models/Parametros");
 const { Proveedor } = require("../models/Proveedor");
 const { Cliente, Empleado } = require("../models/Usuarios");
 const { Sequelize, where } = require("sequelize");
@@ -852,6 +852,27 @@ const getParametrosVentaFitology = async (req = request, res = response) => {
     res.status(500).json(error);
   }
 };
+const postParametros3 = async (req = request, res = response) => {
+  const { id_1, id_2, id_3 } = req.body;
+  const { entidad } = req.params;
+
+  try {
+    const nuevoParametro = new Parametros_3({
+      entidad,
+      id_1,
+      id_2,
+      id_3,
+    });
+    await nuevoParametro.save();
+    console.log(id_1, id_2, id_3);
+    res.status(200).json({
+      msg: "ok",
+      nuevoParametro,
+    });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
 const calcularCitasDisponibles = (
   citasAdquiridas,
   citasUsadas,
@@ -902,6 +923,7 @@ const calcularCitasDisponibles = (
   return citasDisponibles.filter((cita) => cita !== null);
 };
 module.exports = {
+  postParametros3,
   getParametrosVentaFitology,
   getParametrosTipoAportes,
   getParametros,
