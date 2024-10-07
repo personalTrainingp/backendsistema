@@ -447,14 +447,27 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     doc.text(
       `       b.1) LA EMPRESA comprará todos los materiales según los requerimientos realizados por EL PROVEEDOR como consta en los documentos que dicho proveedor anexa a este contrato.`
     );
+    doc.text(
+      `       b.2) A la firma del contrato se acuerda que LA EMPRESA dará un adelanto por valor del 60% del presupuesto valorizado en S/. 5,686.25. Según el acuerdo con este 60% LA EMPRESA comprará de manera directa la totalidad de los materiales calculados y proporcionados por EL PROVEEDOR. Dicho 60% es de S/3,411.75, el cual se subdivide en 2 partes: materiales S/. 2,188.25 y pago a cuenta de la mano de obra del proveedor por S/. 1,223.50.`
+    );
+    doc.text(
+      `       b.3) El saldo que se le adeuda a EL PROVEEDOR contra entrega de los diferentes mobiliarios es del 40% el monto es de S/ 2,274.50. `
+    );
+    doc.text(
+      `       b.4) Los importes serán realizados en la siguiente Cuenta Bancaria: BCP: 00219410205142404593`
+    );
+    doc.text(
+      `c)     	El proveedor acepta, en el caso de no tener una Cuenta Bancaria en el BANCO BBVA, asumirá el costo de comisión interbancaria que cobran por otros bancos.`
+    );
+
 
     // doc.text(`-         Adelanto a la firma del contrato: S/. 567.00`);
     // doc.text(`-         Cancelación al termino del servicio: S/. 150.00
     //   `);
-    doc.text(`Los importes serán realizados en la siguiente Cuenta Bancaria :`);
-    doc.text(
-      `CCI: ${dataProv.cci_prov}     TITULAR : ${dataProv.titular_cci_representante}`
-    );
+    // doc.text(`Los importes serán realizados en la siguiente Cuenta Bancaria :`);
+    // doc.text(
+    //   `CCI: ${dataProv.cci_prov}     TITULAR : ${dataProv.titular_cci_representante}`
+    // );
     //ITEM
     doc.font("Helvetica-Bold");
     doc.fontSize(11);
@@ -464,18 +477,24 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     doc.font("Helvetica");
     doc.fontSize(11);
     doc.text(
-      `Queda establecido que EL PROVEEDOR se compromete a entregar el trabajo en ${dataProv.duracion_trabajo} días hábiles laborales y a estar durante todo el tiempo de ejecución del local en las intervenciones estructurales.`
+      `a)        EL PROVEEDOR se obliga a cumplir estrictamente acordado el CRONOGRAMA con LA EMPRESA.
+      `
+    );
+    doc.text(
+      `Queda establecido que EL PROVEEDOR se compromete a entregar el trabajo en un plazo máximo de ${dataProv.duracion_trabajo} días hábiles laborales, b)contados a partir de la fecha en donde la empresa macisa entrega al taller de EL PROVEEDOR los materiales necesarios para que empiece a fabricar los mismos para lo cual una vez recibido los materiales por parte de la empresa macisa EL PROVEEDOR deberá de firmar un acta de entrega de dichos materiales recibidos – conforme.
+      En el caso que haya una demora en la entrega de la totalidad de la compra realizada por parte de la empresa macisa al proveedor.
+      `
     );
 
-    doc
-      .text("     El proveedor se obliga a cumplir con el ", {
-        continued: true,
-      })
-      .font("Helvetica-Bold")
-      .text("CRONOGRAMA", { continued: true });
-    doc.font("Helvetica").text(" establecido por la EMPRESA.");
-    doc.text(`FECHA INICIO: ${dataProv.fec_inicio_trabajo}`);
-    doc.text(`FECHA DE TERMINO: ${dataProv.fec_fin_trabajo}`);
+    // doc
+    //   .text("     El proveedor se obliga a cumplir con el ", {
+    //     continued: true,
+    //   })
+    //   .font("Helvetica-Bold")
+    //   .text("CRONOGRAMA", { continued: true });
+    // doc.font("Helvetica").text(" establecido por la EMPRESA.");
+    // doc.text(`FECHA INICIO: ${dataProv.fec_inicio_trabajo}`);
+    // doc.text(`FECHA DE TERMINO: ${dataProv.fec_fin_trabajo}`);
 
     //ITEM
     doc.font("Helvetica-Bold");

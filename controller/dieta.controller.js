@@ -82,6 +82,7 @@ const postClinico = async (req = request, res = response) => {
       ...restFormState,
     });
     await dieta.save();
+
     res.status(201).json({
       ok: true,
       uid_FILE: uid_FILE,
@@ -94,9 +95,40 @@ const postClinico = async (req = request, res = response) => {
     });
   }
 };
+const obtenerTODOHistorialClinicoxcliente = async (
+  req = request,
+  res = response
+) => {
+  const { id_cli } = req.params;
+  try {
+    const HcxCliente = await HistorialClinico.findAll({
+      where: { id_cli: id_cli, flag: true },
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: ImagePT,
+          required: true,
+          // attributes: []
+        },
+      ],
+    });
+    console.log(HcxCliente);
+
+    res.status(200).json({
+      ok: true,
+      HcxCliente,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(501).json({
+      error: error,
+    });
+  }
+};
 module.exports = {
   postDieta,
   deleteDieta,
   obtenerDietasxCliente,
+  obtenerTODOHistorialClinicoxcliente,
   postClinico,
 };

@@ -237,6 +237,15 @@ ImagePT.belongsTo(plan_Alimenticio_x_cliente, {
   foreignKey: "uid_location",
   sourceKey: "uid_file_dieta",
 });
+
+HistorialClinico.hasOne(ImagePT, {
+  foreignKey: "uid_location",
+  sourceKey: "uid_file",
+});
+ImagePT.belongsTo(HistorialClinico, {
+  foreignKey: "uid_location",
+  sourceKey: "uid_file",
+});
 module.exports = {
   plan_Alimenticio_x_cliente,
   HistorialClinico,
