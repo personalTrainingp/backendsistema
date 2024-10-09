@@ -145,62 +145,62 @@ const Client_Contrato = async (dataInfo) => {
   //*DATOS PERSONALES DEL SOCIO
   //Primera fila
   const nombresCliente = firstPage.drawText(dataInfo.nombresCliente, {
-    x: 182,
+    x: 175,
     y: 589,
     size: 9,
     color: rgb(0, 0, 0),
   });
   const apPaternoCliente = firstPage.drawText(dataInfo.apPaternoCliente, {
-    x: 182,
+    x: 175,
     y: 564,
     size: 9,
     color: rgb(0, 0, 0),
   });
   const dniCliente = firstPage.drawText(dataInfo.dni, {
-    x: 182,
+    x: 175,
     y: 538,
     size: 9,
     color: rgb(0, 0, 0),
   });
   const DireccionCliente = firstPage.drawText(dataInfo.DireccionCliente, {
-    x: 182,
+    x: 175,
     y: 509,
     size: 9,
     color: rgb(0, 0, 0),
   });
   const PaisCliente = firstPage.drawText(dataInfo.PaisCliente, {
-    x: 182,
+    x: 175,
     y: 477,
     size: 9,
     color: rgb(0, 0, 0),
   });
   const CargoCliente = firstPage.drawText(dataInfo.CargoCliente, {
-    x: 182,
+    x: 175,
     y: 447,
     size: 9,
     color: rgb(0, 0, 0),
   });
   const EmailCliente = firstPage.drawText(dataInfo.EmailCliente, {
-    x: 182,
+    x: 175,
     y: 417,
     size: 9,
     color: rgb(0, 0, 0),
   });
   //Segunda columna
-  const EdadCliente = firstPage.drawText(dataInfo.EdadCliente, {
-    x: 419,
-    y: 589,
+  const EdadCliente = firstPage.drawText(`${dataInfo.EdadCliente} AÑOS`, {
+    x: 499,
+    y: 590,
     size: 9,
     color: rgb(0, 0, 0),
   });
   const apMaternoCliente = firstPage.drawText(dataInfo.apMaternoCliente, {
-    x: 419,
+    x: 388,
     y: 564,
     size: 9,
     color: rgb(0, 0, 0),
   });
   const DistritoCliente = firstPage.drawText(dataInfo.DistritoCliente, {
-    x: 419,
+    x: 388,
     y: 538,
     size: 9,
     color: rgb(0, 0, 0),
@@ -208,8 +208,8 @@ const Client_Contrato = async (dataInfo) => {
   const FechaDeNacimientoCliente = firstPage.drawText(
     dataInfo.FechaDeNacimientoCliente,
     {
-      x: 419,
-      y: 509,
+      x: 385,
+      y: 590,
       size: 9,
       color: rgb(0, 0, 0),
     }
@@ -217,14 +217,14 @@ const Client_Contrato = async (dataInfo) => {
   const CentroDeTrabajoCliente = firstPage.drawText(
     dataInfo.CentroDeTrabajoCliente,
     {
-      x: 419,
+      x: 388,
       y: 479,
       size: 9,
       color: rgb(0, 0, 0),
     }
   );
   const origenCliente = firstPage.drawText(dataInfo.origenCliente, {
-    x: 419,
+    x: 388,
     y: 447,
     size: 9,
     color: rgb(0, 0, 0),

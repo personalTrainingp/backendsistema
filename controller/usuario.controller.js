@@ -21,7 +21,29 @@ const { Producto } = require("../models/Producto");
 const { Inversionista } = require("../models/Aportes");
 const { Servicios } = require("../models/Servicios");
 const { Files } = require("../models/Image");
+const dayjs = require("dayjs");
+// Función para contar días laborables entre dos fechas
+function contarDiasLaborables(fechaInicio, fechaFin) {
+  let inicio = dayjs(fechaInicio);
+  let fin = dayjs(fechaFin);
+  let diasLaborables = 0;
 
+  console.log(inicio.isBefore(fin), inicio.isSame(fin, "day"));
+  // Iterar entre las dos fechas
+  while (inicio.isBefore(fin) || inicio.isSame(fin, "day")) {
+    const diaSemana = inicio.day(); // .day() devuelve 0 (Dom) a 6 (Sab)
+
+    // Verificar si es un día laborable (lunes a viernes: 1-5)
+    if (diaSemana !== 0 && diaSemana !== 6) {
+      diasLaborables++;
+    }
+
+    // Avanzar al siguiente día
+    inicio = inicio.add(1, "day");
+  }
+
+  return diasLaborables <= 0 ? 0 : diasLaborables;
+}
 const getUsuariosClientexID = async (req = request, res = response) => {
   try {
     const { id_cli } = req.params;
@@ -300,6 +322,64 @@ const putUsuarioCliente = async (req = request, res = response) => {
   } catch (error) {
     res.status(500).json({
       error: `Error en el servidor, en controller de putUsuarioCliente, hable con el administrador: ${error}`,
+    });
+  }
+};
+const obtenerDatosUltimaMembresia = async (req = request, res = response) => {
+  try {
+    const { id_cli } = req.params;
+    const cliente = await Cliente.findOne({ where: { id_cli } });
+    if (!cliente) {
+      return res.status(404).json({
+        ok: false,
+        msg: `No existe un cliente con el id "${uid_cliente}"`,
+      });
+    }
+    const ultimaMembresia = await Venta.findOne({
+      where: { id_cli: cliente.id_cli },
+      order: [["id", "DESC"]],
+      include: [
+        {
+          required: true,
+          model: detalleVenta_membresias,
+          attributes: [
+            "fec_inicio_mem",
+            "fec_fin_mem",
+            "id_pgm",
+            "id_st",
+            "id_tarifa",
+            "tarifa_monto",
+          ],
+          include: [
+            {
+              model: ProgramaTraining,
+              attributes: ["name_pgm"],
+            },
+            {
+              model: SemanasTraining,
+              attributes: ["semanas_st", "sesiones"],
+            },
+          ],
+        },
+      ],
+    });
+    if (!ultimaMembresia) {
+      return res.status(200).json({
+        msg: "no hay ninguna membresia nueva",
+      });
+    }
+    res.status(200).json({
+      msg: "success",
+      name_cli: `${cliente.nombre_cli} ${cliente.apPaterno_cli} ${cliente.apMaterno_cli}`,
+      sesiones_restantes: contarDiasLaborables(
+        new Date(),
+        ultimaMembresia.detalle_ventaMembresia.fec_fin_mem
+      ),
+      ultimaMembresia,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: `Error en el servidor, en controller de obtenerDatosUltimaMembresia, hable con el administrador: ${error}`,
     });
   }
 };
@@ -797,6 +877,7 @@ module.exports = {
   deleteUsuarioCliente,
   putUsuarioCliente,
   getUsuariosClientexID,
+  obtenerDatosUltimaMembresia,
   //Empleado
   postUsuarioEmpleado,
   getUsuarioEmpleados,

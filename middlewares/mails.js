@@ -142,6 +142,22 @@ const mailMembresiaSTRING = (
   citas_nut,
   nombre_asesor
 ) => {
+  console.log(
+    nombre_completo_cli,
+    n_contrato,
+    n_socio,
+    n_sesiones,
+    fec_inicio,
+    fec_termino,
+    horario,
+    tipo_comprobante,
+    n_comprobante,
+    monto,
+    dias_cong,
+    citas_nut,
+    nombre_asesor
+  );
+
   return `
   <!DOCTYPE html>
 <html lang="es">

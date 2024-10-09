@@ -11,13 +11,10 @@ const cron = require("node-cron");
 const {
   EnviarMensajeDeRecordatorioMembresia,
 } = require("./middlewares/tareasCron.js");
+const { insertaDatosTEST } = require("./middlewares/eventosCron.js");
 // Programa una tarea para las 9 AM todos los días
-cron.schedule("0 9 * * *", () => {
-  try {
-    console.log("activado");
-  } catch (error) {
-    console.error("Error con cron:", error);
-  }
+cron.schedule("*/2 * * * *", () => {
+  insertaDatosTEST();
 });
 // EnviarMensajeDeRecordatorioMembresia();
 // const { test } = require("./config/zkteco.js");

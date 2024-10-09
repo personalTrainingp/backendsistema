@@ -112,7 +112,7 @@ const seccionGET = async (req = request, res = response) => {
         },
         {
           key: "cliente-contratos",
-          label: "Contratos de clientes",
+          label: "Contratos de socios",
           isTitle: false,
           icon: "uil-calender",
           url: "/contrato-clientes",
@@ -471,7 +471,7 @@ const seccionGET = async (req = request, res = response) => {
         },
         {
           key: "cliente-contratos",
-          label: "Contratos de clientes",
+          label: "Contratos de socios",
           isTitle: false,
           icon: "uil-calender",
           url: "/contrato-clientes",

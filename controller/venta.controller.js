@@ -934,7 +934,6 @@ const postTraspasoMembresia = async (req = request, res = response) => {
     observacion,
     id_origen,
   } = req.body.formState.detalle_cli_modelo;
-  console.log(req.body);
 
   const { id_tt, id_st } = req.body.dataSesiones;
   const {

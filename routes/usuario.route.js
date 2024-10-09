@@ -19,6 +19,7 @@ const {
   loginUsuario,
   getUsuariosClientexID,
   revalidarToken,
+  obtenerDatosUltimaMembresia
 } = require("../controller/usuario.controller");
 const {
   extraerComentarios,
@@ -39,6 +40,7 @@ router.post(
   extraerContactoEmergencia,
   postUsuarioCliente
 );
+router.get("/get-ultima-membresia-cliente/:id_cli", obtenerDatosUltimaMembresia)
 router.get("/get-clientes", validarJWT, getUsuarioClientes);
 router.get("/get-cliente/:uid_cliente", validarJWT, getUsuarioCliente);
 router.get("/get-cliente/id/:id_cli", validarJWT, getUsuariosClientexID);

@@ -33,7 +33,7 @@ router.post(
   postNewVenta,
   postVenta
 );
-// router.post("/send-email", mailMembresia);
+router.post("/send-email", mailMembresia);
 router.post("/traspaso-membresia", postTraspasoMembresia);
 router.get("/get-ventas-x-fecha", getVentasxFecha);
 router.get("/get-ventas", get_VENTAS);
