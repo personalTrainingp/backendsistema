@@ -19,7 +19,7 @@ const {
   loginUsuario,
   getUsuariosClientexID,
   revalidarToken,
-  obtenerDatosUltimaMembresia
+  obtenerDatosUltimaMembresia,
 } = require("../controller/usuario.controller");
 const {
   extraerComentarios,
@@ -27,6 +27,9 @@ const {
   extraerUpload,
 } = require("../middlewares/extraerComentarios");
 const { validarJWT } = require("../middlewares/validarJWT");
+const {
+  insertarDatosSeguimientoDeClientes,
+} = require("../middlewares/eventosCron");
 const router = Router();
 /**
  * [API Documentation]
@@ -40,7 +43,11 @@ router.post(
   extraerContactoEmergencia,
   postUsuarioCliente
 );
-router.get("/get-ultima-membresia-cliente/:id_cli", obtenerDatosUltimaMembresia)
+router.get("/get-seguimiento-cliente", insertarDatosSeguimientoDeClientes);
+router.get(
+  "/get-ultima-membresia-cliente/:id_cli",
+  obtenerDatosUltimaMembresia
+);
 router.get("/get-clientes", validarJWT, getUsuarioClientes);
 router.get("/get-cliente/:uid_cliente", validarJWT, getUsuarioCliente);
 router.get("/get-cliente/id/:id_cli", validarJWT, getUsuariosClientexID);
@@ -74,6 +81,5 @@ router.post("/delete-usuario/:id_user", deleteUsuario);
 
 router.post("/login", loginUsuario);
 router.get("/renew", validarJWT, revalidarToken);
-
 
 module.exports = router;

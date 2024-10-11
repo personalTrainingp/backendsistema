@@ -91,6 +91,10 @@ const Gastos = db.define("tb_egresos", {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+  esCompra: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
 });
 Gastos.hasOne(Parametros, {
   foreignKey: "id_param",

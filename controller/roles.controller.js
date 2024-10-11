@@ -167,39 +167,6 @@ const seccionGET = async (req = request, res = response) => {
     if (modulo === "mod-adm") {
       MENU_ITEMS = [
         {
-          key: "config",
-          label: "Configuracion",
-          isTitle: true,
-        },
-        {
-          key: "adm-usuario",
-          label: "Administrar usuarios",
-          isTitle: false,
-          icon: "uil-calender",
-          url: "/gestion-auth-usuario",
-        },
-        {
-          key: "adm-audit",
-          label: "Auditoria",
-          isTitle: false,
-          icon: "uil-calender",
-          url: "/auditoria",
-        },
-        {
-          key: "conf-term",
-          label: "Terminologias",
-          isTitle: false,
-          icon: "uil-calender",
-          url: "/configuracion-terminos",
-        },
-        {
-          key: "conf-tip-cambio",
-          label: "Tipo de cambio",
-          isTitle: false,
-          icon: "uil-calender",
-          url: "/tipo-cambio",
-        },
-        {
           key: "reporte-admin",
           label: "Reporte de Utilidad",
           isTitle: true,
@@ -245,6 +212,13 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: true,
         },
         {
+          key: "reporte-flujo-caja",
+          label: "FLUJO DE CAJA",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/flujo-caja",
+        },
+        {
           key: "reporte-comparativa-dia",
           label: "Comparativa por dia",
           isTitle: false,
@@ -269,6 +243,13 @@ const seccionGET = async (req = request, res = response) => {
           key: "gf-gv",
           label: "Egresos y Aportes",
           isTitle: true,
+        },
+        {
+          key: "gestion-gfgv",
+          label: "Orden de compra",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/orden-compra",
         },
         {
           key: "gestion-gfgv",
@@ -366,6 +347,39 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: false,
           icon: "uil-calender",
           url: "/gestion-comisional",
+        },
+        {
+          key: "config",
+          label: "Configuracion",
+          isTitle: true,
+        },
+        {
+          key: "adm-usuario",
+          label: "Administrar usuarios",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-auth-usuario",
+        },
+        {
+          key: "adm-audit",
+          label: "Auditoria",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/auditoria",
+        },
+        {
+          key: "conf-term",
+          label: "Terminologias",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/configuracion-terminos",
+        },
+        {
+          key: "conf-tip-cambio",
+          label: "Tipo de cambio",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/tipo-cambio",
         },
         // {
         //   key: "menu-levels",

@@ -1,7 +1,7 @@
 const { request, response } = require("express");
 const { Gastos, ParametroGastos } = require("../models/GastosFyV");
 const { Proveedor } = require("../models/Proveedor");
-const { Sequelize } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 const { Parametros } = require("../models/Parametros");
 const { capturarAUDIT } = require("../middlewares/auditoria");
 const { typesCRUD } = require("../types/types");
@@ -208,11 +208,87 @@ const deleteGasto = async (req = request, res = response) => {
     });
   }
 };
+const obtenerOrdenCompra = async (req = request, res = response) => {
+  const { id_enterp } = req.params;
+  try {
+    const gastos = await Gastos.findAll({
+      where: {
+        flag: true,
+        [Sequelize.Op.and]: Sequelize.where(
+          Sequelize.fn("YEAR", Sequelize.col("fec_comprobante")),
+          "<",
+          2030
+        ),
+        esCompra: true,
+        id: {
+          [Sequelize.Op.not]: 2548,
+        },
+      },
+      order: [["fec_registro", "desc"]],
+      attributes: [
+        "id",
+        "moneda",
+        "monto",
+        "fec_pago",
+        "id_tipo_comprobante",
+        "n_comprabante",
+        "impuesto_igv",
+        "impuesto_renta",
+        "n_operacion",
+        "fec_registro",
+        "fec_comprobante",
+        "descripcion",
+        "id_prov",
+        "cod_trabajo",
+        "esCompra",
+      ],
+      include: [
+        {
+          model: Proveedor,
+          attributes: ["razon_social_prov"],
+        },
+        {
+          model: ParametroGastos,
+          attributes: ["id_empresa", "nombre_gasto", "grupo", "id_tipoGasto"],
+          where: {
+            id_empresa: id_enterp,
+          },
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_banco",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_forma_pago",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_comprobante",
+        },
+      ],
+    });
+    res.status(200).json({
+      msg: "success",
+      gastos,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      error: `Error en el servidor, en controller de getGastos, hable con el administrador: ${error}`,
+    });
+  }
+};
 module.exports = {
   postGasto,
   getGastos,
 
   getGasto,
+  obtenerOrdenCompra,
   putGasto,
   deleteGasto,
   getProveedoresGastos_SinRep,

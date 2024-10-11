@@ -30,6 +30,31 @@ const Servicios = db.define("tb_servicios", {
   },
 });
 
+const SeguimientoClientes = db.define("clientes_seguimiento", {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  id_cliente: {
+    type: DataTypes.INTEGER,
+  },
+  id_venta: {
+    type: DataTypes.DATEONLY,
+  },
+  vencimiento: {
+    type: DataTypes.STRING(40),
+  },
+  sesionesPendientes: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+  estado: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+})
+
 Servicios.hasOne(detalleVenta_citas, {
   foreignKey: "id_servicio",
 });

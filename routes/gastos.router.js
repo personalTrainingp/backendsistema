@@ -6,6 +6,7 @@ const {
   getGasto,
   putGasto,
   deleteGasto,
+  obtenerOrdenCompra,
   getProveedoresGastos_SinRep,
 } = require("../controller/gastos.controller");
 const router = Router();
@@ -28,11 +29,13 @@ const router = Router();
 // router.put("/delete_gv/:id", eliminar_GV);
 // router.put("/put_gv/:id", put_GV);
 
+router.get("/orden-compra/:id_enterp", obtenerOrdenCompra);
+
 router.post("/post-egreso", postGasto);
 router.get("/get-egresos/:id_enterp", getGastos);
 router.get("/get-egreso/:id", getGasto);
 router.put("/put-egreso/:id", putGasto);
 router.put("/delete-egreso/:id", deleteGasto);
 
-router.get("/get-proveedores-unicos", getProveedoresGastos_SinRep)
+router.get("/get-proveedores-unicos", getProveedoresGastos_SinRep);
 module.exports = router;

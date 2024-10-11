@@ -11,11 +11,16 @@ const cron = require("node-cron");
 const {
   EnviarMensajeDeRecordatorioMembresia,
 } = require("./middlewares/tareasCron.js");
-const { insertaDatosTEST } = require("./middlewares/eventosCron.js");
+const {
+  insertaDatosTEST,
+  insertarDatosSeguimientoDeClientes,
+} = require("./middlewares/eventosCron.js");
 // Programa una tarea para las 9 AM todos los días
-cron.schedule("*/2 * * * *", () => {
-  insertaDatosTEST();
+cron.schedule("0 3 * * *", () => {
+  // insertaDatosTEST();
 });
+const testtt = async () => {};
+// insertarDatosSeguimientoDeClientes("true");
 // EnviarMensajeDeRecordatorioMembresia();
 // const { test } = require("./config/zkteco.js");
 const fileServer = express.static;
@@ -201,7 +206,7 @@ app.use("/api/egreso", validarJWT, require("./routes/gastos.router.js"));
 //TODO: programas
 app.use(
   "/api/programaTraining",
-  // validarJWT,
+  validarJWT,
   require("./routes/programaTraining.route.js")
 );
 //TODO: PARAMETROS TODO TIPO(SEXO, TIPO DOC, NACIONALIDAD, TIPOCLIENTE, REFERENCIA DE CONTACTO, ETC)
@@ -237,6 +242,8 @@ app.use("/api/prospecto", validarJWT, require("./routes/prospecto.router.js"));
 app.use("/api/auditoria", validarJWT, require("./routes/auditoria.router.js"));
 app.use("/api/aporte", validarJWT, require("./routes/aportes.router.js"));
 app.use("/api/dieta", require("./routes/dieta.router.js"));
+
+app.use("/api/flujo-caja", require("./routes/flujo-caja.router.js"));
 //Escuchar peticiones
 app.listen(env.PORT || 4001, () => {
   console.log(`Servidor corriendo en el puerto ${env.PORT || 4001}`);
