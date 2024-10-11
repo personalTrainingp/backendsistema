@@ -246,7 +246,7 @@ const seccionGET = async (req = request, res = response) => {
         },
         {
           key: "gestion-gfgv",
-          label: "Orden de compra",
+          label: "Registro de compra",
           isTitle: false,
           icon: "uil-calender",
           url: "/orden-compra",

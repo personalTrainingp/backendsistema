@@ -9,6 +9,9 @@ const {
 const { Producto } = require("../models/Producto");
 const { Servicios } = require("../models/Servicios");
 const { Op, Sequelize } = require("sequelize");
+const { Proveedor } = require("../models/Proveedor");
+const { ParametroGastos, Gastos } = require("../models/GastosFyV");
+const { Parametros } = require("../models/Parametros");
 
 const getIngresosxMESandAnio = async (req = request, res = response) => {
   const { mes, anio } = req.query;
@@ -275,7 +278,6 @@ const getIngresosxMESandAnio = async (req = request, res = response) => {
 const getGastosMensualesxANIO = async (req = request, res = response) => {
   const { anio } = req.query;
   try {
-    
     res.status(200).json({
       ok: true,
       data: "",
@@ -287,6 +289,83 @@ const getGastosMensualesxANIO = async (req = request, res = response) => {
     });
   }
 };
+
+const getGastoxGrupo = async (req = request, res = response) => {
+  const { anio } = req.query;
+  const { id_enterp } = req.params;
+  try {
+    const gastos = await Gastos.findAll({
+      where: {
+        flag: true,
+        [Sequelize.Op.and]: Sequelize.where(
+          Sequelize.fn("YEAR", Sequelize.col("fec_comprobante")),
+          "<",
+          2030,
+          Sequelize.fn("YEAR", Sequelize.col("fec_comprobante")),
+          "=",
+          2024
+        ),
+        id: {
+          [Sequelize.Op.not]: 2548,
+        },
+      },
+      order: [["fec_registro", "desc"]],
+      attributes: [
+        "id",
+        "moneda",
+        "monto",
+        "fec_pago",
+        "id_tipo_comprobante",
+        "n_comprabante",
+        "impuesto_igv",
+        "impuesto_renta",
+        "n_operacion",
+        "fec_registro",
+        "fec_comprobante",
+        "descripcion",
+        "id_prov",
+        "cod_trabajo",
+      ],
+      include: [
+        {
+          model: Proveedor,
+          attributes: ["razon_social_prov"],
+        },
+        {
+          model: ParametroGastos,
+          attributes: ["id_empresa", "nombre_gasto", "grupo", "id_tipoGasto"],
+          where: {
+            id_empresa: id_enterp,
+          },
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_banco",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_forma_pago",
+        },
+        {
+          model: Parametros,
+          attributes: ["id_param", "label_param"],
+          as: "parametro_comprobante",
+        },
+      ],
+    });
+    res.status(200).json({
+      msg: "success",
+      gastos,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: `Error en el servidor, en controller de getGastos, hable con el administrador: ${error}`,
+    });
+  }
+};
 module.exports = {
   getIngresosxMESandAnio,
+  getGastoxGrupo,
 };

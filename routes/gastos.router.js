@@ -6,6 +6,7 @@ const {
   getGasto,
   putGasto,
   deleteGasto,
+  getGastoxGrupo,
   obtenerOrdenCompra,
   getProveedoresGastos_SinRep,
 } = require("../controller/gastos.controller");
@@ -36,6 +37,8 @@ router.get("/get-egresos/:id_enterp", getGastos);
 router.get("/get-egreso/:id", getGasto);
 router.put("/put-egreso/:id", putGasto);
 router.put("/delete-egreso/:id", deleteGasto);
+
+router.get("/get-gasto-x-grupo/:id_enterp", getGastoxGrupo);
 
 router.get("/get-proveedores-unicos", getProveedoresGastos_SinRep);
 module.exports = router;
