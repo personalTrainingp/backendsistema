@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-
+const uuid = require("uuid");
 const { db } = require("../database/sequelizeConnection");
 const { Cliente, Empleado } = require("./Usuarios");
 const { ProgramaTraining, SemanasTraining } = require("./ProgramaTraining");
@@ -27,6 +27,9 @@ const Venta = db.define("tb_venta", {
     type: DataTypes.STRING(360),
   },
   id_origen: {
+    type: DataTypes.INTEGER,
+  },
+  id_empresa: {
     type: DataTypes.INTEGER,
   },
   fecha_venta: {
@@ -80,6 +83,9 @@ const detalleVenta_membresias = db.define("detalle_ventaMembresia", {
   uid_firma: {
     type: DataTypes.STRING(255),
   },
+  uid_contrato: {
+    type: DataTypes.STRING(255),
+  },
   horario: {
     type: DataTypes.TIME,
   },
@@ -100,13 +106,16 @@ const detalleVenta_Transferencia = db.define("detalle_ventaTransferencia", {
   id_venta: {
     type: DataTypes.INTEGER,
   },
-  id_transferencia: {
+  id_membresia: {
     type: DataTypes.INTEGER,
   },
   tarifa_monto: {
     type: DataTypes.DECIMAL(10, 2),
   },
   uid_firma: {
+    type: DataTypes.STRING(255),
+  },
+  uid_contrato: {
     type: DataTypes.STRING(255),
   },
   horario: {
@@ -296,11 +305,11 @@ detalleVenta_Transferencia.belongsTo(Venta, {
 });
 detalleVenta_Transferencia.hasMany(detalleVenta_membresias, {
   foreignKey: "id", // Este debe ser el nombre de la columna en detalleVenta_membresias
-  sourceKey: "id_transferencia",
+  sourceKey: "id_membresia",
 });
 detalleVenta_membresias.belongsTo(detalleVenta_Transferencia, {
   foreignKey: "id", // Este debe coincidir con el anterior
-  targetKey: "id_transferencia",
+  targetKey: "id_membresia",
 });
 // Definición de la relación entre Venta y detalleVenta_citas
 Venta.hasMany(detalleVenta_citas, {
@@ -387,9 +396,33 @@ detalleVenta_producto
     );
   });
 
+const carcel = async () => {
+  try {
+    // Encuentra todas las filas de la tabla (o puedes hacerlo con un filtro específico)
+    const filas = await detalleVenta_membresias.findAll();
+
+    // Itera sobre cada fila para asignar un UUID distinto
+    for (const fila of filas) {
+      // Genera un nuevo UUID
+      const UUID = uuid.v4();
+      const UUID_CONTRATO = uuid.v4();
+      // Actualiza la fila con el nuevo UUID
+      await fila.update({
+        uid_firma: UUID,
+        uid_contrato: UUID_CONTRATO,
+      });
+    }
+
+    console.log("ContratoProv  asignados correctamente.");
+  } catch (error) {
+    console.error("Error al asignar UUID:", error);
+  }
+};
+// carcel();
 module.exports = {
   Venta,
   detalleVenta_membresias,
+  detalleVenta_Transferencia,
   detalleVenta_pagoVenta,
   detalleVenta_citas,
   detalleVenta_producto,

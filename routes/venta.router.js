@@ -7,6 +7,8 @@ const {
   extraerCitas,
   extraerProductos,
   postNewVenta,
+  extraerTraspasos,
+  extraerVentaTransferenciaMembresia,
 } = require("../middlewares/extraerVentas");
 const {
   postVenta,
@@ -17,6 +19,7 @@ const {
   getVentasxFecha,
   obtener_contrato_pdf,
   postTraspasoMembresia,
+  obtenerVentasMembresiaxEmpresa,
 } = require("../controller/venta.controller");
 const { obtener_estado_membresia } = require("../middlewares/logicaSistema");
 const router = Router();
@@ -27,11 +30,17 @@ router.post(
   "/post-ventas",
   extraerCredencialesCliente,
   extraerVentaMembresia,
+  extraerTraspasos,
+  extraerVentaTransferenciaMembresia,
   extraerProductos,
   extraerCitas,
   extraerPagos,
   postNewVenta,
   postVenta
+);
+router.get(
+  "/get-ventas-membresia-x-empresa/:id_empresa",
+  obtenerVentasMembresiaxEmpresa
 );
 router.post("/send-email", mailMembresia);
 router.post("/traspaso-membresia", postTraspasoMembresia);
