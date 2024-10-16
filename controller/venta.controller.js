@@ -6,6 +6,7 @@ const {
   detalleVenta_membresias,
   detalleVenta_citas,
   detalleVenta_pagoVenta,
+  detalleVenta_Transferencia,
 } = require("../models/Venta");
 const { Cliente, Empleado } = require("../models/Usuarios");
 const { Sequelize, Op } = require("sequelize");
@@ -433,6 +434,7 @@ const postVenta = async (req = request, res = response) => {
   // if(req.ventaProgramas)
   // Venta(req.body);
   const uid_firma = v4();
+  const uid_contrato = v4();
   try {
     if (req.productos && req.productos.length > 0) {
       const ventasProductosConIdVenta = await req.productos.map((producto) => ({
@@ -451,6 +453,7 @@ const postVenta = async (req = request, res = response) => {
         (mem) => ({
           id_venta: req.ventaID,
           uid_firma: uid_firma,
+          uid_contrato: uid_contrato,
           ...mem,
         })
       );
@@ -464,6 +467,17 @@ const postVenta = async (req = request, res = response) => {
         tarifa_monto: cita.tarifa,
       }));
       await detalleVenta_citas.bulkCreate(ventasCitasConIdVenta);
+    }
+    if (req.ventaTransferencia && req.ventaTransferencia.length > 0) {
+      const ventasTransferenciaConIdVenta = await req.ventaTransferencia.map(
+        (transferencia) => ({
+          id_venta: req.ventaID,
+          ...transferencia,
+        })
+      );
+      await detalleVenta_Transferencia.bulkCreate(
+        ventasTransferenciaConIdVenta
+      );
     }
     if (req.pagosExtraidos && req.pagosExtraidos.length > 0) {
       const pagosVentasConIdVenta = await req.pagosExtraidos.map((pagos) => ({
@@ -1318,7 +1332,7 @@ const postTraspasoMembresia = async (req = request, res = response) => {
     numero_transac,
     observacion,
     id_origen,
-  } = req.body.formState.detalle_cli_modelo;
+  } = req.detalle_cli;
 
   const { id_tt, id_st } = req.body.dataSesiones;
   const {
@@ -1353,8 +1367,79 @@ const postTraspasoMembresia = async (req = request, res = response) => {
       tarifa_monto: tarifa,
     });
     await detalle_venta_programa.save();
+
     res.status(200).json({
       ok: true,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(501).json({
+      ok: false,
+    });
+  }
+};
+const obtenerVentasMembresiaxEmpresa = async (
+  req = request,
+  res = response
+) => {
+  try {
+    const ventas = await Venta.findAll({
+      where: { flag: true },
+      attributes: [
+        "id",
+        "id_cli",
+        "id_empl",
+        "id_tipoFactura",
+        "numero_transac",
+        "fecha_venta",
+      ],
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: Cliente,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_cli"),
+                " ",
+                Sequelize.col("apPaterno_cli"),
+                " ",
+                Sequelize.col("apMaterno_cli")
+              ),
+              "nombres_apellidos_cli",
+            ],
+          ],
+        },
+        {
+          model: Empleado,
+          attributes: [
+            [
+              Sequelize.fn(
+                "CONCAT",
+                Sequelize.col("nombre_empl"),
+                " ",
+                Sequelize.col("apPaterno_empl"),
+                " ",
+                Sequelize.col("apMaterno_empl")
+              ),
+              "nombres_apellidos_empl",
+            ],
+          ],
+        },
+        {
+          model: detalleVenta_membresias,
+          attributes: [
+            "id_venta",
+            "id_pgm",
+            "id_tarifa",
+            "horario",
+            "id_st",
+            "tarifa_monto",
+          ],
+        },
+      ],
     });
   } catch (error) {
     console.log(error);
@@ -1377,5 +1462,6 @@ module.exports = {
   mailMembresia,
   postTraspasoMembresia,
   estadosClienteMembresiaVar,
-  comparativaPorProgramaApi
+  comparativaPorProgramaApi,
+  obtenerVentasMembresiaxEmpresa,
 };

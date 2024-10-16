@@ -10,6 +10,7 @@ const {
   getReporteDeEgresos,
   getReporteDeTotalDeVentas_ClientesVendedores,
   getReporteDeUtilidadesTotal,
+  getFlujoCaja,
   getReporteVentas,
   getReporteFormasDePago,
   getReporteDeMembresiasxFechaxPrograma,
@@ -18,6 +19,8 @@ const router = Router();
 /**
  * /api/reporte
  */
+
+
 router.get("/reporte-ventas-x-cliente/:id_cli");
 router.get("/reporte-ventas-formas-de-pago", getReporteFormasDePago);
 router.get("/reporte-obtener-ventas", getReporteVentas);

@@ -1,12 +1,12 @@
-// const {
-//   BlobServiceClient,
-//   StorageSharedKeyCredential,
-// } = require("@azure/storage-blob");
-// require("dotenv").config();
+const {
+  BlobServiceClient,
+  StorageSharedKeyCredential,
+} = require("@azure/storage-blob");
+require("dotenv").config();
 
-// const blobService = BlobServiceClient.fromConnectionString(
-//   process.env.AZURE_STORAGE_CONNECTION_STRING
-// );
+const blobService = BlobServiceClient.fromConnectionString(
+  process.env.AZURE_STORAGE_CONNECTION_STRING
+);
 // const blobServiceClient = new BlobServiceClient(
 //   `https://${account}.blob.core.windows.net`,
 //   new StorageSharedKeyCredential(account, accountKey)
@@ -24,8 +24,8 @@
 //   await blockBlobClient.downloadToFile(downloadFilePath);
 // }
 
-// module.exports = {
-//   // uploadFile,
-//   // downloadFile,
-//   blobService,
-// };
+module.exports = {
+  // uploadFile,
+  // downloadFile,
+  blobService,
+};

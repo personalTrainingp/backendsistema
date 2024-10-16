@@ -245,6 +245,13 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: true,
         },
         {
+          key: "reporte-flujo-caja",
+          label: "FLUJO DE CAJA",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/flujo-caja",
+        },
+        {
           key: "reporte-comparativa-dia",
           label: "Comparativa por dia",
           isTitle: false,
@@ -269,6 +276,13 @@ const seccionGET = async (req = request, res = response) => {
           key: "gf-gv",
           label: "Egresos y Aportes",
           isTitle: true,
+        },
+        {
+          key: "gestion-gfgv",
+          label: "Registro de compra",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/orden-compra",
         },
         {
           key: "gestion-gfgv",
@@ -368,16 +382,37 @@ const seccionGET = async (req = request, res = response) => {
           url: "/gestion-comisional",
         },
         {
-          key: "reporte-admin",
-          label: "Recursos Humanos",
+          key: "config",
+          label: "Configuracion",
           isTitle: true,
         },
         {
-          key: "reporte-utilidad-pgm",
-          label: "Reportes Por Planilla",
+          key: "adm-usuario",
+          label: "Administrar usuarios",
           isTitle: false,
           icon: "uil-calender",
-          url: "/reporte-admin/RecursosHumanoReportes",
+          url: "/gestion-auth-usuario",
+        },
+        {
+          key: "adm-audit",
+          label: "Auditoria",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/auditoria",
+        },
+        {
+          key: "conf-term",
+          label: "Terminologias",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/configuracion-terminos",
+        },
+        {
+          key: "conf-tip-cambio",
+          label: "Tipo de cambio",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/tipo-cambio",
         },
         // {
         //   key: "menu-levels",
@@ -605,6 +640,18 @@ const seccionGET = async (req = request, res = response) => {
           icon: "pi pi-file",
           url: "/trabajo-marketing",
         },
+        {
+          key: "reporte-admin",
+          label: "Recursos Humanos",
+          isTitle: true,
+        },
+        {
+          key: "reporte-utilidad-pgm",
+          label: "Reportes Por Planilla",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/RecursosHumanoReportes",
+        }
       ];
     }
     if (modulo === "mod-inventario") {

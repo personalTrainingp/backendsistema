@@ -5,17 +5,22 @@ const cors = require("cors");
 const { urlArchivos, urlArchivoLogos } = require("./config/constant");
 const { db } = require("./database/sequelizeConnection.js");
 const { ImagePT } = require("./models/Image.js");
-// const transporterU = require("./config/nodemailer.js");
+const transporterU = require("./config/nodemailer.js");
 const { validarJWT } = require("./middlewares/validarJWT.js");
 const cron = require("node-cron");
 const {
   EnviarMensajeDeRecordatorioMembresia,
 } = require("./middlewares/tareasCron.js");
-const { insertaDatosTEST } = require("./middlewares/eventosCron.js");
+const {
+  insertaDatosTEST,
+  insertarDatosSeguimientoDeClientes,
+} = require("./middlewares/eventosCron.js");
 // Programa una tarea para las 9 AM todos los días
-cron.schedule("*/2 * * * *", () => {
-  insertaDatosTEST();
+cron.schedule("0 3 * * *", () => {
+  // insertaDatosTEST();
 });
+const testtt = async () => {};
+// insertarDatosSeguimientoDeClientes("true");
 // EnviarMensajeDeRecordatorioMembresia();
 // const { test } = require("./config/zkteco.js");
 const fileServer = express.static;
@@ -41,104 +46,104 @@ const getConnectionORM = async () => {
 };
 getConnectionORM();
 
-// const sendReminderEmail = (email) => {
-//   const mailOptions = {
-//     from: "notificaciones@personaltraining.com.pe",
-//     to: `${email}`,
-//     subject: "Asunto del correo",
-//     html: `
-//     <!DOCTYPE html>
-//     <html lang="en">
-//     <head>
-//         <meta charset="UTF-8">
-//         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//         <title>${EMAIL_INFO.nombre_cli}</title>
-//         <style>
-//             body {
-//                 font-family: Arial, sans-serif;
-//             }
+const sendReminderEmail = (email) => {
+  const mailOptions = {
+    from: "notificaciones@personaltraining.com.pe",
+    to: `${email}`,
+    subject: "Asunto del correo",
+    html: `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${EMAIL_INFO.nombre_cli}</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
     
-//             table {
-//                 width: 100%;
-//                 border-collapse: collapse;
-//             }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
     
     
-//             th {
-//                 background-color: #f2f2f2;
-//             }
+            th {
+                background-color: #f2f2f2;
+            }
     
-//             .logo {
-//                 width: 400px;
-//                 margin: 0 auto;
-//                 display: block;
-//             }
+            .logo {
+                width: 400px;
+                margin: 0 auto;
+                display: block;
+            }
     
-//             .text-center {
-//                 text-align: center;
-//             }
+            .text-center {
+                text-align: center;
+            }
     
-//             .bold {
-//                 font-weight: bold;
-//             }
-//             .bg-primary{
-//                 background-color: #FF5000;
-//             }
-//             .bg-black{
-//                 background-color: #000;
-//             }
-//             .m-0{
-//                 margin: 0;
-//             }
-//             .color-white{
-//                 color: #fff;
-//             }
-//             .body-table{
-//                 display: flex;
-//                 justify-content: center;
-//             }
-//             .dflex-jcenter{
-//                 display: flex;
-//                 justify-content: center;
-//             }
-//             .table-info tr{
-//                 display: flex;
-//                 justify-content: center;
-//             }
-//             .table-info td{
-//                 width: 100%;
-//             }
-//             .table-info .param{
-//                 text-align: right;
-//             }
-//             .table-info tr{
-//                 margin-bottom: 5px;
-//             }
-//             .table-info{
-//                 font-size: 18px;
-//             }
+            .bold {
+                font-weight: bold;
+            }
+            .bg-primary{
+                background-color: #FF5000;
+            }
+            .bg-black{
+                background-color: #000;
+            }
+            .m-0{
+                margin: 0;
+            }
+            .color-white{
+                color: #fff;
+            }
+            .body-table{
+                display: flex;
+                justify-content: center;
+            }
+            .dflex-jcenter{
+                display: flex;
+                justify-content: center;
+            }
+            .table-info tr{
+                display: flex;
+                justify-content: center;
+            }
+            .table-info td{
+                width: 100%;
+            }
+            .table-info .param{
+                text-align: right;
+            }
+            .table-info tr{
+                margin-bottom: 5px;
+            }
+            .table-info{
+                font-size: 18px;
+            }
             
-//         </style>
-//     </head>
+        </style>
+    </head>
     
-//     <body>
-//             Este mensaje a sido enviando 10 dias antes de tu membresia
-//     </body>
+    <body>
+            Este mensaje a sido enviando 10 dias antes de tu membresia
+    </body>
     
-//     </html>
-//       `,
-//   };
-//   transporterU.sendMail(mailOptions, function (error, info) {
-//     if (error) {
-//       console.error(error);
-//     } else {
-//       console.log("Correo electrónico enviado: " + info.response);
-//     }
+    </html>
+      `,
+  };
+  transporterU.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.error(error);
+    } else {
+      console.log("Correo electrónico enviado: " + info.response);
+    }
 
-//     // Cerrar la conexión SMTP
-//     transporterU.close();
-//   });
-// };
+    // Cerrar la conexión SMTP
+    transporterU.close();
+  });
+};
 const checkMembresiaShips = () => {
   const today = new Date();
   const reminderToday = new Date();
@@ -183,7 +188,7 @@ app.use(express.static("public"));
 //Lectura y parseo del body
 app.use(express.json());
 
-//app.use("/api/storage/blob", require("./routes/upload/blob.router.js"));
+app.use("/api/storage/blob", require("./routes/upload/blob.router.js"));
 
 app.use("/api/zk", require("./routes/upload/zk.router"));
 app.use("/api/tipocambio", require("./routes/tipocambio.route.js"));
@@ -194,14 +199,14 @@ app.use("/api/file/logo", fileServer(urlArchivoLogos));
 app.use("/api/fils", require("./routes/file.router.js"));
 //Rutas
 // //TODO proveedores // sexo, tipoDoc, estadoCivil, etc
-app.use("/api/proveedor", /*validarJWT,*/ require("./routes/proveedor.router.js"));
+app.use("/api/proveedor", validarJWT, require("./routes/proveedor.router.js"));
 app.use("/api/producto", validarJWT, require("./routes/producto.route.js"));
 //TODO: JUNTAR LOS DOS EN UNA RUTA
 app.use("/api/egreso", validarJWT, require("./routes/gastos.router.js"));
 //TODO: programas
 app.use(
   "/api/programaTraining",
-  // validarJWT,
+  validarJWT,
   require("./routes/programaTraining.route.js")
 );
 //TODO: PARAMETROS TODO TIPO(SEXO, TIPO DOC, NACIONALIDAD, TIPOCLIENTE, REFERENCIA DE CONTACTO, ETC)
@@ -239,6 +244,7 @@ app.use("/api/aporte", validarJWT, require("./routes/aportes.router.js"));
 app.use("/api/dieta", require("./routes/dieta.router.js"));
 
 app.use("/api/recursosHumanos", require("./routes/recursosHumano.js"));
+app.use("/api/flujo-caja", require("./routes/flujo-caja.router.js"));
 //Escuchar peticiones
 app.listen(env.PORT || 4001, () => {
   console.log(`Servidor corriendo en el puerto ${env.PORT || 4001}`);

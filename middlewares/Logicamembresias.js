@@ -11,10 +11,6 @@ const ultimaMembresiaxCli = async (id_cli) => {
     include: [{ model: detalleVenta_membresias, required: true }],
   });
 
-  //1. Hallar la ultima membresia del usuario
-  //2. Si el usuario tiene una extension(congelamiento o regalo) usar la fecha_fin_membresia
-  //3. Si no tiene una extension, usar la fecha_fin_mem
-  //4. sumar los dias
   return venta;
 };
 const detalle_sesionxMembresia = async (id_membresia) => {

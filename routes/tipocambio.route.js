@@ -6,7 +6,8 @@ const {
   buscar,
   eliminar,
   crear,
-  actualizar
+  actualizar,
+  obtenerTipoCambio,
 } = require("../controller/tipoCanbio.controller");
 const router = Router();
 
@@ -18,4 +19,5 @@ router.post("/eliminar", eliminar);
 router.post("/crear" , crear)
 router.post("/actualizar" , actualizar)
 
+router.get("/obtener-tipo-cambio-all", obtenerTipoCambio)
 module.exports = router;
