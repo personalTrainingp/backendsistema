@@ -1,0 +1,58 @@
+{
+  "name": "dashboard-backend",
+  "version": "1.0.0",
+  "description": "dashboard nuevo PT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Running tests...\"",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carlosrosales101001011/dashboardPT-backend.git"
+  },
+  "author": "CarlosRosalesMorales",
+  "license": "ISC",
+  "dependencies": {
+    "@react-email/render": "^0.0.13",
+    "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
+    "cheerio": "^1.0.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dashboard-backend": "file:",
+    "date-fns": "^3.6.0",
+    "dayjs": "^1.11.12",
+    "deep-equal": "^2.2.3",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-validator": "^6.14.2",
+    "fontkit": "^2.0.4",
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.0",
+    "moment": "^2.29.4",
+    "mssql": "^10.0.2",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "node-zklib": "^1.3.0",
+    "nodemailer": "^6.9.13",
+    "nodemon": "^3.1.3",
+    "number-to-words": "^1.2.4",
+    "numero-a-letras": "^1.0.6",
+    "path": "^0.12.7",
+    "pdf-lib": "^1.17.1",
+    "pdfkit": "^0.15.0",
+    "puppeteer": "^22.13.1",
+    "qrcode-terminal": "^0.12.0",
+    "sequelize": "^6.37.1",
+    "tedious": "^17.0.0",
+    "uuid": "^9.0.1",
+    "zklib-js": "^1.3.5",
+    "zkteco": "^1.10.21"
+  },
+  "bugs": {
+    "url": "https://github.com/carlosrosales101001011/dashboardPT-backend/issues"
+  },
+  "homepage": "https://github.com/carlosrosales101001011/dashboardPT-backend#readme"
+}
