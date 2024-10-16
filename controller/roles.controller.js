@@ -414,6 +414,19 @@ const seccionGET = async (req = request, res = response) => {
           icon: "uil-calender",
           url: "/tipo-cambio",
         },
+
+        {
+          key: "reporte-admin",
+          label: "Recursos Humanos",
+          isTitle: true,
+        },
+        {
+          key: "reporte-utilidad-pgm",
+          label: "Reportes Por Planilla",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/RecursosHumanoReportes",
+        }
         // {
         //   key: "menu-levels",
         //   label: "Multi Levels",
@@ -640,19 +653,7 @@ const seccionGET = async (req = request, res = response) => {
           icon: "pi pi-file",
           url: "/trabajo-marketing",
         },
-        {
-          key: "reporte-admin",
-          label: "Recursos Humanos",
-          isTitle: true,
-        },
-        {
-          key: "reporte-utilidad-pgm",
-          label: "Reportes Por Planilla",
-          isTitle: false,
-          icon: "uil-calender",
-          url: "/reporte-admin/RecursosHumanoReportes",
-        }
-      ];
+      ]; 
     }
     if (modulo === "mod-inventario") {
     }

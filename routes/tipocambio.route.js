@@ -2,7 +2,6 @@ const { Router } = require("express");
 const {
   obtenerTipoCambioxFecha,
   obtenerTipoCambiosxFechas,
-  obtenerTipoCambio,
   buscar,
   eliminar,
   crear,
@@ -19,5 +18,4 @@ router.post("/eliminar", eliminar);
 router.post("/crear" , crear)
 router.post("/actualizar" , actualizar)
 
-router.get("/obtener-tipo-cambio-all", obtenerTipoCambio)
 module.exports = router;

@@ -12,7 +12,7 @@ const buscar = async (req = request , res =  response)=>{
 
   const { id } = req.params;
   let tipoCambio ;
-  let response ; 
+  let response = "" ; 
   try {
     tipoCambio = await buscarMethod(id);
     response = "exito";
@@ -21,10 +21,10 @@ const buscar = async (req = request , res =  response)=>{
       throw new Error("No existe el tipo de cambio con ese id");
     }
   } catch (error) {
-    response =  error;
+    response =  error.message;
   }
  
-  if(response.includes("Error")){
+  if(!response  || response.includes("Error")){
     res.status(500).json({
       ok: false,
       tipoCambio: tipoCambio,
@@ -36,7 +36,7 @@ const buscar = async (req = request , res =  response)=>{
       tipoCambio: tipoCambio,
       response: response
     });
-  };
+  }; 
 
 
 };
@@ -62,7 +62,7 @@ const eliminar = async (req = request , res = response)=>{
     response = "exito";
 
   } catch (error) {
-    response = error;
+    response = error.message;
   }
 
   if(response == "exito"){
@@ -99,7 +99,7 @@ const crear = async(req = request , res = response)=>{
     response = "exito";
 
   } catch (error) {
-    response = error;
+    response = error.message;
   }
 
   if(tipoCambio || response === "exito"){
@@ -144,7 +144,7 @@ const actualizar = async(req = request , res = response)=>{
 
     response = "exito";
   } catch (error) {
-    response = error;
+    response = error.message;
   }
   
   if(tipoCambio || response === "exito"){
