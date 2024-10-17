@@ -60,6 +60,7 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C5FB1E97A9264112B8D508434C755824 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5FCBCF15388E4117B1176E0B1459FFD5 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F627B4D7371F412B8D1E7DE7934A1C8A }}
+<<<<<<< HEAD
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -68,4 +69,14 @@ jobs:
           app-name: 'api-sistemaback'
           slot-name: 'Production'
           package: .
+=======
+
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'api-sistemaback'
+          slot-name: 'Production'
+          package: .
+>>>>>>> 3cde8fc1b2ba00ffe95c6e93b3c42aba64727807
           

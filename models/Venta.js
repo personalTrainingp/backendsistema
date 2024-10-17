@@ -41,7 +41,7 @@ const Venta = db.define("tb_venta", {
   },
 });
 const detalleVenta_transferenciasMembresias = db.define(
-  "detalle_ventatransferencias_membresias",
+  "detalle_ventaTransferencia",
   {
     id: {
       type: DataTypes.INTEGER,

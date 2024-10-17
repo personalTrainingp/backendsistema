@@ -19,6 +19,9 @@ const {
   getVentasxFecha,
   obtener_contrato_pdf,
   postTraspasoMembresia,
+  estadosClienteMembresiaVar,
+  comparativaPorProgramaApi,
+  
   obtenerVentasMembresiaxEmpresa,
 } = require("../controller/venta.controller");
 const { obtener_estado_membresia } = require("../middlewares/logicaSistema");
@@ -49,4 +52,6 @@ router.get("/get-ventas", get_VENTAS);
 router.post("/invoice-mail/:id_venta", mailMembresia);
 router.get("/get-id-ventas/:id", get_VENTA_ID);
 router.post("/invoice-PDFcontrato", obtener_contrato_pdf);
+router.post("/estado-membresia" , estadosClienteMembresiaVar);
+router.get("/comparativaPorProgramaApi/?:fecha" , comparativaPorProgramaApi)
 module.exports = router;

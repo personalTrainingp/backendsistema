@@ -167,6 +167,39 @@ const seccionGET = async (req = request, res = response) => {
     if (modulo === "mod-adm") {
       MENU_ITEMS = [
         {
+          key: "config",
+          label: "Configuracion",
+          isTitle: true,
+        },
+        {
+          key: "adm-usuario",
+          label: "Administrar usuarios",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/gestion-auth-usuario",
+        },
+        {
+          key: "adm-audit",
+          label: "Auditoria",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/auditoria",
+        },
+        {
+          key: "conf-term",
+          label: "Terminologias",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/configuracion-terminos",
+        },
+        {
+          key: "conf-tip-cambio",
+          label: "Tipo de cambio",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/tipo-cambio",
+        },
+        {
           key: "reporte-admin",
           label: "Reporte de Utilidad",
           isTitle: true,
@@ -381,6 +414,19 @@ const seccionGET = async (req = request, res = response) => {
           icon: "uil-calender",
           url: "/tipo-cambio",
         },
+
+        {
+          key: "reporte-admin",
+          label: "Recursos Humanos",
+          isTitle: true,
+        },
+        {
+          key: "reporte-utilidad-pgm",
+          label: "Reportes Por Planilla",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/RecursosHumanoReportes",
+        }
         // {
         //   key: "menu-levels",
         //   label: "Multi Levels",
@@ -607,7 +653,7 @@ const seccionGET = async (req = request, res = response) => {
           icon: "pi pi-file",
           url: "/trabajo-marketing",
         },
-      ];
+      ]; 
     }
     if (modulo === "mod-inventario") {
     }
