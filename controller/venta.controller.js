@@ -387,6 +387,42 @@ const get_VENTA_ID = async (req = request, res = response) => {
           attributes: ["id_venta", "id_servicio", "tarifa_monto"],
         },
         {
+          model: detalleVenta_Transferencia,
+          attributes: [
+            "id_venta",
+            "id_membresia",
+            "tarifa_monto",
+            "horario",
+            "fec_inicio_mem",
+            "fec_fin_mem",
+          ],
+          include: [
+            {
+              model: Venta,
+              as: "venta_transferencia",
+              include: [
+                {
+                  model: detalleVenta_membresias,
+                  include: [
+                    {
+                      model: ProgramaTraining,
+                      attributes: ["name_pgm"],
+                    },
+                    {
+                      model: SemanasTraining,
+                      attributes: [
+                        "semanas_st",
+                        "congelamiento_st",
+                        "nutricion_st",
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
           model: detalleVenta_pagoVenta,
           attributes: [
             "fecha_pago",

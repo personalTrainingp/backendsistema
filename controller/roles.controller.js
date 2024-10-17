@@ -220,7 +220,7 @@ const seccionGET = async (req = request, res = response) => {
         },
         {
           key: "reporte-comparativa-dia",
-          label: "Comparativa por dia",
+          label: "Comparativo por dia",
           isTitle: false,
           icon: "uil-calender",
           url: "/reporte-admin/comparativa-dia",
