@@ -102,6 +102,7 @@ const getTBProveedores = async (req = request, res = response) => {
 };
 const PostProveedores = async (req, res, next) => {
   const {
+    nombre_contacto,
     ruc_prov,
     razon_social_prov,
     tel_prov,
@@ -145,6 +146,7 @@ const PostProveedores = async (req, res, next) => {
       cci,
       n_cuenta,
       id_tarjeta,
+      nombre_contacto,
     });
     await proveedor.save();
     let formAUDIT = {

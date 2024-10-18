@@ -213,7 +213,7 @@ const seccionGET = async (req = request, res = response) => {
         },
         {
           key: "reporte-utilidad-pgm",
-          label: "Reportes Por Planilla",
+          label: "Planilla",
           isTitle: false,
           icon: "uil-calender",
           url: "/reporte-admin/RecursosHumanoReportes",
@@ -464,18 +464,6 @@ const seccionGET = async (req = request, res = response) => {
               url: "/reporte/reporte-metas",
               parentKey: "reporte-meta",
             },
-            // {
-            //   key: "r-ventasAsesor",
-            //   label: "Ventas por asesor",
-            //   url: "/reporte/ventas-asesor",
-            //   parentKey: "reportes",
-            // },
-            // {
-            //   key: "r-ventasDia",
-            //   label: "Ventas por metas",
-            //   url: "/reporte/ventas-metas",
-            //   parentKey: "reportes",
-            // },
           ],
         },
         {
@@ -617,6 +605,22 @@ const seccionGET = async (req = request, res = response) => {
       ];
     }
     if (modulo === "mod-inventario") {
+      MENU_ITEMS = [
+        {
+          key: "gest-invent",
+          label: "Gestion de inventario",
+          isTitle: false,
+          icon: "pi pi-address-book",
+          url: "/gest-inventario",
+        },
+        {
+          key: "repor-invent-almacen",
+          label: "Reporte de movimiento de Almacen",
+          isTitle: false,
+          icon: "pi pi-address-book",
+          url: "/repor-movim-almacen",
+        },
+      ];
     }
     res.status(200).json({
       msg: "success",
@@ -681,6 +685,16 @@ const moduleGET = async (req = request, res = response) => {
           name: "NUTRICION",
           path: "/nutricion",
           key: "mod-nutricion",
+        },
+      ];
+    }
+    
+    if (usuario.rol_user === 5) {
+      MODULOS_ITEMS = [
+        {
+          name: "INVENTARIO",
+          path: "/inventario",
+          key: "mod-inventario",
         },
       ];
     }

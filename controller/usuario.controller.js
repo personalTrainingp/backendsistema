@@ -759,7 +759,15 @@ const loginUsuario = async (req = request, res = response) => {
         },
       ];
     }
-
+    if (usuario.rol_user === 5) {
+      MODULOS_ITEMS = [
+        {
+          name: "INVENTARIO",
+          path: "/inventario",
+          key: "mod-inventario",
+        },
+      ];
+    }
     let formAUDIT = {
       id_user: usuario.id_user,
       ip_user: ip_user,
@@ -836,6 +844,15 @@ const revalidarToken = async (req, res) => {
         name: "MARKETING",
         path: "/marketing",
         key: "mod-marketing",
+      },
+    ];
+  }
+  if (user.rol_user === 5) {
+    MODULOS_ITEMS = [
+      {
+        name: "INVENTARIO",
+        path: "/inventario",
+        key: "mod-inventario",
       },
     ];
   }
