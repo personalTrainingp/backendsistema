@@ -157,8 +157,6 @@ const checkMembresiaShips = () => {
 const allowedOrigins = [
   "https://change-the-slim-studio-sigma.vercel.app",
   "http://localhost:5173",
-  "http://localhost:5175",
-  "http://localhost:5174",
 ];
 
 //CORS
@@ -250,4 +248,3 @@ app.use("/api/flujo-caja", require("./routes/flujo-caja.router.js"));
 app.listen(env.PORT || 4001, () => {
   console.log(`Servidor corriendo en el puerto ${env.PORT || 4001}`);
 });
- 
