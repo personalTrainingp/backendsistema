@@ -7,7 +7,7 @@ const postMeta = async (req = request, res = response) => {
   const { nombre_meta, meta, bono, fec_init, fec_final, observacion } =
     req.body;
   try {
-    const metaPOST = new Meta({
+    const metaPOSTs = new Meta({
       nombre_meta,
       meta,
       bono,
@@ -16,9 +16,9 @@ const postMeta = async (req = request, res = response) => {
       fec_final,
       observacion,
     });
-    await metaPOST.save();
+    await metaPOSTs.save();
     res.status(200).json({
-      metaPOST,
+      metaPOST: metaPOSTs,
       msg: "success",
     });
   } catch (error) {
