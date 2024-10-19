@@ -150,7 +150,7 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesdeStr, fechaHastaSt
 
           detalleMembresia2 = await detalleVenta_membresias.findOne({ 
             where: { 
-              id_venta: detalleVenta_transferencias.id_transferencia,
+              id_venta: detalleVenta_transferencias.id_membresia, 
             } 
           });
 
@@ -158,7 +158,7 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesdeStr, fechaHastaSt
 
           detalleMembresia2 = await detalleVenta_membresias.findOne({ 
             where: { 
-              id_venta: detalleVenta_transferencias.id_transferencia,
+              id_venta: detalleVenta_transferencias.id_membresia,
               id_pgm: tipoPrograma
             } 
           });
@@ -272,7 +272,7 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesdeStr, fechaHastaSt
 
           detalleMembresia2 = await detalleVenta_membresias.findOne({ 
             where: { 
-              id_venta: detalleVenta_transferencias_entreFechas.id_transferencia,
+              id_venta: detalleVenta_transferencias_entreFechas.id_membresia,
             } 
           });
 
@@ -280,7 +280,7 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesdeStr, fechaHastaSt
 
           detalleMembresia2 = await detalleVenta_membresias.findOne({ 
             where: { 
-              id_venta: detalleVenta_transferencias_entreFechas.id_transferencia,
+              id_venta: detalleVenta_transferencias_entreFechas.id_membresia,
               id_pgm: tipoPrograma
             } 
           });
