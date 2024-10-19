@@ -38,6 +38,7 @@ router.get("/get-egreso/:id", getGasto);
 router.put("/put-egreso/:id", putGasto);
 router.put("/delete-egreso/:id", deleteGasto);
 
+// router.get("/get-proveedores-unicos", getProveedoresGastos_SinRep)
 router.get("/get-gasto-x-grupo/:id_enterp", getGastoxGrupo);
 
 router.get("/get-proveedores-unicos", getProveedoresGastos_SinRep);

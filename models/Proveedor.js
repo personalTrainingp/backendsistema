@@ -14,6 +14,9 @@ const Proveedor = db.define(
     uid: {
       type: DataTypes.STRING,
     },
+    nombre_contacto: {
+      type: DataTypes.STRING(300),
+    },
     ruc_prov: {
       type: DataTypes.STRING(30),
     },

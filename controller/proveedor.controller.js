@@ -75,6 +75,7 @@ const getTBProveedores = async (req = request, res = response) => {
         "razon_social_prov",
         "ruc_prov",
         "cel_prov",
+        "nombre_contacto",
         "nombre_vend_prov",
         ["estado_prov", "estado"],
         "id",
@@ -101,6 +102,7 @@ const getTBProveedores = async (req = request, res = response) => {
 };
 const PostProveedores = async (req, res, next) => {
   const {
+    nombre_contacto,
     ruc_prov,
     razon_social_prov,
     tel_prov,
@@ -144,6 +146,7 @@ const PostProveedores = async (req, res, next) => {
       cci,
       n_cuenta,
       id_tarjeta,
+      nombre_contacto,
     });
     await proveedor.save();
     let formAUDIT = {
@@ -378,7 +381,6 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     //     right: 30, // Margen derecho de 10 píxeles
     //   },
     // });
-
     // Creamos una instancia de PdfPrinter con las fuentes
     // const printer = new PdfPrinter({
     //   Roboto: {
@@ -394,11 +396,9 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     //   ruc_empr: "20610496866",
     //   direccion_empr: "Calle Tarata 226 Miraflores",
     //   base64_firma_gerente: "",
-
     //   razon_social_prov: "CORPORACION HIRE S.A.C.",
     //   telefono_prov: "942017872",
     //   cci_prov: "001108140256506586",
-
     //   titular_cci_representante: "José Manuel Guevara Milian",
     //   nombre_representante: "José Manuel Guevara Milian",
     //   dni_representante: "08007729",
@@ -427,7 +427,6 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     //   trabajo_realizar: "TRABAJO DE GASFITERIA Y MANTENIMIENTO DE 5 BAÑOS",
     // };
     // // Definimos el contenido del PDF
-
     // const docDefinition = {
     //   content: [
     //     { text: "Hello, world!", style: "header" },
@@ -448,7 +447,6 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     //     },
     //   },
     // };
-
     // const pdfDoc = printer.createPdfKitDocument(docDefinition);
     // pdfDoc.pipe(fs.createWriteStream('output.pdf'));
     // pdfDoc.end();
@@ -456,9 +454,7 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     //     dataProv.formaPago_importe = `${
     //       dataProv.moneda
     //     }1000.00 (${convertirNumeroATexto(`1000.00`, dataProv.moneda)})`;
-
     //     // Usar una fuente en negrita
-
     //     doc.font("Helvetica-Bold");
     //     doc.fontSize(13);
     //     doc.text("CONTRATO DE LOCACION DE SERVICIOS", {
@@ -488,17 +484,14 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     //     doc.text(`
     // 2.       FORMA DE PAGO.
     //       `);
-
     //     doc.font("Helvetica");
     //     doc.fontSize(11);
     //     doc.text(
     //       `a)       EL PROVEEDOR se obliga a realizar los servicios de ${dataProv.trabajo_realizar}, por el importe de ${dataProv.formaPago_importe} no incluye IGV, este monto corresponde a la mano de obra, materiales y movilidad.  Se realizará un RHE por los trabajos realizados.
-
     //       `
     //     );
     //     doc.text(
     //       `b)       LA EMPRESA acepta la propuesta efectuada por EL PROVEEDOR y se obliga a pagar dicho importe de la siguiente manera:
-
     //       `
     //     );
     //     doc.text(
@@ -516,7 +509,6 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     //     doc.text(
     //       `c)     	El proveedor acepta, en el caso de no tener una Cuenta Bancaria en el BANCO BBVA, asumirá el costo de comisión interbancaria que cobran por otros bancos.`
     //     );
-
     // doc.text(`-         Adelanto a la firma del contrato: S/. 567.00`);
     // doc.text(`-         Cancelación al termino del servicio: S/. 150.00
     //   `);
@@ -541,7 +533,6 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     //       En el caso que haya una demora en la entrega de la totalidad de la compra realizada por parte de la empresa macisa al proveedor.
     //       `
     //     );
-
     // doc
     //   .text("     El proveedor se obliga a cumplir con el ", {
     //     continued: true,
@@ -551,7 +542,6 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     // doc.font("Helvetica").text(" establecido por la EMPRESA.");
     // doc.text(`FECHA INICIO: ${dataProv.fec_inicio_trabajo}`);
     // doc.text(`FECHA DE TERMINO: ${dataProv.fec_fin_trabajo}`);
-
     //ITEM
     //     doc.font("Helvetica-Bold");
     //     doc.fontSize(11);
@@ -573,9 +563,7 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     //     );
     //     doc.text(
     //       `
-
     //       _________________________________                                       ______________________________
-
     //               INVERSIONES LUROGA SAC                                                                El PROVEEDOR
     //                           20601185785                                                                                    ${dataProv.dni_representante}
     //                 Luis Alberto Roy Gagliuffi                                                              ${dataProv.nombre_representante}
@@ -584,7 +572,6 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     //     );
     // doc.text(
     //   `
-
     //       EL PROVEEDOR
     //         10084914
     // José Manuel Guevara Milian
@@ -595,7 +582,6 @@ const descargarContratoProvPDF = async (req = request, res = response) => {
     //     width: "200",
     //   }
     // );
-
     // doc.pipe(res);
     // doc.end();
   } catch (error) {

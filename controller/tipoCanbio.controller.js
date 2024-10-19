@@ -7,6 +7,165 @@ const {
 const { Op } = require("sequelize");
 const dayjs = require("dayjs");
 
+
+const buscar = async (req = request , res =  response)=>{
+
+  const { id } = req.params;
+  let tipoCambio ;
+  let response = "" ; 
+  try {
+    tipoCambio = await buscarMethod(id);
+    response = "exito";
+
+    if(!tipoCambio){
+      throw new Error("No existe el tipo de cambio con ese id");
+    }
+  } catch (error) {
+    response =  error.message;
+  }
+ 
+  if(!response  || response.includes("Error")){
+    res.status(500).json({
+      ok: false,
+      tipoCambio: tipoCambio,
+      response: response
+    });
+  }else{
+    res.status(200).json({
+      ok: true,
+      tipoCambio: tipoCambio,
+      response: response
+    });
+  }; 
+
+
+};
+
+async function buscarMethod(id) {
+
+  const tipoCambio = await TipoCambio.findOne({
+    where: {
+      id: id
+    }
+  });
+  return tipoCambio;
+}
+
+const eliminar = async (req = request , res = response)=>{
+  const { id } = req.body;
+  let response ;
+  try {
+    const tipoCambio = await buscarMethod(id);
+    tipoCambio.flag = false;
+
+    await tipoCambio.save();
+    response = "exito";
+
+  } catch (error) {
+    response = error.message;
+  }
+
+  if(response == "exito"){
+
+    res.status(200).json({
+      ok: true,
+      response: response,
+    });
+
+  }else{
+    res.status(500).json({
+      ok: false,
+      //tipoCambio: tipoCambio,
+      response: response
+    });
+  }
+
+};
+
+const crear = async(req = request , res = response)=>{
+
+  const {fecha ,precio_compra , precio_venta , moneda} = req.body;
+  let tipoCambio;
+  let response;
+
+  try {
+     tipoCambio = await TipoCambio.create({
+      fecha: fecha,
+      precio_compra: precio_compra,
+      precio_venta: precio_venta,
+      moneda: moneda,
+      flag: true
+    });
+    response = "exito";
+
+  } catch (error) {
+    response = error.message;
+  }
+
+  if(tipoCambio || response === "exito"){
+
+    res.status(200).json({
+      ok: true,
+      response: response,
+      tipoCambio: tipoCambio
+    });
+
+  }else{
+    res.status(500).json({
+      ok: false,
+      //tipoCambio: tipoCambio,
+      response: response
+    });
+  }
+
+};
+
+const actualizar = async(req = request , res = response)=>{
+
+  const {id, fecha ,precio_compra , precio_venta , moneda} = req.body;
+  let response ;
+  let tipoCambio;
+
+  try {
+
+    tipoCambio = await TipoCambio.update({
+      fecha: fecha,
+      precio_compra:precio_compra,
+      precio_venta:precio_venta,
+      moneda:moneda,
+    
+    },{
+      where:{
+        id:id
+      }
+    });
+
+    tipoCambio = await buscarMethod(id);
+
+    response = "exito";
+  } catch (error) {
+    response = error.message;
+  }
+  
+  if(tipoCambio || response === "exito"){
+
+    res.status(200).json({
+      ok: true,
+      response: response,
+      tipoCambio: tipoCambio
+    });
+
+  }else{
+    res.status(500).json({
+      ok: false,
+      //tipoCambio: tipoCambio,
+      response: response
+    });
+  }
+
+};
+
+
 const obtenerTipoCambioxFecha = async (req = request, res = response) => {
   // const { fecha } = req.query;
   const token = "apis-token-9259.J4rGm7r47gM81tbpyuFuNaFaod1QfRWS";
@@ -129,4 +288,8 @@ module.exports = {
   obtenerTipoCambiosxFechas,
   obtenerTipoCambio,
   postTipoCambio,
+  buscar,
+  eliminar,
+  crear,
+  actualizar
 };
