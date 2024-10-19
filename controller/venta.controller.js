@@ -35,20 +35,22 @@ require("dotenv").config();
 const env = process.env;
 
 const {detalleVenta_transferenciasMembresias} = require("../models/Venta");
+const { CLIENT_RENEG_LIMIT } = require("tls");
 
 const estadosClienteMembresiaVar = async(req = request , res=  response )=>{
 
-  //const {tipoPrograma , fechaDesde, FechaHasta} = req.body;
-  const {tipoPrograma , fechaDesde, FechaHasta} = req.body;
+  //const {tipoPrograma , fechaDesde, fechaHasta} = req.body;
+  const {tipoPrograma , fechaDesde,  fechaHasta} = req.body;
   try {
     
-    const respuesta  = await estadosClienteMembresia(tipoPrograma , fechaDesde , FechaHasta);
-
+    const respuesta  = await estadosClienteMembresia(tipoPrograma , fechaDesde , fechaHasta);
+    console.log(respuesta);
     res.status(200).json({
       ok: true,
       msg: respuesta
     })
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       ok: false,
       msg: 'Error en el servidor' + error
@@ -57,19 +59,25 @@ const estadosClienteMembresiaVar = async(req = request , res=  response )=>{
 
 };
 
-async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
+async function estadosClienteMembresia(tipoPrograma, fechaDesdeStr, fechaHastaStr) {
 
-  fechaDesde = new Date(fechaDesde);
-  FechaHasta = new Date(FechaHasta);
 
-  const TodasVentas = await Venta.findAll({
+  let fechaDesde = new Date(fechaDesdeStr); 
+  let fechaHasta = new Date(fechaHastaStr);
+
+  console.log("Fecha desde " + fechaDesde +" " + "fecha hasta " + fechaHasta)
+   
+
+  const VentasEntreFechaParaIds = await Venta.findAll({
     where: {
+      fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
+
     },
     order: [['fecha_venta', 'Desc']]
   });
   let idsClientes = [];
 
-  await Promise.all(TodasVentas.map(async (venta)=>{
+  await Promise.all(VentasEntreFechaParaIds.map(async (venta)=>{
     if (idsClientes.includes(venta.id_cli)) {
     }else{
       idsClientes.push(venta.id_cli);
@@ -84,13 +92,14 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
   let ClientesAnalizados =[];
   let ClientesAnalizadosEntreFechas = [];
 
+  console.log({ids : [idsClientes]});
  
   await Promise.all(idsClientes.map(async(idCliente)=>{
-    const ventas = await Venta.findAll({
+    const ventasGeneralPorId = await Venta.findAll({
       limit:2,
       where: {
         id_cli: idCliente,
-        //fecha_venta: { [Op.between]: [fechaDesde, FechaHasta] },
+        //fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
         
       },
       order: [['fecha_venta', 'Desc']],
@@ -104,10 +113,11 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
     let fechaVentaUltimaMembresia;
     let fechaVentaPenUltimaMembresia;
 
-    await Promise.all(ventas.map(async (venta) => {
+    await Promise.all(ventasGeneralPorId.map(async (venta) => {
 
       let detalleMembresia ;
-
+  //console.log(venta.toJSON());
+      
       if (tipoPrograma == 0) {
         
         detalleMembresia = await detalleVenta_membresias.findOne({ 
@@ -127,7 +137,7 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
 
 
 
-      let detalleVenta_transferencias = await detalleVenta_transferenciasMembresias.findOne({
+      let detalleVenta_transferencias = await detalleVenta_Transferencia.findOne({
         where: {
           id_venta: venta.id,
         }
@@ -222,7 +232,7 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
     let VentasEntreFechas = await Venta.findAll({
       where:{
         id_cli: cliente.idCliente,
-        fecha_venta: { [Op.between]: [fechaDesde, FechaHasta] },
+        fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
       },
       order: [['fecha_venta', 'Desc']],
       //limit:1,
@@ -247,12 +257,12 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
       };
 
 
-      let detalleVenta_transferencias_entreFechas = await detalleVenta_transferenciasMembresias.findOne({
+      let detalleVenta_transferencias_entreFechas = await detalleVenta_Transferencia.findOne({
         where: {
           id_venta: venta.id,
-          fecha_venta: { [Op.between]: [fechaDesde, FechaHasta] },
+          //fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
         },
-        order: [['fecha_venta', 'Desc']],
+        //order: [['fecha_venta', 'Desc']],
       });
       let detalleMembresia2;
 
@@ -333,7 +343,7 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
 const comparativaPorProgramaApi = async(req = request , res=  response )=>{
 
   const {fecha} = req.params;
-  //const {tipoPrograma , fechaDesde, FechaHasta} = req.body;
+  //const {tipoPrograma , fechaDesde, fechaHasta} = req.body;
   try {
 
     let fechaDate = new Date(fecha);
