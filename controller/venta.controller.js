@@ -44,7 +44,6 @@ const estadosClienteMembresiaVar = async(req = request , res=  response )=>{
   try {
     
     const respuesta  = await estadosClienteMembresia(tipoPrograma , fechaDesde , fechaHasta);
-    console.log(respuesta);
     res.status(200).json({
       ok: true,
       msg: respuesta
@@ -65,8 +64,6 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesdeStr, fechaHastaSt
   let fechaDesde = new Date(fechaDesdeStr); 
   let fechaHasta = new Date(fechaHastaStr);
 
-  console.log("Fecha desde " + fechaDesde +" " + "fecha hasta " + fechaHasta)
-   
 
   const VentasEntreFechaParaIds = await Venta.findAll({
     where: {
@@ -92,7 +89,6 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesdeStr, fechaHastaSt
   let ClientesAnalizados =[];
   let ClientesAnalizadosEntreFechas = [];
 
-  console.log({ids : [idsClientes]});
  
   await Promise.all(idsClientes.map(async(idCliente)=>{
     const ventasGeneralPorId = await Venta.findAll({
@@ -116,7 +112,6 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesdeStr, fechaHastaSt
     await Promise.all(ventasGeneralPorId.map(async (venta) => {
 
       let detalleMembresia ;
-  //console.log(venta.toJSON());
       
       if (tipoPrograma == 0) {
         
@@ -201,7 +196,6 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesdeStr, fechaHastaSt
     
     }));
 
-    //console.log(count);
     if (count == 1) {
       tipoCliente = "Cliente Nuevo";
     }else
@@ -212,8 +206,6 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesdeStr, fechaHastaSt
       if (fechaVentaUltimaMembresia =>  fechaPenultimaMembresia) {
         tipoCliente = "Cliente renovado";
       };
-      // console.log("Fecha de venta de la ultima membresia comprada " + fechaVentaUltimaMembresia);
-      // console.log("Penultima fecha de vencimeinto de la membresia " + fechaPenultimaMembresia);
     };
 
     if(count > 0){
@@ -396,7 +388,6 @@ async function comparativaPorPrograma(fecha) {
       });
 
       if(detalleMembresia){
-        console.log(detalleMembresia.toJSON());
         let programaTraining = await ProgramaTraining.findOne({
           where:{
             id_pgm: detalleMembresia.id_pgm
