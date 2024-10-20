@@ -37,13 +37,14 @@ const env = process.env;
 const { detalleVenta_transferenciasMembresias } = require("../models/Venta");
 const { CLIENT_RENEG_LIMIT } = require("tls");
 const { ImagePT } = require("../models/Image");
+const { KeyObject } = require("crypto");
 
 const estadosClienteMembresiaVar = async (req = request, res = response) => {
   //const {tipoPrograma , fechaDesde, fechaHasta} = req.body;
   const { tipoPrograma, fechaDesde, fechaHasta } = req.body;
   try {
     
-    const respuesta  = await estadosClienteMembresia(tipoPrograma , fechaDesde , fechaHasta);
+    const respuesta  = await estadosClienteMembresiaV2(tipoPrograma , fechaDesde , fechaHasta);
     res.status(200).json({
       ok: true,
       msg: respuesta,
@@ -56,628 +57,836 @@ const estadosClienteMembresiaVar = async (req = request, res = response) => {
     });
   }
 };
-async function estadosClienteMembresia(
+// async function estadosClienteMembresia(
+//   tipoPrograma,
+//   fechaDesdeStr,
+//   fechaHastaStr
+// ) {
+//   let fechaDesde = new Date(fechaDesdeStr);
+//   let fechaHasta = new Date(fechaHastaStr);
+//   fechaHasta.setDate(fechaHasta.getDate() + 1);
+
+//   console.log(fechaDesde + " " + fechaHasta);
+
+//   const dateRanges = ["2024-01-01 00:00:00", "2024-11-01 00:00:00"];
+//   const VentasEntreFechaParaIds = await Venta.findAll({
+//     where: {
+//       fecha_venta: { [Op.between]: [dateRanges[0], dateRanges[1]] },
+//       flag: true,
+//     },
+//     order: [["fecha_venta", "Desc"]],
+//   });
+//   let idsClientes = [];
+
+//   await Promise.all(VentasEntreFechaParaIds.map(async (venta)=>{
+//     if (idsClientes.includes(venta.id_cli)) {
+//     }else{
+//       idsClientes.push(venta.id_cli);
+//     };
+//   }));
+
+
+  
+//   let contadorClienteNuevo = 0;
+//   let contadorClienteRenovado = 0;
+//   let contadorClienteReinscrito = 0;
+//   let ClientesAnalizados = [];
+//   let ClientesAnalizadosEntreFechas = [];
+
+//   await Promise.all(
+//     idsClientes.map(async (idCliente) => {
+//       const ventasGeneralPorId = await Venta.findAll({
+//         limit: 2,
+//         where: {
+//           id_cli: idCliente,
+//           //fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
+//           flag: true,
+//         },
+//         order: [["fecha_venta", "Desc"]],
+//       });
+
+//       let count = 0;
+//       let tipoCliente = "";
+
+//       let fechaUltimaMembresiaComprada;
+//       let fechaPenultimaMembresia;
+//       let fechaVentaUltimaMembresia;
+//       let fechaVentaPenUltimaMembresia;
+
+//       await Promise.all(
+//         ventasGeneralPorId.map(async (ventaPorIdCliente) => {
+//           const venta = await Venta.findOne({
+//             attributes: [
+//               "id",
+//               "id_cli",
+//               "id_empl",
+//               "id_origen",
+//               "id_tipoFactura",
+//               "numero_transac",
+//               "fecha_venta",
+//               "observacion",
+//             ],
+//             where: { id: ventaPorIdCliente.id, flag: true },
+//             order: [["id", "DESC"]],
+//             include: [
+//               {
+//                 model: Cliente,
+//                 attributes: [
+//                   [
+//                     Sequelize.fn(
+//                       "CONCAT",
+//                       Sequelize.col("nombre_cli"),
+//                       " ",
+//                       Sequelize.col("apPaterno_cli"),
+//                       " ",
+//                       Sequelize.col("apMaterno_cli")
+//                     ),
+//                     "nombres_apellidos_cli",
+//                   ],
+//                 ],
+//               },
+//               {
+//                 model: Empleado,
+//                 attributes: [
+//                   [
+//                     Sequelize.fn(
+//                       "CONCAT",
+//                       Sequelize.col("nombre_empl"),
+//                       " ",
+//                       Sequelize.col("apPaterno_empl"),
+//                       " ",
+//                       Sequelize.col("apMaterno_empl")
+//                     ),
+//                     "nombres_apellidos_empl",
+//                   ],
+//                 ],
+//               },
+//               {
+//                 model: detalleVenta_producto,
+//                 attributes: [
+//                   "id_venta",
+//                   "id_producto",
+//                   "cantidad",
+//                   "precio_unitario",
+//                   "tarifa_monto",
+//                 ],
+//                 include: [
+//                   {
+//                     model: Producto,
+//                     attributes: ["id", "nombre_producto", "id_categoria"],
+//                   },
+//                 ],
+//               },
+//               {
+//                 model: detalleVenta_membresias,
+//                 required: true,
+//                 attributes: [
+//                   "id_venta",
+//                   "id_pgm",
+//                   "id_tarifa",
+//                   "id_st",
+//                   "tarifa_monto",
+//                   "fec_inicio_mem",
+//                   "fec_fin_mem",
+//                   "uid_firma",
+//                   "horario",
+//                 ],
+
+//                 include: [
+//                   {
+//                     model: ProgramaTraining,
+//                     attributes: ["name_pgm"],
+//                   },
+//                   {
+//                     model: SemanasTraining,
+//                     attributes: [
+//                       "semanas_st",
+//                       "congelamiento_st",
+//                       "nutricion_st",
+//                     ],
+//                   },
+//                 ],
+//               },
+//               {
+//                 model: detalleVenta_citas,
+//                 attributes: ["id_venta", "id_servicio", "tarifa_monto"],
+//               },
+//               {
+//                 model: detalleVenta_Transferencia,
+//                 attributes: [
+//                   "id_venta",
+//                   "id_membresia",
+//                   "tarifa_monto",
+//                   "horario",
+//                   "fec_inicio_mem",
+//                   "fec_fin_mem",
+//                 ],
+//                 include: [
+//                   {
+//                     model: Venta,
+//                     as: "venta_transferencia",
+//                     include: [
+//                       {
+//                         model: detalleVenta_membresias,
+//                         include: [
+//                           {
+//                             model: ProgramaTraining,
+//                             attributes: ["name_pgm"],
+//                           },
+//                           {
+//                             model: SemanasTraining,
+//                             attributes: [
+//                               "semanas_st",
+//                               "congelamiento_st",
+//                               "nutricion_st",
+//                             ],
+//                           },
+//                         ],
+//                       },
+//                     ],
+//                   },
+//                 ],
+//               },
+
+//               {
+//                 model: detalleVenta_pagoVenta,
+//                 attributes: [
+//                   "fecha_pago",
+//                   "id_forma_pago",
+//                   "id_tipo_tarjeta",
+//                   "id_tarjeta",
+//                   "id_banco",
+//                   "parcial_monto",
+//                   "n_operacion",
+//                   "observacion",
+//                 ],
+//                 include: [
+//                   {
+//                     model: Parametros,
+//                     attributes: ["id_param", "label_param"],
+//                     as: "parametro_banco",
+//                   },
+//                   {
+//                     model: Parametros,
+//                     attributes: ["id_param", "label_param"],
+//                     as: "parametro_forma_pago",
+//                   },
+//                   {
+//                     model: Parametros,
+//                     attributes: ["id_param", "label_param"],
+//                     as: "parametro_tipo_tarjeta",
+//                   },
+//                   {
+//                     model: Parametros,
+//                     attributes: ["id_param", "label_param"],
+//                     as: "parametro_tarjeta",
+//                   },
+//                 ],
+//               },
+//             ],
+//           });
+
+//           let detalleMembresia;
+
+//           if (venta) {
+//             if (tipoPrograma == 0) {
+//               detalleMembresia = await detalleVenta_membresias.findOne({
+//                 where: {
+//                   id_venta: venta.id,
+//                   flag: true,
+//                 },
+//                 required: true,
+
+//               });
+// /*
+//               detalleMembresia = await detalleVenta_membresias.findOne({
+//                 attributes: ["id_pgm", "tarifa_monto", "id_st"],
+//                 where: {
+//                   flag: true,
+//                 },
+//                 order: [["id", "DESC"]],
+//                 include: [
+//                   {
+//                     model: SemanasTraining,
+//                     attributes: ["semanas_st"],
+//                   },
+//                   {
+//                     model: Venta,
+//                     attributes: ["id_cli", "fecha_venta"],
+//                     where: {
+//                       fecha_venta: {
+//                         [Op.between]: [ fechaDesde,fechaHasta], // Suponiendo que fecha_inicial y fecha_final son variables con las fechas deseadas
+//                       },
+//                     },
+//                   },
+//                 ],
+//                 required: true,
+//                 raw: true,
+//               });
+// */
+//             } else {
+//               detalleMembresia = await detalleVenta_membresias.findOne({
+//                 where: {
+//                   id_venta: venta.id,
+//                   id_pgm: tipoPrograma,
+//                   flag: true,
+//                 },
+//                 required: true,
+
+//               });
+//             }
+
+//             let detalleVenta_transferencias =
+//               await detalleVenta_Transferencia.findOne({
+//                 where: {
+//                   id_venta: venta.id,
+//                   flag: true,
+//                 },
+//                 required: true,
+
+//               });
+//             let detalleMembresia2;
+
+//             if (detalleVenta_transferencias) {
+//               if (tipoPrograma == 0) {
+//                 detalleMembresia2 = await detalleVenta_membresias.findOne({
+//                   where: {
+//                     id_venta: detalleVenta_transferencias.id_membresia,
+//                     flag: true,
+//                   },
+//                 required: true,
+
+//                 });
+//               } else {
+//                 detalleMembresia2 = await detalleVenta_membresias.findOne({
+//                   where: {
+//                     id_venta: detalleVenta_transferencias.id_membresia,
+//                     id_pgm: tipoPrograma,
+//                     flag: true,
+//                   },
+//                 required: true,
+
+//                 });
+//               }
+//             }
+
+//             if (detalleMembresia || detalleMembresia2) {
+//               count++;
+
+//               if (count == 1) {
+//                 if (detalleMembresia) {
+//                   //console.log(detalleMembresia.toJSON());
+//                   fechaUltimaMembresiaComprada = new Date(
+//                     detalleMembresia.fec_fin_mem
+//                   ).toISOString();
+//                   fechaVentaUltimaMembresia = new Date(
+//                     venta.fecha_venta
+//                   ).toISOString();
+//                 }
+
+//                 if (detalleMembresia2) {
+//                   let fechaTransferenciaFin_mem = new Date(
+//                     detalleMembresia2.fec_fin_mem
+//                   ).toISOString();
+//                   if (
+//                     fechaTransferenciaFin_mem > fechaUltimaMembresiaComprada ||
+//                     !fechaUltimaMembresiaComprada
+//                   ) {
+//                     fechaUltimaMembresiaComprada = fechaTransferenciaFin_mem;
+//                   }
+//                 }
+//               }
+
+//               if (count == 2) {
+//                 fechaPenultimaMembresia = new Date(
+//                   detalleMembresia.fec_fin_mem
+//                 ).toISOString();
+//                 fechaVentaPenUltimaMembresia = new Date(
+//                   venta.fecha_venta
+//                 ).toISOString();
+
+//                 if (detalleMembresia2) {
+//                   let fechaTransferenciaFin_mem = new Date(
+//                     detalleMembresia2.fec_fin_mem
+//                   ).toISOString();
+//                   if (
+//                     fechaTransferenciaFin_mem > fechaPenultimaMembresia ||
+//                     !fechaPenultimaMembresia
+//                   ) {
+//                     fechaPenultimaMembresia = fechaTransferenciaFin_mem;
+//                   }
+//                 }
+//               }
+//             }
+//           }
+//         })
+//       );
+
+//       if (count == 1) {
+//         tipoCliente = "Cliente Nuevo";
+//       } else if (count == 2) {
+//         if (fechaVentaUltimaMembresia < fechaPenultimaMembresia) {
+//           tipoCliente = "Cliente reinscrito";
+//         }
+//         if ((fechaVentaUltimaMembresia) => fechaPenultimaMembresia) {
+//           tipoCliente = "Cliente renovado";
+//         }
+//       }
+
+//       if (count > 0) {
+//         if (!ClientesAnalizados.includes({ tipoCliente, idCliente })) {
+//           ClientesAnalizados.push({ tipoCliente, idCliente });
+//         }
+//       }
+//     })
+//   );
+
+//   await Promise.all(
+//     ClientesAnalizados.map(async (cliente) => {
+//       let VentasEntreFechas = await Venta.findAll({
+//         where: {
+//           id_cli: cliente.idCliente,
+//           fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
+//           flag: true,
+//         },
+//         order: [["fecha_venta", "Desc"]],
+//         //limit:1,
+//       });
+//       await Promise.all(
+//         VentasEntreFechas.map(async (ventaEntreFecha) => {
+//           const venta = await Venta.findOne({
+//             attributes: [
+//               "id",
+//               "id_cli",
+//               "id_empl",
+//               "id_origen",
+//               "id_tipoFactura",
+//               "numero_transac",
+//               "fecha_venta",
+//               "observacion",
+//             ],
+//             where: { id: ventaEntreFecha.id, flag: true },
+//             order: [["id", "DESC"]],
+//             include: [
+//               {
+//                 model: Cliente,
+//                 attributes: [
+//                   [
+//                     Sequelize.fn(
+//                       "CONCAT",
+//                       Sequelize.col("nombre_cli"),
+//                       " ",
+//                       Sequelize.col("apPaterno_cli"),
+//                       " ",
+//                       Sequelize.col("apMaterno_cli")
+//                     ),
+//                     "nombres_apellidos_cli",
+//                   ],
+//                 ],
+//               },
+//               {
+//                 model: Empleado,
+//                 attributes: [
+//                   [
+//                     Sequelize.fn(
+//                       "CONCAT",
+//                       Sequelize.col("nombre_empl"),
+//                       " ",
+//                       Sequelize.col("apPaterno_empl"),
+//                       " ",
+//                       Sequelize.col("apMaterno_empl")
+//                     ),
+//                     "nombres_apellidos_empl",
+//                   ],
+//                 ],
+//               },
+//               {
+//                 model: detalleVenta_producto,
+//                 attributes: [
+//                   "id_venta",
+//                   "id_producto",
+//                   "cantidad",
+//                   "precio_unitario",
+//                   "tarifa_monto",
+//                 ],
+//                 include: [
+//                   {
+//                     model: Producto,
+//                     attributes: ["id", "nombre_producto", "id_categoria"],
+//                   },
+//                 ],
+//               },
+//               {
+//                 model: detalleVenta_membresias,
+//                 required: true,
+//                 attributes: [
+//                   "id_venta",
+//                   "id_pgm",
+//                   "id_tarifa",
+//                   "id_st",
+//                   "tarifa_monto",
+//                   "fec_inicio_mem",
+//                   "fec_fin_mem",
+//                   "uid_firma",
+//                   "horario",
+//                 ],
+
+//                 include: [
+//                   {
+//                     model: ProgramaTraining,
+//                     attributes: ["name_pgm"],
+//                   },
+//                   {
+//                     model: SemanasTraining,
+//                     attributes: [
+//                       "semanas_st",
+//                       "congelamiento_st",
+//                       "nutricion_st",
+//                     ],
+//                   },
+//                 ],
+//               },
+//               {
+//                 model: detalleVenta_citas,
+//                 attributes: ["id_venta", "id_servicio", "tarifa_monto"],
+//               },
+//               {
+//                 model: detalleVenta_Transferencia,
+//                 attributes: [
+//                   "id_venta",
+//                   "id_membresia",
+//                   "tarifa_monto",
+//                   "horario",
+//                   "fec_inicio_mem",
+//                   "fec_fin_mem",
+//                 ],
+//                 include: [
+//                   {
+//                     model: Venta,
+//                     as: "venta_transferencia",
+//                     include: [
+//                       {
+//                         model: detalleVenta_membresias,
+//                         include: [
+//                           {
+//                             model: ProgramaTraining,
+//                             attributes: ["name_pgm"],
+//                           },
+//                           {
+//                             model: SemanasTraining,
+//                             attributes: [
+//                               "semanas_st",
+//                               "congelamiento_st",
+//                               "nutricion_st",
+//                             ],
+//                           },
+//                         ],
+//                       },
+//                     ],
+//                   },
+//                 ],
+//               },
+
+//               {
+//                 model: detalleVenta_pagoVenta,
+//                 attributes: [
+//                   "fecha_pago",
+//                   "id_forma_pago",
+//                   "id_tipo_tarjeta",
+//                   "id_tarjeta",
+//                   "id_banco",
+//                   "parcial_monto",
+//                   "n_operacion",
+//                   "observacion",
+//                 ],
+//                 include: [
+//                   {
+//                     model: Parametros,
+//                     attributes: ["id_param", "label_param"],
+//                     as: "parametro_banco",
+//                   },
+//                   {
+//                     model: Parametros,
+//                     attributes: ["id_param", "label_param"],
+//                     as: "parametro_forma_pago",
+//                   },
+//                   {
+//                     model: Parametros,
+//                     attributes: ["id_param", "label_param"],
+//                     as: "parametro_tipo_tarjeta",
+//                   },
+//                   {
+//                     model: Parametros,
+//                     attributes: ["id_param", "label_param"],
+//                     as: "parametro_tarjeta",
+//                   },
+//                 ],
+//               },
+//             ],
+//           });
+
+//           let detalleMembresia;
+//           let detalleMembresia2;
+
+//           if (venta) {
+//             //console.log(venta.toJSON());
+//             if (tipoPrograma == 0) {
+//               detalleMembresia = await detalleVenta_membresias.findOne({
+//                 where: {
+//                   id_venta: venta.id,
+//                   flag: true,
+//                 },
+//               });
+//             } else {
+//               detalleMembresia = await detalleVenta_membresias.findOne({
+//                 where: {
+//                   id_venta: venta.id,
+//                   id_pgm: tipoPrograma,
+//                   flag: true,
+//                 },
+//               });
+//             }
+
+//             let detalleVenta_transferencias_entreFechas =
+//               await detalleVenta_Transferencia.findOne({
+//                 where: {
+//                   id_venta: venta.id,
+//                   flag: true,
+//                   //fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
+//                 },
+//                 //order: [['fecha_venta', 'Desc']],
+//               });
+
+//             if (detalleVenta_transferencias_entreFechas) {
+//               if (tipoPrograma == 0) {
+//                 detalleMembresia2 = await detalleVenta_membresias.findOne({
+//                   where: {
+//                     id_venta:
+//                       detalleVenta_transferencias_entreFechas.id_membresia,
+//                     flag: true,
+//                   },
+//                 });
+//               } else {
+//                 detalleMembresia2 = await detalleVenta_membresias.findOne({
+//                   where: {
+//                     id_venta:
+//                       detalleVenta_transferencias_entreFechas.id_membresia,
+//                     id_pgm: tipoPrograma,
+//                     flag: true,
+//                   },
+//                 });
+//               }
+//             }
+//           }
+
+//           if (detalleMembresia || detalleMembresia2) {
+//             if (!ClientesAnalizadosEntreFechas.includes(cliente)) {
+//               switch (cliente.tipoCliente) {
+//                 case "Cliente Nuevo":
+//                   contadorClienteNuevo++;
+//                   break;
+//                 case "Cliente reinscrito":
+//                   contadorClienteReinscrito++;
+//                   break;
+//                 case "Cliente renovado":
+//                   contadorClienteRenovado++;
+//                   break;
+//               }
+
+//               ClientesAnalizadosEntreFechas.push(cliente);
+//             }
+//           }
+//         })
+//       );
+//     })
+//   );
+
+//   let ClientesNuevoEntreFechas = ClientesAnalizadosEntreFechas.filter(
+//     (cliente) => {
+//       return cliente.tipoCliente == "Cliente Nuevo";
+//     }
+//   );
+
+//   respuesta = {
+//     CantidadPorEstado: {
+//       ClienteNuevo: contadorClienteNuevo,
+//       ClienteReinscrito: contadorClienteReinscrito,
+//       ClienteRenovado: contadorClienteRenovado,
+//     },
+//     ClientesNuevoEntreFechas: { ClientesNuevoEntreFechas },
+//     //ClientesAnalizadosTotal:ClientesAnalizados
+//   };
+
+//   return respuesta;
+// }
+
+async function estadosClienteMembresiaV2(  
   tipoPrograma,
   fechaDesdeStr,
   fechaHastaStr
 ) {
-  let fechaDesde = new Date(fechaDesdeStr);
-  let fechaHasta = new Date(fechaHastaStr);
 
-  const VentasEntreFechaParaIds = await Venta.findAll({
-    where: {
-      fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
-      flag: true,
-    },
-    order: [["fecha_venta", "Desc"]],
+  fechaDesdeStr= new Date(fechaDesdeStr);
+  fechaHastaStr= new Date(fechaHastaStr);
+  
+  let VentasPorCliente = {};
+  let response = {};
+
+  const ventas = await Venta.findAll({
+    order: [["fecha_venta", "DESC"]],
+ 
+    include:[
+      {
+        model: detalleVenta_membresias,
+        where:{
+          id_pgm: tipoPrograma,
+          flag: true,
+        },
+        required:true,
+      },
+    ],
+    //limit: 2,
   });
-  let idsClientes = [];
-
-  await Promise.all(VentasEntreFechaParaIds.map(async (venta)=>{
-    if (idsClientes.includes(venta.id_cli)) {
+ 
+  ventas.map((venta)=>{
+    if(!VentasPorCliente[venta.id_cli]){
+      VentasPorCliente[venta.id_cli] = {
+        ventas:[
+          venta
+        ]
+      };
     }else{
-      idsClientes.push(venta.id_cli);
+      VentasPorCliente[venta.id_cli].ventas.push(venta);
     };
-  }));
+  });
 
+  for (let key in VentasPorCliente) {
+    let contadorVentasConTrue = 0;
+    let ContadorVentasGeneral = 0;
+    let tipoCliente = "";
+
+    let Primerafecha_fin_membresia ;
+    let Segundafecha_fin_membresia ;
+    VentasPorCliente[key].ventas.map((venta)=>{
+      venta = venta.toJSON();
 
   
+      let primeraFechaVenta = venta.fecha_venta;
+      //let fecha_venta = new Date(venta.fecha_venta);
+      let segundaFechaVenta = venta.fecha_venta;
+
+
+   
+
+      let fecha_venta = new Date(venta.fecha_venta);
+      ContadorVentasGeneral ++;
+
+      if(primeraFechaVenta < fecha_venta){
+        primeraFechaVenta = fecha_venta;
+
+      };
+      if ( new Date(venta.detalle_ventaMembresia[0].fec_fin_mem) > Segundafecha_fin_membresia) {
+        Segundafecha_fin_membresia =  new Date(venta.detalle_ventaMembresia[0].fec_fin_mem) ;
+      }
+
+      if((fecha_venta >= fechaDesdeStr) && (fecha_venta <= fechaHastaStr) ){
+        contadorVentasConTrue ++ ;
+
+      };
+
+  
+
+      if(contadorVentasConTrue == 1 && ContadorVentasGeneral == 1){
+        tipoCliente = "Cliente Nuevo";
+        Primerafecha_fin_membresia =  new Date( venta.detalle_ventaMembresia[0].fec_fin_mem);
+      };
+
+      if(contadorVentasConTrue == 2 || ContadorVentasGeneral == 2){
+       
+        Segundafecha_fin_membresia = new Date(venta.detalle_ventaMembresia[0].fec_fin_mem);
+
+      };
+      if((primeraFechaVenta && Segundafecha_fin_membresia) /*&& (contadorVentasConTrue == 2)*/){//la primera es la más reciente y la segunda es la más antigua
+        if(primeraFechaVenta  <  Segundafecha_fin_membresia){ //01/01/2022 < 02/01/2021
+          tipoCliente = "Cliente Reinscrito";
+        };
+        if(primeraFechaVenta  >  Segundafecha_fin_membresia){ //01/01/2022 < 02/01/2021
+          tipoCliente = "Cliente Renovado";
+
+        };
+      };
+
+      if(venta.id_cli == 882){
+        console.log(venta);
+        console.log(primeraFechaVenta + " " + Segundafecha_fin_membresia);
+      };
+ 
+
+      if(!response[key]){
+        response[key] = {
+          ventas :[ venta],
+          tipoCliente : tipoCliente,
+        };
+      }else{
+        response[key].ventas.push(venta);
+        response[key].tipoCliente = tipoCliente;
+      };
+
+    })
+  };
+  
+  response = ContadoresEstadoClienteInscripcion (response , fechaDesdeStr , fechaHastaStr);
+  return response;
+};
+
+function ContadoresEstadoClienteInscripcion(AnalisisGeneral , fechaDesde , fechaHasta) {
+  let response = {};
+  let clientesNuevos = {} ;
   let contadorClienteNuevo = 0;
   let contadorClienteRenovado = 0;
   let contadorClienteReinscrito = 0;
-  let ClientesAnalizados = [];
-  let ClientesAnalizadosEntreFechas = [];
 
-  await Promise.all(
-    idsClientes.map(async (idCliente) => {
-      const ventasGeneralPorId = await Venta.findAll({
-        limit: 2,
-        where: {
-          id_cli: idCliente,
-          //fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
-          flag: true,
-        },
-        order: [["fecha_venta", "Desc"]],
-      });
+  for(key in AnalisisGeneral){
+    AnalisisGeneral[key].ventas.map((venta)=>{
+      let fechaVenta = new Date(venta.fecha_venta);
 
-      let count = 0;
-      let tipoCliente = "";
+      if((fechaVenta >= fechaDesde) && (fechaVenta <= fechaHasta)){
 
-      let fechaUltimaMembresiaComprada;
-      let fechaPenultimaMembresia;
-      let fechaVentaUltimaMembresia;
-      let fechaVentaPenUltimaMembresia;
+        switch (AnalisisGeneral[key].tipoCliente) {
+          case "Cliente Nuevo":
+            contadorClienteNuevo++;
+    
+            clientesNuevos[key] = {
+              idCliente : key,
+              tipoCliente : "Cliente Nuevo",
+            };
+            break;
+          case "Cliente Reinscrito":
+            contadorClienteReinscrito++;
+            break;
+          case "Cliente Renovado":
+            contadorClienteRenovado++;
+            break;
+    
+          default:
+            break;
+        };
+      };
+    });
+    
 
-      await Promise.all(
-        ventasGeneralPorId.map(async (ventaPorIdCliente) => {
-          const venta = await Venta.findOne({
-            attributes: [
-              "id",
-              "id_cli",
-              "id_empl",
-              "id_origen",
-              "id_tipoFactura",
-              "numero_transac",
-              "fecha_venta",
-              "observacion",
-            ],
-            where: { id: ventaPorIdCliente.id, flag: true },
-            order: [["id", "DESC"]],
-            include: [
-              {
-                model: Cliente,
-                attributes: [
-                  [
-                    Sequelize.fn(
-                      "CONCAT",
-                      Sequelize.col("nombre_cli"),
-                      " ",
-                      Sequelize.col("apPaterno_cli"),
-                      " ",
-                      Sequelize.col("apMaterno_cli")
-                    ),
-                    "nombres_apellidos_cli",
-                  ],
-                ],
-              },
-              {
-                model: Empleado,
-                attributes: [
-                  [
-                    Sequelize.fn(
-                      "CONCAT",
-                      Sequelize.col("nombre_empl"),
-                      " ",
-                      Sequelize.col("apPaterno_empl"),
-                      " ",
-                      Sequelize.col("apMaterno_empl")
-                    ),
-                    "nombres_apellidos_empl",
-                  ],
-                ],
-              },
-              {
-                model: detalleVenta_producto,
-                attributes: [
-                  "id_venta",
-                  "id_producto",
-                  "cantidad",
-                  "precio_unitario",
-                  "tarifa_monto",
-                ],
-                include: [
-                  {
-                    model: Producto,
-                    attributes: ["id", "nombre_producto", "id_categoria"],
-                  },
-                ],
-              },
-              {
-                model: detalleVenta_membresias,
-                required: true,
-                attributes: [
-                  "id_venta",
-                  "id_pgm",
-                  "id_tarifa",
-                  "id_st",
-                  "tarifa_monto",
-                  "fec_inicio_mem",
-                  "fec_fin_mem",
-                  "uid_firma",
-                  "horario",
-                ],
 
-                include: [
-                  {
-                    model: ProgramaTraining,
-                    attributes: ["name_pgm"],
-                  },
-                  {
-                    model: SemanasTraining,
-                    attributes: [
-                      "semanas_st",
-                      "congelamiento_st",
-                      "nutricion_st",
-                    ],
-                  },
-                ],
-              },
-              {
-                model: detalleVenta_citas,
-                attributes: ["id_venta", "id_servicio", "tarifa_monto"],
-              },
-              {
-                model: detalleVenta_Transferencia,
-                attributes: [
-                  "id_venta",
-                  "id_membresia",
-                  "tarifa_monto",
-                  "horario",
-                  "fec_inicio_mem",
-                  "fec_fin_mem",
-                ],
-                include: [
-                  {
-                    model: Venta,
-                    as: "venta_transferencia",
-                    include: [
-                      {
-                        model: detalleVenta_membresias,
-                        include: [
-                          {
-                            model: ProgramaTraining,
-                            attributes: ["name_pgm"],
-                          },
-                          {
-                            model: SemanasTraining,
-                            attributes: [
-                              "semanas_st",
-                              "congelamiento_st",
-                              "nutricion_st",
-                            ],
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-
-              {
-                model: detalleVenta_pagoVenta,
-                attributes: [
-                  "fecha_pago",
-                  "id_forma_pago",
-                  "id_tipo_tarjeta",
-                  "id_tarjeta",
-                  "id_banco",
-                  "parcial_monto",
-                  "n_operacion",
-                  "observacion",
-                ],
-                include: [
-                  {
-                    model: Parametros,
-                    attributes: ["id_param", "label_param"],
-                    as: "parametro_banco",
-                  },
-                  {
-                    model: Parametros,
-                    attributes: ["id_param", "label_param"],
-                    as: "parametro_forma_pago",
-                  },
-                  {
-                    model: Parametros,
-                    attributes: ["id_param", "label_param"],
-                    as: "parametro_tipo_tarjeta",
-                  },
-                  {
-                    model: Parametros,
-                    attributes: ["id_param", "label_param"],
-                    as: "parametro_tarjeta",
-                  },
-                ],
-              },
-            ],
-          });
-
-          let detalleMembresia;
-
-          if (venta) {
-            if (tipoPrograma == 0) {
-              detalleMembresia = await detalleVenta_membresias.findOne({
-                where: {
-                  id_venta: venta.id,
-                  flag: true,
-                },
-              });
-            } else {
-              detalleMembresia = await detalleVenta_membresias.findOne({
-                where: {
-                  id_venta: venta.id,
-                  id_pgm: tipoPrograma,
-                  flag: true,
-                },
-              });
-            }
-
-            let detalleVenta_transferencias =
-              await detalleVenta_Transferencia.findOne({
-                where: {
-                  id_venta: venta.id,
-                  flag: true,
-                },
-              });
-            let detalleMembresia2;
-
-            if (detalleVenta_transferencias) {
-              if (tipoPrograma == 0) {
-                detalleMembresia2 = await detalleVenta_membresias.findOne({
-                  where: {
-                    id_venta: detalleVenta_transferencias.id_membresia,
-                    flag: true,
-                  },
-                });
-              } else {
-                detalleMembresia2 = await detalleVenta_membresias.findOne({
-                  where: {
-                    id_venta: detalleVenta_transferencias.id_membresia,
-                    id_pgm: tipoPrograma,
-                    flag: true,
-                  },
-                });
-              }
-            }
-
-            if (detalleMembresia || detalleMembresia2) {
-              count++;
-
-              if (count == 1) {
-                if (detalleMembresia) {
-                  //console.log(detalleMembresia.toJSON());
-                  fechaUltimaMembresiaComprada = new Date(
-                    detalleMembresia.fec_fin_mem
-                  ).toISOString();
-                  fechaVentaUltimaMembresia = new Date(
-                    venta.fecha_venta
-                  ).toISOString();
-                }
-
-                if (detalleMembresia2) {
-                  let fechaTransferenciaFin_mem = new Date(
-                    detalleMembresia2.fec_fin_mem
-                  ).toISOString();
-                  if (
-                    fechaTransferenciaFin_mem > fechaUltimaMembresiaComprada ||
-                    !fechaUltimaMembresiaComprada
-                  ) {
-                    fechaUltimaMembresiaComprada = fechaTransferenciaFin_mem;
-                  }
-                }
-              }
-
-              if (count == 2) {
-                fechaPenultimaMembresia = new Date(
-                  detalleMembresia.fec_fin_mem
-                ).toISOString();
-                fechaVentaPenUltimaMembresia = new Date(
-                  venta.fecha_venta
-                ).toISOString();
-
-                if (detalleMembresia2) {
-                  let fechaTransferenciaFin_mem = new Date(
-                    detalleMembresia2.fec_fin_mem
-                  ).toISOString();
-                  if (
-                    fechaTransferenciaFin_mem > fechaPenultimaMembresia ||
-                    !fechaPenultimaMembresia
-                  ) {
-                    fechaPenultimaMembresia = fechaTransferenciaFin_mem;
-                  }
-                }
-              }
-            }
-          }
-        })
-      );
-
-      if (count == 1) {
-        tipoCliente = "Cliente Nuevo";
-      } else if (count == 2) {
-        if (fechaVentaUltimaMembresia < fechaPenultimaMembresia) {
-          tipoCliente = "Cliente reinscrito";
-        }
-        if ((fechaVentaUltimaMembresia) => fechaPenultimaMembresia) {
-          tipoCliente = "Cliente renovado";
-        }
-      }
-
-      if (count > 0) {
-        if (!ClientesAnalizados.includes({ tipoCliente, idCliente })) {
-          ClientesAnalizados.push({ tipoCliente, idCliente });
-        }
-      }
-    })
-  );
-
-  await Promise.all(
-    ClientesAnalizados.map(async (cliente) => {
-      let VentasEntreFechas = await Venta.findAll({
-        where: {
-          id_cli: cliente.idCliente,
-          fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
-          flag: true,
-        },
-        order: [["fecha_venta", "Desc"]],
-        //limit:1,
-      });
-      await Promise.all(
-        VentasEntreFechas.map(async (ventaEntreFecha) => {
-          const venta = await Venta.findOne({
-            attributes: [
-              "id",
-              "id_cli",
-              "id_empl",
-              "id_origen",
-              "id_tipoFactura",
-              "numero_transac",
-              "fecha_venta",
-              "observacion",
-            ],
-            where: { id: ventaEntreFecha.id, flag: true },
-            order: [["id", "DESC"]],
-            include: [
-              {
-                model: Cliente,
-                attributes: [
-                  [
-                    Sequelize.fn(
-                      "CONCAT",
-                      Sequelize.col("nombre_cli"),
-                      " ",
-                      Sequelize.col("apPaterno_cli"),
-                      " ",
-                      Sequelize.col("apMaterno_cli")
-                    ),
-                    "nombres_apellidos_cli",
-                  ],
-                ],
-              },
-              {
-                model: Empleado,
-                attributes: [
-                  [
-                    Sequelize.fn(
-                      "CONCAT",
-                      Sequelize.col("nombre_empl"),
-                      " ",
-                      Sequelize.col("apPaterno_empl"),
-                      " ",
-                      Sequelize.col("apMaterno_empl")
-                    ),
-                    "nombres_apellidos_empl",
-                  ],
-                ],
-              },
-              {
-                model: detalleVenta_producto,
-                attributes: [
-                  "id_venta",
-                  "id_producto",
-                  "cantidad",
-                  "precio_unitario",
-                  "tarifa_monto",
-                ],
-                include: [
-                  {
-                    model: Producto,
-                    attributes: ["id", "nombre_producto", "id_categoria"],
-                  },
-                ],
-              },
-              {
-                model: detalleVenta_membresias,
-                required: true,
-                attributes: [
-                  "id_venta",
-                  "id_pgm",
-                  "id_tarifa",
-                  "id_st",
-                  "tarifa_monto",
-                  "fec_inicio_mem",
-                  "fec_fin_mem",
-                  "uid_firma",
-                  "horario",
-                ],
-
-                include: [
-                  {
-                    model: ProgramaTraining,
-                    attributes: ["name_pgm"],
-                  },
-                  {
-                    model: SemanasTraining,
-                    attributes: [
-                      "semanas_st",
-                      "congelamiento_st",
-                      "nutricion_st",
-                    ],
-                  },
-                ],
-              },
-              {
-                model: detalleVenta_citas,
-                attributes: ["id_venta", "id_servicio", "tarifa_monto"],
-              },
-              {
-                model: detalleVenta_Transferencia,
-                attributes: [
-                  "id_venta",
-                  "id_membresia",
-                  "tarifa_monto",
-                  "horario",
-                  "fec_inicio_mem",
-                  "fec_fin_mem",
-                ],
-                include: [
-                  {
-                    model: Venta,
-                    as: "venta_transferencia",
-                    include: [
-                      {
-                        model: detalleVenta_membresias,
-                        include: [
-                          {
-                            model: ProgramaTraining,
-                            attributes: ["name_pgm"],
-                          },
-                          {
-                            model: SemanasTraining,
-                            attributes: [
-                              "semanas_st",
-                              "congelamiento_st",
-                              "nutricion_st",
-                            ],
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-
-              {
-                model: detalleVenta_pagoVenta,
-                attributes: [
-                  "fecha_pago",
-                  "id_forma_pago",
-                  "id_tipo_tarjeta",
-                  "id_tarjeta",
-                  "id_banco",
-                  "parcial_monto",
-                  "n_operacion",
-                  "observacion",
-                ],
-                include: [
-                  {
-                    model: Parametros,
-                    attributes: ["id_param", "label_param"],
-                    as: "parametro_banco",
-                  },
-                  {
-                    model: Parametros,
-                    attributes: ["id_param", "label_param"],
-                    as: "parametro_forma_pago",
-                  },
-                  {
-                    model: Parametros,
-                    attributes: ["id_param", "label_param"],
-                    as: "parametro_tipo_tarjeta",
-                  },
-                  {
-                    model: Parametros,
-                    attributes: ["id_param", "label_param"],
-                    as: "parametro_tarjeta",
-                  },
-                ],
-              },
-            ],
-          });
-
-          let detalleMembresia;
-          let detalleMembresia2;
-
-          if (venta) {
-            //console.log(venta.toJSON());
-            if (tipoPrograma == 0) {
-              detalleMembresia = await detalleVenta_membresias.findOne({
-                where: {
-                  id_venta: venta.id,
-                  flag: true,
-                },
-              });
-            } else {
-              detalleMembresia = await detalleVenta_membresias.findOne({
-                where: {
-                  id_venta: venta.id,
-                  id_pgm: tipoPrograma,
-                  flag: true,
-                },
-              });
-            }
-
-            let detalleVenta_transferencias_entreFechas =
-              await detalleVenta_Transferencia.findOne({
-                where: {
-                  id_venta: venta.id,
-                  flag: true,
-                  //fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
-                },
-                //order: [['fecha_venta', 'Desc']],
-              });
-
-            if (detalleVenta_transferencias_entreFechas) {
-              if (tipoPrograma == 0) {
-                detalleMembresia2 = await detalleVenta_membresias.findOne({
-                  where: {
-                    id_venta:
-                      detalleVenta_transferencias_entreFechas.id_membresia,
-                    flag: true,
-                  },
-                });
-              } else {
-                detalleMembresia2 = await detalleVenta_membresias.findOne({
-                  where: {
-                    id_venta:
-                      detalleVenta_transferencias_entreFechas.id_membresia,
-                    id_pgm: tipoPrograma,
-                    flag: true,
-                  },
-                });
-              }
-            }
-          }
-
-          if (detalleMembresia || detalleMembresia2) {
-            if (!ClientesAnalizadosEntreFechas.includes(cliente)) {
-              switch (cliente.tipoCliente) {
-                case "Cliente Nuevo":
-                  contadorClienteNuevo++;
-                  break;
-                case "Cliente reinscrito":
-                  contadorClienteReinscrito++;
-                  break;
-                case "Cliente renovado":
-                  contadorClienteRenovado++;
-                  break;
-              }
-
-              ClientesAnalizadosEntreFechas.push(cliente);
-            }
-          }
-        })
-      );
-    })
-  );
-
-  let ClientesNuevoEntreFechas = ClientesAnalizadosEntreFechas.filter(
-    (cliente) => {
-      return cliente.tipoCliente == "Cliente Nuevo";
-    }
-  );
-
-  respuesta = {
-    CantidadPorEstado: {
-      ClienteNuevo: contadorClienteNuevo,
-      ClienteReinscrito: contadorClienteReinscrito,
-      ClienteRenovado: contadorClienteRenovado,
-    },
-    ClientesNuevoEntreFechas: { ClientesNuevoEntreFechas },
-    //ClientesAnalizadosTotal:ClientesAnalizados
   };
 
-  return respuesta;
-}
+  response.cantidadPorEstado ={
+    ClienteNuevo : contadorClienteNuevo,
+    ClienteReinscrito : contadorClienteReinscrito,
+    ClienteRenovado : contadorClienteRenovado,
+  };
+  response.clientesAnalizados = clientesNuevos;
+
+  return response;  
+};
 
 const comparativaPorProgramaApi = async(req = request , res=  response )=>{
 
