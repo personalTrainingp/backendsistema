@@ -2,14 +2,15 @@ const { response, request } = require("express");
 const { Gastos, ParametroGastos } = require("../models/GastosFyV");
 const { Op } = require("sequelize");
 const { Proveedor } = require("../models/Proveedor");
-const { Empleado } = require("../models/Usuarios");
+const { Empleado, Cliente, Usuario } = require("../models/Usuarios");
 const { Parametros } = require("../models/Parametros");
+const { detalleVenta_membresias } = require("../models/Venta");
 
 const GastoPorCargo = async (req = response, res = response) => {
 
     const { fechaDesdeStr, fechaHastaStr } = req.query;
 
-    console.log(fechaDesdeStr + " " + fechaHastaStr);
+    //console.log(fechaDesdeStr + " " + fechaHastaStr);
     let fechaDesde = new Date(fechaDesdeStr);
     let fechaHasta = new Date(fechaHastaStr);
 
@@ -98,6 +99,27 @@ const GastoPorCargo = async (req = response, res = response) => {
         });
     }
 };
+
+const  ClienteAuth = async( req = request  , res = response)=>{
+
+    try {
+        //let Usuarios = await Usuario.findAll({});
+
+        let datalleMembresias = await detalleVenta_membresias.findAll({});
+    
+        res.status(200).json({
+            //usuarios: Usuarios,
+            datalleMembresia: datalleMembresias
+        });
+    } catch (error) {
+        
+        res.status(500).json({
+            error: error.message
+        })
+    }
+
+}
 module.exports = {
-    GastoPorCargo
+    GastoPorCargo,
+    ClienteAuth
 }

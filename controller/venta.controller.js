@@ -35,49 +35,53 @@ require("dotenv").config();
 const env = process.env;
 
 const { detalleVenta_transferenciasMembresias } = require("../models/Venta");
+const { CLIENT_RENEG_LIMIT } = require("tls");
 const { ImagePT } = require("../models/Image");
 
 const estadosClienteMembresiaVar = async (req = request, res = response) => {
-  //const {tipoPrograma , fechaDesde, FechaHasta} = req.body;
-  const { tipoPrograma, fechaDesde, FechaHasta } = req.body;
+  //const {tipoPrograma , fechaDesde, fechaHasta} = req.body;
+  const { tipoPrograma, fechaDesde, fechaHasta } = req.body;
   try {
-    const respuesta = await estadosClienteMembresia(
-      tipoPrograma,
-      fechaDesde,
-      FechaHasta
-    );
-
+    
+    const respuesta  = await estadosClienteMembresia(tipoPrograma , fechaDesde , fechaHasta);
     res.status(200).json({
       ok: true,
       msg: respuesta,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       ok: false,
       msg: "Error en el servidor" + error,
     });
   }
 };
+async function estadosClienteMembresia(
+  tipoPrograma,
+  fechaDesdeStr,
+  fechaHastaStr
+) {
+  let fechaDesde = new Date(fechaDesdeStr);
+  let fechaHasta = new Date(fechaHastaStr);
 
-async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
-  fechaDesde = new Date(fechaDesde);
-  FechaHasta = new Date(FechaHasta);
-
-  const TodasVentas = await Venta.findAll({
-    where: {},
+  const VentasEntreFechaParaIds = await Venta.findAll({
+    where: {
+      fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
+      flag: true,
+    },
     order: [["fecha_venta", "Desc"]],
   });
   let idsClientes = [];
 
-  await Promise.all(
-    TodasVentas.map(async (venta) => {
-      if (idsClientes.includes(venta.id_cli)) {
-      } else {
-        idsClientes.push(venta.id_cli);
-      }
-    })
-  );
+  await Promise.all(VentasEntreFechaParaIds.map(async (venta)=>{
+    if (idsClientes.includes(venta.id_cli)) {
+    }else{
+      idsClientes.push(venta.id_cli);
+    };
+  }));
 
+
+  
   let contadorClienteNuevo = 0;
   let contadorClienteRenovado = 0;
   let contadorClienteReinscrito = 0;
@@ -86,11 +90,12 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
 
   await Promise.all(
     idsClientes.map(async (idCliente) => {
-      const ventas = await Venta.findAll({
+      const ventasGeneralPorId = await Venta.findAll({
         limit: 2,
         where: {
           id_cli: idCliente,
-          //fecha_venta: { [Op.between]: [fechaDesde, FechaHasta] },
+          //fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
+          flag: true,
         },
         order: [["fecha_venta", "Desc"]],
       });
@@ -104,90 +109,271 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
       let fechaVentaPenUltimaMembresia;
 
       await Promise.all(
-        ventas.map(async (venta) => {
+        ventasGeneralPorId.map(async (ventaPorIdCliente) => {
+          const venta = await Venta.findOne({
+            attributes: [
+              "id",
+              "id_cli",
+              "id_empl",
+              "id_origen",
+              "id_tipoFactura",
+              "numero_transac",
+              "fecha_venta",
+              "observacion",
+            ],
+            where: { id: ventaPorIdCliente.id, flag: true },
+            order: [["id", "DESC"]],
+            include: [
+              {
+                model: Cliente,
+                attributes: [
+                  [
+                    Sequelize.fn(
+                      "CONCAT",
+                      Sequelize.col("nombre_cli"),
+                      " ",
+                      Sequelize.col("apPaterno_cli"),
+                      " ",
+                      Sequelize.col("apMaterno_cli")
+                    ),
+                    "nombres_apellidos_cli",
+                  ],
+                ],
+              },
+              {
+                model: Empleado,
+                attributes: [
+                  [
+                    Sequelize.fn(
+                      "CONCAT",
+                      Sequelize.col("nombre_empl"),
+                      " ",
+                      Sequelize.col("apPaterno_empl"),
+                      " ",
+                      Sequelize.col("apMaterno_empl")
+                    ),
+                    "nombres_apellidos_empl",
+                  ],
+                ],
+              },
+              {
+                model: detalleVenta_producto,
+                attributes: [
+                  "id_venta",
+                  "id_producto",
+                  "cantidad",
+                  "precio_unitario",
+                  "tarifa_monto",
+                ],
+                include: [
+                  {
+                    model: Producto,
+                    attributes: ["id", "nombre_producto", "id_categoria"],
+                  },
+                ],
+              },
+              {
+                model: detalleVenta_membresias,
+                required: true,
+                attributes: [
+                  "id_venta",
+                  "id_pgm",
+                  "id_tarifa",
+                  "id_st",
+                  "tarifa_monto",
+                  "fec_inicio_mem",
+                  "fec_fin_mem",
+                  "uid_firma",
+                  "horario",
+                ],
+
+                include: [
+                  {
+                    model: ProgramaTraining,
+                    attributes: ["name_pgm"],
+                  },
+                  {
+                    model: SemanasTraining,
+                    attributes: [
+                      "semanas_st",
+                      "congelamiento_st",
+                      "nutricion_st",
+                    ],
+                  },
+                ],
+              },
+              {
+                model: detalleVenta_citas,
+                attributes: ["id_venta", "id_servicio", "tarifa_monto"],
+              },
+              {
+                model: detalleVenta_Transferencia,
+                attributes: [
+                  "id_venta",
+                  "id_membresia",
+                  "tarifa_monto",
+                  "horario",
+                  "fec_inicio_mem",
+                  "fec_fin_mem",
+                ],
+                include: [
+                  {
+                    model: Venta,
+                    as: "venta_transferencia",
+                    include: [
+                      {
+                        model: detalleVenta_membresias,
+                        include: [
+                          {
+                            model: ProgramaTraining,
+                            attributes: ["name_pgm"],
+                          },
+                          {
+                            model: SemanasTraining,
+                            attributes: [
+                              "semanas_st",
+                              "congelamiento_st",
+                              "nutricion_st",
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+
+              {
+                model: detalleVenta_pagoVenta,
+                attributes: [
+                  "fecha_pago",
+                  "id_forma_pago",
+                  "id_tipo_tarjeta",
+                  "id_tarjeta",
+                  "id_banco",
+                  "parcial_monto",
+                  "n_operacion",
+                  "observacion",
+                ],
+                include: [
+                  {
+                    model: Parametros,
+                    attributes: ["id_param", "label_param"],
+                    as: "parametro_banco",
+                  },
+                  {
+                    model: Parametros,
+                    attributes: ["id_param", "label_param"],
+                    as: "parametro_forma_pago",
+                  },
+                  {
+                    model: Parametros,
+                    attributes: ["id_param", "label_param"],
+                    as: "parametro_tipo_tarjeta",
+                  },
+                  {
+                    model: Parametros,
+                    attributes: ["id_param", "label_param"],
+                    as: "parametro_tarjeta",
+                  },
+                ],
+              },
+            ],
+          });
+
           let detalleMembresia;
 
-          if (tipoPrograma == 0) {
-            detalleMembresia = await detalleVenta_membresias.findOne({
-              where: {
-                id_venta: venta.id,
-              },
-            });
-          } else {
-            detalleMembresia = await detalleVenta_membresias.findOne({
-              where: {
-                id_venta: venta.id,
-                id_pgm: tipoPrograma,
-              },
-            });
-          }
-
-          let detalleVenta_transferencias =
-            await detalleVenta_transferenciasMembresias.findOne({
-              where: {
-                id_venta: venta.id,
-              },
-            });
-          let detalleMembresia2;
-
-          if (detalleVenta_transferencias) {
+          if (venta) {
             if (tipoPrograma == 0) {
-              detalleMembresia2 = await detalleVenta_membresias.findOne({
+              detalleMembresia = await detalleVenta_membresias.findOne({
                 where: {
-                  id_venta: detalleVenta_transferencias.id_transferencia,
+                  id_venta: venta.id,
+                  flag: true,
                 },
               });
             } else {
-              detalleMembresia2 = await detalleVenta_membresias.findOne({
+              detalleMembresia = await detalleVenta_membresias.findOne({
                 where: {
-                  id_venta: detalleVenta_transferencias.id_transferencia,
+                  id_venta: venta.id,
                   id_pgm: tipoPrograma,
+                  flag: true,
                 },
               });
             }
-          }
 
-          if (detalleMembresia || detalleMembresia2) {
-            count++;
+            let detalleVenta_transferencias =
+              await detalleVenta_Transferencia.findOne({
+                where: {
+                  id_venta: venta.id,
+                  flag: true,
+                },
+              });
+            let detalleMembresia2;
 
-            if (count == 1) {
-              fechaUltimaMembresiaComprada = new Date(
-                detalleMembresia.fec_fin_mem
-              ).toISOString();
-              fechaVentaUltimaMembresia = new Date(
-                venta.fecha_venta
-              ).toISOString();
-
-              if (detalleMembresia2) {
-                let fechaTransferenciaFin_mem = new Date(
-                  detalleMembresia2.fec_fin_mem
-                ).toISOString();
-                if (
-                  fechaTransferenciaFin_mem > fechaUltimaMembresiaComprada ||
-                  !fechaUltimaMembresiaComprada
-                ) {
-                  fechaUltimaMembresiaComprada = fechaTransferenciaFin_mem;
-                }
+            if (detalleVenta_transferencias) {
+              if (tipoPrograma == 0) {
+                detalleMembresia2 = await detalleVenta_membresias.findOne({
+                  where: {
+                    id_venta: detalleVenta_transferencias.id_membresia,
+                    flag: true,
+                  },
+                });
+              } else {
+                detalleMembresia2 = await detalleVenta_membresias.findOne({
+                  where: {
+                    id_venta: detalleVenta_transferencias.id_membresia,
+                    id_pgm: tipoPrograma,
+                    flag: true,
+                  },
+                });
               }
             }
 
-            if (count == 2) {
-              fechaPenultimaMembresia = new Date(
-                detalleMembresia.fec_fin_mem
-              ).toISOString();
-              fechaVentaPenUltimaMembresia = new Date(
-                venta.fecha_venta
-              ).toISOString();
+            if (detalleMembresia || detalleMembresia2) {
+              count++;
 
-              if (detalleMembresia2) {
-                let fechaTransferenciaFin_mem = new Date(
-                  detalleMembresia2.fec_fin_mem
+              if (count == 1) {
+                if (detalleMembresia) {
+                  //console.log(detalleMembresia.toJSON());
+                  fechaUltimaMembresiaComprada = new Date(
+                    detalleMembresia.fec_fin_mem
+                  ).toISOString();
+                  fechaVentaUltimaMembresia = new Date(
+                    venta.fecha_venta
+                  ).toISOString();
+                }
+
+                if (detalleMembresia2) {
+                  let fechaTransferenciaFin_mem = new Date(
+                    detalleMembresia2.fec_fin_mem
+                  ).toISOString();
+                  if (
+                    fechaTransferenciaFin_mem > fechaUltimaMembresiaComprada ||
+                    !fechaUltimaMembresiaComprada
+                  ) {
+                    fechaUltimaMembresiaComprada = fechaTransferenciaFin_mem;
+                  }
+                }
+              }
+
+              if (count == 2) {
+                fechaPenultimaMembresia = new Date(
+                  detalleMembresia.fec_fin_mem
                 ).toISOString();
-                if (
-                  fechaTransferenciaFin_mem > fechaPenultimaMembresia ||
-                  !fechaPenultimaMembresia
-                ) {
-                  fechaPenultimaMembresia = fechaTransferenciaFin_mem;
+                fechaVentaPenUltimaMembresia = new Date(
+                  venta.fecha_venta
+                ).toISOString();
+
+                if (detalleMembresia2) {
+                  let fechaTransferenciaFin_mem = new Date(
+                    detalleMembresia2.fec_fin_mem
+                  ).toISOString();
+                  if (
+                    fechaTransferenciaFin_mem > fechaPenultimaMembresia ||
+                    !fechaPenultimaMembresia
+                  ) {
+                    fechaPenultimaMembresia = fechaTransferenciaFin_mem;
+                  }
                 }
               }
             }
@@ -195,7 +381,6 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
         })
       );
 
-      //console.log(count);
       if (count == 1) {
         tipoCliente = "Cliente Nuevo";
       } else if (count == 2) {
@@ -205,8 +390,6 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
         if ((fechaVentaUltimaMembresia) => fechaPenultimaMembresia) {
           tipoCliente = "Cliente renovado";
         }
-        // console.log("Fecha de venta de la ultima membresia comprada " + fechaVentaUltimaMembresia);
-        // console.log("Penultima fecha de vencimeinto de la membresia " + fechaPenultimaMembresia);
       }
 
       if (count > 0) {
@@ -222,55 +405,236 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
       let VentasEntreFechas = await Venta.findAll({
         where: {
           id_cli: cliente.idCliente,
-          fecha_venta: { [Op.between]: [fechaDesde, FechaHasta] },
+          fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
+          flag: true,
         },
         order: [["fecha_venta", "Desc"]],
         //limit:1,
       });
       await Promise.all(
-        VentasEntreFechas.map(async (venta) => {
-          let detalleMembresia;
-          if (tipoPrograma == 0) {
-            detalleMembresia = await detalleVenta_membresias.findOne({
-              where: {
-                id_venta: venta.id,
+        VentasEntreFechas.map(async (ventaEntreFecha) => {
+          const venta = await Venta.findOne({
+            attributes: [
+              "id",
+              "id_cli",
+              "id_empl",
+              "id_origen",
+              "id_tipoFactura",
+              "numero_transac",
+              "fecha_venta",
+              "observacion",
+            ],
+            where: { id: ventaEntreFecha.id, flag: true },
+            order: [["id", "DESC"]],
+            include: [
+              {
+                model: Cliente,
+                attributes: [
+                  [
+                    Sequelize.fn(
+                      "CONCAT",
+                      Sequelize.col("nombre_cli"),
+                      " ",
+                      Sequelize.col("apPaterno_cli"),
+                      " ",
+                      Sequelize.col("apMaterno_cli")
+                    ),
+                    "nombres_apellidos_cli",
+                  ],
+                ],
               },
-            });
-          } else {
-            detalleMembresia = await detalleVenta_membresias.findOne({
-              where: {
-                id_venta: venta.id,
-                id_pgm: tipoPrograma,
+              {
+                model: Empleado,
+                attributes: [
+                  [
+                    Sequelize.fn(
+                      "CONCAT",
+                      Sequelize.col("nombre_empl"),
+                      " ",
+                      Sequelize.col("apPaterno_empl"),
+                      " ",
+                      Sequelize.col("apMaterno_empl")
+                    ),
+                    "nombres_apellidos_empl",
+                  ],
+                ],
               },
-            });
-          }
+              {
+                model: detalleVenta_producto,
+                attributes: [
+                  "id_venta",
+                  "id_producto",
+                  "cantidad",
+                  "precio_unitario",
+                  "tarifa_monto",
+                ],
+                include: [
+                  {
+                    model: Producto,
+                    attributes: ["id", "nombre_producto", "id_categoria"],
+                  },
+                ],
+              },
+              {
+                model: detalleVenta_membresias,
+                required: true,
+                attributes: [
+                  "id_venta",
+                  "id_pgm",
+                  "id_tarifa",
+                  "id_st",
+                  "tarifa_monto",
+                  "fec_inicio_mem",
+                  "fec_fin_mem",
+                  "uid_firma",
+                  "horario",
+                ],
 
-          let detalleVenta_transferencias_entreFechas =
-            await detalleVenta_transferenciasMembresias.findOne({
-              where: {
-                id_venta: venta.id,
-                fecha_venta: { [Op.between]: [fechaDesde, FechaHasta] },
+                include: [
+                  {
+                    model: ProgramaTraining,
+                    attributes: ["name_pgm"],
+                  },
+                  {
+                    model: SemanasTraining,
+                    attributes: [
+                      "semanas_st",
+                      "congelamiento_st",
+                      "nutricion_st",
+                    ],
+                  },
+                ],
               },
-              order: [["fecha_venta", "Desc"]],
-            });
+              {
+                model: detalleVenta_citas,
+                attributes: ["id_venta", "id_servicio", "tarifa_monto"],
+              },
+              {
+                model: detalleVenta_Transferencia,
+                attributes: [
+                  "id_venta",
+                  "id_membresia",
+                  "tarifa_monto",
+                  "horario",
+                  "fec_inicio_mem",
+                  "fec_fin_mem",
+                ],
+                include: [
+                  {
+                    model: Venta,
+                    as: "venta_transferencia",
+                    include: [
+                      {
+                        model: detalleVenta_membresias,
+                        include: [
+                          {
+                            model: ProgramaTraining,
+                            attributes: ["name_pgm"],
+                          },
+                          {
+                            model: SemanasTraining,
+                            attributes: [
+                              "semanas_st",
+                              "congelamiento_st",
+                              "nutricion_st",
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+
+              {
+                model: detalleVenta_pagoVenta,
+                attributes: [
+                  "fecha_pago",
+                  "id_forma_pago",
+                  "id_tipo_tarjeta",
+                  "id_tarjeta",
+                  "id_banco",
+                  "parcial_monto",
+                  "n_operacion",
+                  "observacion",
+                ],
+                include: [
+                  {
+                    model: Parametros,
+                    attributes: ["id_param", "label_param"],
+                    as: "parametro_banco",
+                  },
+                  {
+                    model: Parametros,
+                    attributes: ["id_param", "label_param"],
+                    as: "parametro_forma_pago",
+                  },
+                  {
+                    model: Parametros,
+                    attributes: ["id_param", "label_param"],
+                    as: "parametro_tipo_tarjeta",
+                  },
+                  {
+                    model: Parametros,
+                    attributes: ["id_param", "label_param"],
+                    as: "parametro_tarjeta",
+                  },
+                ],
+              },
+            ],
+          });
+
+          let detalleMembresia;
           let detalleMembresia2;
 
-          if (detalleVenta_transferencias_entreFechas) {
+          if (venta) {
+            //console.log(venta.toJSON());
             if (tipoPrograma == 0) {
-              detalleMembresia2 = await detalleVenta_membresias.findOne({
+              detalleMembresia = await detalleVenta_membresias.findOne({
                 where: {
-                  id_venta:
-                    detalleVenta_transferencias_entreFechas.id_transferencia,
+                  id_venta: venta.id,
+                  flag: true,
                 },
               });
             } else {
-              detalleMembresia2 = await detalleVenta_membresias.findOne({
+              detalleMembresia = await detalleVenta_membresias.findOne({
                 where: {
-                  id_venta:
-                    detalleVenta_transferencias_entreFechas.id_transferencia,
+                  id_venta: venta.id,
                   id_pgm: tipoPrograma,
+                  flag: true,
                 },
               });
+            }
+
+            let detalleVenta_transferencias_entreFechas =
+              await detalleVenta_Transferencia.findOne({
+                where: {
+                  id_venta: venta.id,
+                  flag: true,
+                  //fecha_venta: { [Op.between]: [fechaDesde, fechaHasta] },
+                },
+                //order: [['fecha_venta', 'Desc']],
+              });
+
+            if (detalleVenta_transferencias_entreFechas) {
+              if (tipoPrograma == 0) {
+                detalleMembresia2 = await detalleVenta_membresias.findOne({
+                  where: {
+                    id_venta:
+                      detalleVenta_transferencias_entreFechas.id_membresia,
+                    flag: true,
+                  },
+                });
+              } else {
+                detalleMembresia2 = await detalleVenta_membresias.findOne({
+                  where: {
+                    id_venta:
+                      detalleVenta_transferencias_entreFechas.id_membresia,
+                    id_pgm: tipoPrograma,
+                    flag: true,
+                  },
+                });
+              }
             }
           }
 
@@ -315,9 +679,10 @@ async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
   return respuesta;
 }
 
-const comparativaPorProgramaApi = async (req = request, res = response) => {
-  const { fecha } = req.params;
-  //const {tipoPrograma , fechaDesde, FechaHasta} = req.body;
+const comparativaPorProgramaApi = async(req = request , res=  response )=>{
+
+  const {fecha} = req.params;
+  //const {tipoPrograma , fechaDesde, fechaHasta} = req.body;
   try {
     let fechaDate = new Date(fecha);
     let nroMesActual = fechaDate.getMonth();
@@ -369,7 +734,6 @@ async function comparativaPorPrograma(fecha) {
       });
 
       if (detalleMembresia) {
-        console.log(detalleMembresia.toJSON());
         let programaTraining = await ProgramaTraining.findOne({
           where: {
             id_pgm: detalleMembresia.id_pgm,
@@ -727,6 +1091,7 @@ const get_VENTA_ID = async (req = request, res = response) => {
         },
         {
           model: detalleVenta_membresias,
+          //required:true,
           attributes: [
             "id_venta",
             "id_pgm",
@@ -790,6 +1155,7 @@ const get_VENTA_ID = async (req = request, res = response) => {
             },
           ],
         },
+
         {
           model: detalleVenta_pagoVenta,
           attributes: [

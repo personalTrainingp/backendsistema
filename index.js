@@ -244,6 +244,7 @@ app.use("/api/aporte", validarJWT, require("./routes/aportes.router.js"));
 app.use("/api/dieta", require("./routes/dieta.router.js"));
 
 app.use("/api/flujo-caja", require("./routes/flujo-caja.router.js"));
+app.use("/api/recursosHumanos" , require("./routes/recursosHumanos.route.js"));
 //Escuchar peticiones
 app.listen(env.PORT || 4001, () => {
   console.log(`Servidor corriendo en el puerto ${env.PORT || 4001}`);
