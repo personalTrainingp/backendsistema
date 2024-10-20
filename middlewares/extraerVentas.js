@@ -38,6 +38,7 @@ const extraerCredencialesCliente = (req = request, res = response, next) => {
     numero_transac,
     id_origen,
     observacion,
+    id_empresa,
   } = req.body.detalle_cli_modelo;
 
   req.detalle_cli = {
@@ -48,6 +49,7 @@ const extraerCredencialesCliente = (req = request, res = response, next) => {
     id_origen: id_origen,
     observacion: observacion,
     fecha_venta: new Date(),
+    id_empresa,
   };
   next();
 };
@@ -138,6 +140,7 @@ const postNewVenta = async (req, res, next) => {
         numero_transac,
         observacion,
         id_origen,
+        id_enterprice,
       } = req.detalle_cli;
       const {
         tarifa,
@@ -183,6 +186,7 @@ const postNewVenta = async (req, res, next) => {
         numero_transac,
         observacion,
         id_origen,
+        id_empresa: id_enterprice,
         fecha_venta: new Date(),
       });
       await venta.save();
@@ -195,11 +199,17 @@ const postNewVenta = async (req, res, next) => {
         id_tarifa: tarifaNueva.id_tt,
         horario: time_h,
         tarifa_monto: tarifa,
+        uid_firma: uid.v4(),
+        uid_contrato: uid_contrato,
       });
       await detalle_venta_programa.save();
       next();
     } else {
-      const venta = new Venta(req.detalle_cli);
+      const { id_enterprice } = req.params;
+      const venta = new Venta({
+        ...req.detalle_cli,
+        id_empresa: id_enterprice,
+      });
       await venta.save();
       req.ventaID = venta.id;
       next();

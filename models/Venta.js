@@ -4,6 +4,7 @@ const { db } = require("../database/sequelizeConnection");
 const { Cliente, Empleado } = require("./Usuarios");
 const { ProgramaTraining, SemanasTraining } = require("./ProgramaTraining");
 const { Parametros } = require("./Parametros");
+const { ImagePT } = require("./Image");
 
 const Venta = db.define("tb_venta", {
   id: {
@@ -255,6 +256,22 @@ SemanasTraining.belongsTo(detalleVenta_membresias, {
   targetKey: "id_st",
 });
 
+detalleVenta_membresias.hasMany(ImagePT, {
+  // foreignKey: "uid_", // Este debe ser el nombre de la columna en ImagePT
+  // sourceKey: "id_venta",
+});
+
+detalleVenta_membresias.hasOne(ImagePT, {
+  foreignKey: "uid_location",
+  sourceKey: "uid_contrato",
+  as: "contrato_x_serv",
+});
+
+detalleVenta_membresias.hasOne(ImagePT, {
+  foreignKey: "uid_location",
+  sourceKey: "uid_firma",
+  as: "firma_cli",
+});
 // Definición de la relación entre Venta y Cliente
 Venta.belongsTo(Cliente, {
   foreignKey: "id_cli", // Este debe ser el nombre de la columna en Cliente

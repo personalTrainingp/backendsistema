@@ -34,388 +34,375 @@ const { Result } = require("express-validator");
 require("dotenv").config();
 const env = process.env;
 
-const {detalleVenta_transferenciasMembresias} = require("../models/Venta");
+const { detalleVenta_transferenciasMembresias } = require("../models/Venta");
+const { ImagePT } = require("../models/Image");
 
-const estadosClienteMembresiaVar = async(req = request , res=  response )=>{
-
+const estadosClienteMembresiaVar = async (req = request, res = response) => {
   //const {tipoPrograma , fechaDesde, FechaHasta} = req.body;
-  const {tipoPrograma , fechaDesde, FechaHasta} = req.body;
+  const { tipoPrograma, fechaDesde, FechaHasta } = req.body;
   try {
-    
-    const respuesta  = await estadosClienteMembresia(tipoPrograma , fechaDesde , FechaHasta);
+    const respuesta = await estadosClienteMembresia(
+      tipoPrograma,
+      fechaDesde,
+      FechaHasta
+    );
 
     res.status(200).json({
       ok: true,
-      msg: respuesta
-    })
+      msg: respuesta,
+    });
   } catch (error) {
     res.status(500).json({
       ok: false,
-      msg: 'Error en el servidor' + error
-    })
+      msg: "Error en el servidor" + error,
+    });
   }
-
 };
 
 async function estadosClienteMembresia(tipoPrograma, fechaDesde, FechaHasta) {
-
   fechaDesde = new Date(fechaDesde);
   FechaHasta = new Date(FechaHasta);
 
   const TodasVentas = await Venta.findAll({
-    where: {
-    },
-    order: [['fecha_venta', 'Desc']]
+    where: {},
+    order: [["fecha_venta", "Desc"]],
   });
   let idsClientes = [];
 
-  await Promise.all(TodasVentas.map(async (venta)=>{
-    if (idsClientes.includes(venta.id_cli)) {
-    }else{
-      idsClientes.push(venta.id_cli);
-    };
-  }));
+  await Promise.all(
+    TodasVentas.map(async (venta) => {
+      if (idsClientes.includes(venta.id_cli)) {
+      } else {
+        idsClientes.push(venta.id_cli);
+      }
+    })
+  );
 
-
-  
   let contadorClienteNuevo = 0;
   let contadorClienteRenovado = 0;
   let contadorClienteReinscrito = 0;
-  let ClientesAnalizados =[];
+  let ClientesAnalizados = [];
   let ClientesAnalizadosEntreFechas = [];
 
- 
-  await Promise.all(idsClientes.map(async(idCliente)=>{
-    const ventas = await Venta.findAll({
-      limit:2,
-      where: {
-        id_cli: idCliente,
-        //fecha_venta: { [Op.between]: [fechaDesde, FechaHasta] },
-        
-      },
-      order: [['fecha_venta', 'Desc']],
-    });
+  await Promise.all(
+    idsClientes.map(async (idCliente) => {
+      const ventas = await Venta.findAll({
+        limit: 2,
+        where: {
+          id_cli: idCliente,
+          //fecha_venta: { [Op.between]: [fechaDesde, FechaHasta] },
+        },
+        order: [["fecha_venta", "Desc"]],
+      });
 
-    let count = 0;
-    let tipoCliente = "";
+      let count = 0;
+      let tipoCliente = "";
 
-    let fechaUltimaMembresiaComprada ;
-    let fechaPenultimaMembresia;
-    let fechaVentaUltimaMembresia;
-    let fechaVentaPenUltimaMembresia;
+      let fechaUltimaMembresiaComprada;
+      let fechaPenultimaMembresia;
+      let fechaVentaUltimaMembresia;
+      let fechaVentaPenUltimaMembresia;
 
-    await Promise.all(ventas.map(async (venta) => {
+      await Promise.all(
+        ventas.map(async (venta) => {
+          let detalleMembresia;
 
-      let detalleMembresia ;
+          if (tipoPrograma == 0) {
+            detalleMembresia = await detalleVenta_membresias.findOne({
+              where: {
+                id_venta: venta.id,
+              },
+            });
+          } else {
+            detalleMembresia = await detalleVenta_membresias.findOne({
+              where: {
+                id_venta: venta.id,
+                id_pgm: tipoPrograma,
+              },
+            });
+          }
 
-      if (tipoPrograma == 0) {
-        
-        detalleMembresia = await detalleVenta_membresias.findOne({ 
-          where: { 
-            id_venta: venta.id,
-          } 
-        });
-      }else{
+          let detalleVenta_transferencias =
+            await detalleVenta_transferenciasMembresias.findOne({
+              where: {
+                id_venta: venta.id,
+              },
+            });
+          let detalleMembresia2;
 
-        detalleMembresia = await detalleVenta_membresias.findOne({ 
-          where: { 
-            id_venta: venta.id,
-            id_pgm: tipoPrograma
-          } 
-        });
+          if (detalleVenta_transferencias) {
+            if (tipoPrograma == 0) {
+              detalleMembresia2 = await detalleVenta_membresias.findOne({
+                where: {
+                  id_venta: detalleVenta_transferencias.id_transferencia,
+                },
+              });
+            } else {
+              detalleMembresia2 = await detalleVenta_membresias.findOne({
+                where: {
+                  id_venta: detalleVenta_transferencias.id_transferencia,
+                  id_pgm: tipoPrograma,
+                },
+              });
+            }
+          }
+
+          if (detalleMembresia || detalleMembresia2) {
+            count++;
+
+            if (count == 1) {
+              fechaUltimaMembresiaComprada = new Date(
+                detalleMembresia.fec_fin_mem
+              ).toISOString();
+              fechaVentaUltimaMembresia = new Date(
+                venta.fecha_venta
+              ).toISOString();
+
+              if (detalleMembresia2) {
+                let fechaTransferenciaFin_mem = new Date(
+                  detalleMembresia2.fec_fin_mem
+                ).toISOString();
+                if (
+                  fechaTransferenciaFin_mem > fechaUltimaMembresiaComprada ||
+                  !fechaUltimaMembresiaComprada
+                ) {
+                  fechaUltimaMembresiaComprada = fechaTransferenciaFin_mem;
+                }
+              }
+            }
+
+            if (count == 2) {
+              fechaPenultimaMembresia = new Date(
+                detalleMembresia.fec_fin_mem
+              ).toISOString();
+              fechaVentaPenUltimaMembresia = new Date(
+                venta.fecha_venta
+              ).toISOString();
+
+              if (detalleMembresia2) {
+                let fechaTransferenciaFin_mem = new Date(
+                  detalleMembresia2.fec_fin_mem
+                ).toISOString();
+                if (
+                  fechaTransferenciaFin_mem > fechaPenultimaMembresia ||
+                  !fechaPenultimaMembresia
+                ) {
+                  fechaPenultimaMembresia = fechaTransferenciaFin_mem;
+                }
+              }
+            }
+          }
+        })
+      );
+
+      //console.log(count);
+      if (count == 1) {
+        tipoCliente = "Cliente Nuevo";
+      } else if (count == 2) {
+        if (fechaVentaUltimaMembresia < fechaPenultimaMembresia) {
+          tipoCliente = "Cliente reinscrito";
+        }
+        if ((fechaVentaUltimaMembresia) => fechaPenultimaMembresia) {
+          tipoCliente = "Cliente renovado";
+        }
+        // console.log("Fecha de venta de la ultima membresia comprada " + fechaVentaUltimaMembresia);
+        // console.log("Penultima fecha de vencimeinto de la membresia " + fechaPenultimaMembresia);
       }
 
-
-
-      let detalleVenta_transferencias = await detalleVenta_transferenciasMembresias.findOne({
-        where: {
-          id_venta: venta.id,
+      if (count > 0) {
+        if (!ClientesAnalizados.includes({ tipoCliente, idCliente })) {
+          ClientesAnalizados.push({ tipoCliente, idCliente });
         }
-      });
-      let detalleMembresia2;
+      }
+    })
+  );
 
-      if (detalleVenta_transferencias) {
-
-        if (tipoPrograma == 0) {
-
-          detalleMembresia2 = await detalleVenta_membresias.findOne({ 
-            where: { 
-              id_venta: detalleVenta_transferencias.id_transferencia,
-            } 
-          });
-
-        }else{
-
-          detalleMembresia2 = await detalleVenta_membresias.findOne({ 
-            where: { 
-              id_venta: detalleVenta_transferencias.id_transferencia,
-              id_pgm: tipoPrograma
-            } 
-          });
-
-        };
-
-      };
-
-      if(detalleMembresia || detalleMembresia2){
-        count++;
-
- 
-        if (count == 1) {
-
-          fechaUltimaMembresiaComprada = new Date(detalleMembresia.fec_fin_mem).toISOString();
-          fechaVentaUltimaMembresia = new Date(venta.fecha_venta).toISOString();
-
-          if(detalleMembresia2){
-            let fechaTransferenciaFin_mem = new Date(detalleMembresia2.fec_fin_mem).toISOString();
-            if( (fechaTransferenciaFin_mem > fechaUltimaMembresiaComprada) || (!fechaUltimaMembresiaComprada)){
-              fechaUltimaMembresiaComprada = fechaTransferenciaFin_mem;
-
-            };
-          }
-        };
-  
-        if (count == 2) {
-          fechaPenultimaMembresia = new Date(detalleMembresia.fec_fin_mem).toISOString();
-          fechaVentaPenUltimaMembresia = new Date(venta.fecha_venta).toISOString();
-
-          if(detalleMembresia2){
-            let fechaTransferenciaFin_mem = new Date(detalleMembresia2.fec_fin_mem).toISOString();
-            if( (fechaTransferenciaFin_mem > fechaPenultimaMembresia) || (!fechaPenultimaMembresia)){
-              fechaPenultimaMembresia = fechaTransferenciaFin_mem;
-
-            };
-          }
-        };
-      };
-    
-    }));
-
-    //console.log(count);
-    if (count == 1) {
-      tipoCliente = "Cliente Nuevo";
-    }else
-    if(count == 2){
-      if (fechaVentaUltimaMembresia  < fechaPenultimaMembresia) {
-        tipoCliente = "Cliente reinscrito";
-      };
-      if (fechaVentaUltimaMembresia =>  fechaPenultimaMembresia) {
-        tipoCliente = "Cliente renovado";
-      };
-      // console.log("Fecha de venta de la ultima membresia comprada " + fechaVentaUltimaMembresia);
-      // console.log("Penultima fecha de vencimeinto de la membresia " + fechaPenultimaMembresia);
-    };
-
-    if(count > 0){
-      if(!ClientesAnalizados.includes({tipoCliente , idCliente})){
-        ClientesAnalizados.push({tipoCliente , idCliente});
-
-      };
-    };
-     
-
-
-  }));
-
-  await Promise.all(ClientesAnalizados.map(async (cliente)=>{
-
-    let VentasEntreFechas = await Venta.findAll({
-      where:{
-        id_cli: cliente.idCliente,
-        fecha_venta: { [Op.between]: [fechaDesde, FechaHasta] },
-      },
-      order: [['fecha_venta', 'Desc']],
-      //limit:1,
-      
-    });
-    await Promise.all(VentasEntreFechas.map(async(venta)=>{
-
-      let detalleMembresia;
-      if(tipoPrograma == 0){
-        detalleMembresia = await detalleVenta_membresias.findOne({ 
-          where: { 
-            id_venta: venta.id,
-          } 
-        });
-      }else{
-        detalleMembresia = await detalleVenta_membresias.findOne({ 
-          where: { 
-            id_venta: venta.id,
-            id_pgm: tipoPrograma
-          } 
-        });
-      };
-
-
-      let detalleVenta_transferencias_entreFechas = await detalleVenta_transferenciasMembresias.findOne({
+  await Promise.all(
+    ClientesAnalizados.map(async (cliente) => {
+      let VentasEntreFechas = await Venta.findAll({
         where: {
-          id_venta: venta.id,
+          id_cli: cliente.idCliente,
           fecha_venta: { [Op.between]: [fechaDesde, FechaHasta] },
         },
-        order: [['fecha_venta', 'Desc']],
+        order: [["fecha_venta", "Desc"]],
+        //limit:1,
       });
-      let detalleMembresia2;
+      await Promise.all(
+        VentasEntreFechas.map(async (venta) => {
+          let detalleMembresia;
+          if (tipoPrograma == 0) {
+            detalleMembresia = await detalleVenta_membresias.findOne({
+              where: {
+                id_venta: venta.id,
+              },
+            });
+          } else {
+            detalleMembresia = await detalleVenta_membresias.findOne({
+              where: {
+                id_venta: venta.id,
+                id_pgm: tipoPrograma,
+              },
+            });
+          }
 
-      if (detalleVenta_transferencias_entreFechas) {
+          let detalleVenta_transferencias_entreFechas =
+            await detalleVenta_transferenciasMembresias.findOne({
+              where: {
+                id_venta: venta.id,
+                fecha_venta: { [Op.between]: [fechaDesde, FechaHasta] },
+              },
+              order: [["fecha_venta", "Desc"]],
+            });
+          let detalleMembresia2;
 
-        if (tipoPrograma == 0) {
+          if (detalleVenta_transferencias_entreFechas) {
+            if (tipoPrograma == 0) {
+              detalleMembresia2 = await detalleVenta_membresias.findOne({
+                where: {
+                  id_venta:
+                    detalleVenta_transferencias_entreFechas.id_transferencia,
+                },
+              });
+            } else {
+              detalleMembresia2 = await detalleVenta_membresias.findOne({
+                where: {
+                  id_venta:
+                    detalleVenta_transferencias_entreFechas.id_transferencia,
+                  id_pgm: tipoPrograma,
+                },
+              });
+            }
+          }
 
-          detalleMembresia2 = await detalleVenta_membresias.findOne({ 
-            where: { 
-              id_venta: detalleVenta_transferencias_entreFechas.id_transferencia,
-            } 
-          });
+          if (detalleMembresia || detalleMembresia2) {
+            if (!ClientesAnalizadosEntreFechas.includes(cliente)) {
+              switch (cliente.tipoCliente) {
+                case "Cliente Nuevo":
+                  contadorClienteNuevo++;
+                  break;
+                case "Cliente reinscrito":
+                  contadorClienteReinscrito++;
+                  break;
+                case "Cliente renovado":
+                  contadorClienteRenovado++;
+                  break;
+              }
 
-        }else{
+              ClientesAnalizadosEntreFechas.push(cliente);
+            }
+          }
+        })
+      );
+    })
+  );
 
-          detalleMembresia2 = await detalleVenta_membresias.findOne({ 
-            where: { 
-              id_venta: detalleVenta_transferencias_entreFechas.id_transferencia,
-              id_pgm: tipoPrograma
-            } 
-          });
-
-        };
-
-      };
-
-
-      if(detalleMembresia || detalleMembresia2){
-
-
-        if(!ClientesAnalizadosEntreFechas.includes(cliente)){
-
-          switch (cliente.tipoCliente) {
-            case "Cliente Nuevo":
-              contadorClienteNuevo++;
-              break;
-            case "Cliente reinscrito":
-              contadorClienteReinscrito++;
-              break;
-            case "Cliente renovado":
-              contadorClienteRenovado++;
-              break;
-          };
-
-        
-
-          ClientesAnalizadosEntreFechas.push(cliente);
-        
-        }
-      };
-
-    }));
-
-  }));
-
-
-
-
-
-  let ClientesNuevoEntreFechas = ClientesAnalizadosEntreFechas.filter((cliente)=>{
-    return cliente.tipoCliente == "Cliente Nuevo";
-  });
+  let ClientesNuevoEntreFechas = ClientesAnalizadosEntreFechas.filter(
+    (cliente) => {
+      return cliente.tipoCliente == "Cliente Nuevo";
+    }
+  );
 
   respuesta = {
-    CantidadPorEstado:{
+    CantidadPorEstado: {
       ClienteNuevo: contadorClienteNuevo,
       ClienteReinscrito: contadorClienteReinscrito,
-      ClienteRenovado: contadorClienteRenovado
+      ClienteRenovado: contadorClienteRenovado,
     },
-    ClientesNuevoEntreFechas:{ClientesNuevoEntreFechas},
+    ClientesNuevoEntreFechas: { ClientesNuevoEntreFechas },
     //ClientesAnalizadosTotal:ClientesAnalizados
   };
 
   return respuesta;
+}
 
-};
-
-const comparativaPorProgramaApi = async(req = request , res=  response )=>{
-
-  const {fecha} = req.params;
+const comparativaPorProgramaApi = async (req = request, res = response) => {
+  const { fecha } = req.params;
   //const {tipoPrograma , fechaDesde, FechaHasta} = req.body;
   try {
-
     let fechaDate = new Date(fecha);
     let nroMesActual = fechaDate.getMonth();
     let NroMesAnterior = nroMesActual - 1;
-    
-    const respuesta1  = await comparativaPorPrograma(new Date (fechaDate.getFullYear() , nroMesActual , 1));
+
+    const respuesta1 = await comparativaPorPrograma(
+      new Date(fechaDate.getFullYear(), nroMesActual, 1)
+    );
     //const respuesta2  = await comparativaPorPrograma(new Date (fechaDate.getFullYear() , NroMesAnterior , 1));
     //const respuesta3  = await comparativaPorPrograma(fecha);
 
-    const resultado ={
-      mesActual : respuesta1,
+    const resultado = {
+      mesActual: respuesta1,
       //mesAnterior : respuesta2
     };
 
-
     res.status(200).json({
       ok: true,
-      msg: resultado
-    })
+      msg: resultado,
+    });
   } catch (error) {
     res.status(500).json({
       ok: false,
-      msg: 'Error en el servidor' + error
-    })
+      msg: "Error en el servidor" + error,
+    });
   }
-
 };
 
 async function comparativaPorPrograma(fecha) {
-  
   let resultado = {};
   let fechaDate = new Date(fecha);
   let nroMes = fechaDate.getMonth();
 
-  let primerDiaMesActual = new Date(fechaDate.getFullYear() , nroMes , 1);
-  let ultimoDiaMesActual = new Date(fechaDate.getFullYear() , nroMes + 1 , 0);
+  let primerDiaMesActual = new Date(fechaDate.getFullYear(), nroMes, 1);
+  let ultimoDiaMesActual = new Date(fechaDate.getFullYear(), nroMes + 1, 0);
 
   let ventasMesActual = await Venta.findAll({
-    where:{
-      fecha_venta:{[Op.between]:[primerDiaMesActual , ultimoDiaMesActual]}
-    }
-  }); 
+    where: {
+      fecha_venta: { [Op.between]: [primerDiaMesActual, ultimoDiaMesActual] },
+    },
+  });
 
-  await Promise.all(ventasMesActual.map(async(venta)=>{
+  await Promise.all(
+    ventasMesActual.map(async (venta) => {
       let detalleMembresia = await detalleVenta_membresias.findOne({
-        where:{
-          id_venta:venta.id
-        }
+        where: {
+          id_venta: venta.id,
+        },
       });
 
-      if(detalleMembresia){
+      if (detalleMembresia) {
         console.log(detalleMembresia.toJSON());
         let programaTraining = await ProgramaTraining.findOne({
-          where:{
-            id_pgm: detalleMembresia.id_pgm
-          }
+          where: {
+            id_pgm: detalleMembresia.id_pgm,
+          },
         });
 
-        if(!resultado[programaTraining.name_pgm]){
-          resultado[programaTraining.name_pgm] = { cantidad: 1 , monto: detalleMembresia.tarifa_monto , tikectMedio : 0};
-        };
+        if (!resultado[programaTraining.name_pgm]) {
+          resultado[programaTraining.name_pgm] = {
+            cantidad: 1,
+            monto: detalleMembresia.tarifa_monto,
+            tikectMedio: 0,
+          };
+        }
 
-        if(resultado[programaTraining.name_pgm]){
+        if (resultado[programaTraining.name_pgm]) {
           resultado[programaTraining.name_pgm].cantidad += 1;
-          resultado[programaTraining.name_pgm].monto += detalleMembresia.tarifa_monto;
-        };
-  
+          resultado[programaTraining.name_pgm].monto +=
+            detalleMembresia.tarifa_monto;
+        }
+
         //resultado[programaTraining.name_pgm] = ( resultado[programaTraining.name_pgm] || 0 ) + 1;
         //programaTraining.name_pgm;
-      };
+      }
+    })
+  );
 
-  }));
-
-
-  for(programa in resultado){
-    let tikectMedio = resultado[programa].monto / resultado[programa].cantidad
-    resultado[programa].tikectMedio =  tikectMedio.toFixed(2) ;
+  for (programa in resultado) {
+    let tikectMedio = resultado[programa].monto / resultado[programa].cantidad;
+    resultado[programa].tikectMedio = tikectMedio.toFixed(2);
   }
 
   return resultado;
-};
+}
 
 function calcularEdad(fecha_nac) {
   const hoy = dayjs();
@@ -428,11 +415,7 @@ function formatearNumero(numero) {
 }
 
 const postVenta = async (req = request, res = response) => {
-  // const {} = req.body;
-  // console.log(req, "en post ventas");
-  // console.log(req.ventaProgramas);
-  // if(req.ventaProgramas)
-  // Venta(req.body);
+  // const { uid_firma, uid_contrato } = req.query;
   const uid_firma = v4();
   const uid_contrato = v4();
   try {
@@ -1485,6 +1468,46 @@ const obtenerVentasMembresiaxEmpresa = async (
     });
   }
 };
+const obtenerContratosClientes = async (req = request, res = response) => {
+  const { id_enterprice } = req.params;
+  try {
+    const datacontratosConMembresias = await Venta.findAll({
+      where: {
+        id_empresa: id_enterprice,
+      },
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: detalleVenta_membresias,
+          attributes: {
+            exclude: ["id_venta", "id_pgm", "horario", "id_st"],
+          },
+          include: [
+            {
+              model: ImagePT,
+              attributes: ["id", "uid_location", "name_image"],
+              as: "contrato_x_serv",
+            },
+            {
+              model: ImagePT,
+              attributes: ["id", "uid_location", "name_image"],
+              as: "firma_cli",
+              // required: true,
+            },
+          ],
+        },
+      ],
+    });
+    res.status(200).json({
+      msg: true,
+      datacontratosConMembresias,
+    });
+  } catch (error) {
+    res.status(404).json({
+      msg: false,
+    });
+  }
+};
 module.exports = {
   postVenta,
   get_VENTAS,
@@ -1500,4 +1523,5 @@ module.exports = {
   estadosClienteMembresiaVar,
   comparativaPorProgramaApi,
   obtenerVentasMembresiaxEmpresa,
+  obtenerContratosClientes,
 };
