@@ -731,7 +731,7 @@ const getReporteDeVentasTickets = async (req = request, res = response) => {
     const datamembresias = await detalleVenta_membresias.findAll({
       attributes: ["id_pgm", "tarifa_monto", "id_st"],
       where: {
-        id_pgm: id_programa,
+        //id_pgm: id_programa,
         flag: true,
       },
       order: [["id", "DESC"]],
@@ -748,6 +748,7 @@ const getReporteDeVentasTickets = async (req = request, res = response) => {
               [Op.between]: [new Date(dateRanges[0]), new Date(dateRanges[1])], // Suponiendo que fecha_inicial y fecha_final son variables con las fechas deseadas
             },
           },
+          required: true,
         },
       ],
       required: true,

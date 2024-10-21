@@ -732,21 +732,42 @@ async function estadosClienteMembresiaV2(
   let VentasPorCliente = {};
   let response = {};
 
-  const ventas = await Venta.findAll({
-    order: [["fecha_venta", "DESC"]],
- 
-    include:[
-      {
-        model: detalleVenta_membresias,
-        where:{
-          id_pgm: tipoPrograma,
-          flag: true,
+  let ventas ;
+  if (tipoPrograma == 0) {
+     ventas = await Venta.findAll({
+      order: [["fecha_venta", "DESC"]],
+   
+      include:[
+        {
+          model: detalleVenta_membresias,
+          where:{
+            //id_pgm: tipoPrograma,
+            flag: true,
+          },
+          required:true,
         },
-        required:true,
-      },
-    ],
-    //limit: 2,
-  });
+      ],
+      //limit: 2,
+    });
+  }else{
+     ventas = await Venta.findAll({
+      order: [["fecha_venta", "DESC"]],
+   
+      include:[
+        {
+          model: detalleVenta_membresias,
+          where:{
+            id_pgm: tipoPrograma,
+            flag: true,
+          },
+          required:true,
+        },
+      ],
+      //limit: 2,
+    });
+  }
+
+
  
   ventas.map((venta)=>{
     if(!VentasPorCliente[venta.id_cli]){
