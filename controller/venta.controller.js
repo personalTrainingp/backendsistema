@@ -42,8 +42,11 @@ const estadosClienteMembresiaVar = async (req = request, res = response) => {
   //const {tipoPrograma , fechaDesde, fechaHasta} = req.body;
   const { tipoPrograma, fechaDesde, fechaHasta } = req.body;
   try {
-    
-    const respuesta  = await estadosClienteMembresia(tipoPrograma , fechaDesde , fechaHasta);
+    const respuesta = await estadosClienteMembresia(
+      tipoPrograma,
+      fechaDesde,
+      fechaHasta
+    );
     res.status(200).json({
       ok: true,
       msg: respuesta,
@@ -73,15 +76,15 @@ async function estadosClienteMembresia(
   });
   let idsClientes = [];
 
-  await Promise.all(VentasEntreFechaParaIds.map(async (venta)=>{
-    if (idsClientes.includes(venta.id_cli)) {
-    }else{
-      idsClientes.push(venta.id_cli);
-    };
-  }));
+  await Promise.all(
+    VentasEntreFechaParaIds.map(async (venta) => {
+      if (idsClientes.includes(venta.id_cli)) {
+      } else {
+        idsClientes.push(venta.id_cli);
+      }
+    })
+  );
 
-
-  
   let contadorClienteNuevo = 0;
   let contadorClienteRenovado = 0;
   let contadorClienteReinscrito = 0;
@@ -679,9 +682,8 @@ async function estadosClienteMembresia(
   return respuesta;
 }
 
-const comparativaPorProgramaApi = async(req = request , res=  response )=>{
-
-  const {fecha} = req.params;
+const comparativaPorProgramaApi = async (req = request, res = response) => {
+  const { fecha } = req.params;
   //const {tipoPrograma , fechaDesde, fechaHasta} = req.body;
   try {
     let fechaDate = new Date(fecha);
@@ -782,6 +784,7 @@ const postVenta = async (req = request, res = response) => {
   // const { uid_firma, uid_contrato } = req.query;
   const uid_firma = v4();
   const uid_contrato = v4();
+  let base64_contratoPDF = "";
   try {
     if (req.productos && req.productos.length > 0) {
       const ventasProductosConIdVenta = await req.productos.map((producto) => ({
@@ -796,6 +799,17 @@ const postVenta = async (req = request, res = response) => {
     }
     if (req.ventaProgramas && req.ventaProgramas.length > 0) {
       // Crear múltiples registros en detalleVenta_producto
+      const { dataVenta, detalle_cli_modelo } = req.body;
+
+      const pdfContrato = await getPDF_CONTRATO(
+        dataVenta.detalle_venta_programa[0],
+        detalle_cli_modelo
+      );
+
+      base64_contratoPDF = `data:application/pdf;base64,${Buffer.from(
+        pdfContrato
+      ).toString("base64")}`;
+
       const ventasMembresiasConIdVenta = await req.ventaProgramas.map(
         (mem) => ({
           id_venta: req.ventaID,
@@ -804,6 +818,7 @@ const postVenta = async (req = request, res = response) => {
           ...mem,
         })
       );
+
       await detalleVenta_membresias.bulkCreate(ventasMembresiasConIdVenta);
     }
     if (req.citas && req.citas.length > 0) {
@@ -843,6 +858,8 @@ const postVenta = async (req = request, res = response) => {
     res.status(200).json({
       msg: `Venta creada con exito`,
       uid_firma,
+      uid_contrato,
+      base64_contratoPDF: base64_contratoPDF,
     });
   } catch (error) {
     console.log(error);
@@ -879,6 +896,8 @@ const getPDF_CONTRATO = async (detalle_membresia, dataVenta) => {
     fechaFinal,
     tarifa,
   } = detalle_membresia;
+  console.log("en getPDF CONTRATO");
+
   const fecha_Venta = new Date();
   const { id_empl, id_cli } = dataVenta;
   const data_cliente = await Cliente.findOne({
@@ -927,7 +946,7 @@ const getPDF_CONTRATO = async (detalle_membresia, dataVenta) => {
       "plin",
       "transferencia bancaria",
     ],
-    monto: `S/. ${formatearNumero(tarifa)}`,
+    monto: `S/. ${0}`,
     //Firma
     firma_cli: firmaCli,
   };
@@ -1091,8 +1110,8 @@ const get_VENTA_ID = async (req = request, res = response) => {
         },
         {
           model: detalleVenta_membresias,
-          //required:true,
           attributes: [
+            "uid_contrato",
             "id_venta",
             "id_pgm",
             "id_tarifa",
@@ -1103,7 +1122,6 @@ const get_VENTA_ID = async (req = request, res = response) => {
             "uid_firma",
             "horario",
           ],
-
           include: [
             {
               model: ProgramaTraining,
@@ -1112,6 +1130,11 @@ const get_VENTA_ID = async (req = request, res = response) => {
             {
               model: SemanasTraining,
               attributes: ["semanas_st", "congelamiento_st", "nutricion_st"],
+            },
+            {
+              model: ImagePT,
+              as: "contrato_x_serv",
+              attributes: ["name_image"],
             },
           ],
         },
@@ -1155,7 +1178,6 @@ const get_VENTA_ID = async (req = request, res = response) => {
             },
           ],
         },
-
         {
           model: detalleVenta_pagoVenta,
           attributes: [
@@ -1840,6 +1862,10 @@ const obtenerContratosClientes = async (req = request, res = response) => {
     const datacontratosConMembresias = await Venta.findAll({
       where: {
         id_empresa: id_enterprice,
+        flag: true,
+        id_tipoFactura: {
+          [Op.ne]: 84, // Excluye los registros con id_tipoFactura igual a 84
+        },
       },
       order: [["id", "DESC"]],
       include: [
@@ -1874,6 +1900,48 @@ const obtenerContratosClientes = async (req = request, res = response) => {
     });
   }
 };
+const obtenerClientesVentas = async (req = request, res = response) => {
+  try {
+    const clientes = await Cliente.findAll({
+      attributes: ["id_cli", "nombre_cli"],
+      where: {
+        flag: true,
+      },
+      order: [["id_cli", "DESC"]],
+      limit: 100,
+      include: [
+        {
+          model: Venta,
+          where: {
+            fecha_venta: {
+              [Op.between]: [new Date("2024-01-21"), new Date("2024-09-21")],
+            },
+          },
+          limit: 2,
+          order: [["fecha_venta", "DESC"]],
+          required: false,
+        },
+      ],
+      // raw: true,
+    });
+    res.status(201).json({
+      msg: true,
+      data: clientes,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+function bytesToBase64(bytes) {
+  // Convertir bytes a cadena binaria
+  let binaryString = "";
+  bytes.forEach((byte) => {
+    binaryString += String.fromCharCode(byte);
+  });
+
+  // Convertir la cadena binaria en Base64
+  return btoa(binaryString);
+}
 module.exports = {
   postVenta,
   get_VENTAS,
@@ -1890,4 +1958,5 @@ module.exports = {
   comparativaPorProgramaApi,
   obtenerVentasMembresiaxEmpresa,
   obtenerContratosClientes,
+  obtenerClientesVentas,
 };

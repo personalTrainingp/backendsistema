@@ -264,7 +264,7 @@ const Client_Contrato = async (dataInfo) => {
     color: rgb(0, 0, 0),
   });
   //Columna 2
-  const FechaFin = firstPage.drawText(dataInfo.fec_fin, {
+  const FechaFin = firstPage.drawText(`${dataInfo.fec_fin}`, {
     x: 335,
     y: 252,
     size: 9,
@@ -298,7 +298,7 @@ const Client_Contrato = async (dataInfo) => {
     size: 9,
     color: rgb(0, 0, 0),
   });
-  const Monto = firstPage.drawText(dataInfo.monto, {
+  const Monto = firstPage.drawText(`${dataInfo.monto}`, {
     x: 476,
     y: 225,
     size: 9,
