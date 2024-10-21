@@ -839,10 +839,10 @@ async function estadosClienteMembresiaV2(
         }
       }
 
-      if (venta.id_cli == 882) {
-        console.log(venta);
-        console.log(primeraFechaVenta + " " + Segundafecha_fin_membresia);
-      }
+      // if (venta.id_cli == 882) {
+      //   console.log(venta);
+      //   console.log(primeraFechaVenta + " " + Segundafecha_fin_membresia);
+      // }
 
       if (!response[key]) {
         response[key] = {
