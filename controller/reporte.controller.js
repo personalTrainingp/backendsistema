@@ -725,8 +725,8 @@ const getReporteVentasPrograma_EstadoCliente = async (
 };
 const getReporteDeVentasTickets = async (req = request, res = response) => {
   // const { fecha_venta } = req.query;
-  const { id_programa, dateRanges } = req.query;
-  // const dateRanges = ["2024-01-01 00:00:00", "2024-11-01 00:00:00"];
+  const { id_programa/*, dateRanges*/ } = req.query;
+  const dateRanges = ["2024-01-01", "2024-11-01"];
   try {
     const datamembresias = await detalleVenta_membresias.findAll({
       attributes: ["id_pgm", "tarifa_monto", "id_st"],
