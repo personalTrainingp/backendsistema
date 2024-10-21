@@ -23,6 +23,7 @@ const {
   comparativaPorProgramaApi,
   obtenerContratosClientes,
   obtenerVentasMembresiaxEmpresa,
+  obtenerClientesVentas,
 } = require("../controller/venta.controller");
 const { obtener_estado_membresia } = require("../middlewares/logicaSistema");
 const router = Router();
@@ -41,6 +42,7 @@ router.post(
   postNewVenta,
   postVenta
 );
+router.get("/cliente-ventas", obtenerClientesVentas);
 router.get(
   "/get-ventas-membresia-x-empresa/:id_empresa",
   obtenerVentasMembresiaxEmpresa

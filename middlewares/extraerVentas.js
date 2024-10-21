@@ -59,8 +59,9 @@ const extraerFirma = (req, res, next) => {
   req.firmaCli = firmaCli;
   next();
 };
-const extraerVentaMembresia = (req, res, next) => {
+const extraerVentaMembresia = async (req, res, next) => {
   if (!req.body.dataVenta.detalle_venta_programa) return next();
+
   const membresia = req.body.dataVenta.detalle_venta_programa.map((Pgm) => {
     return {
       id_pgm: Pgm.id_pgm,
@@ -200,7 +201,7 @@ const postNewVenta = async (req, res, next) => {
         horario: time_h,
         tarifa_monto: tarifa,
         uid_firma: uid.v4(),
-        uid_contrato: uid_contrato,
+        uid_contrato: uid.v4(),
       });
       await detalle_venta_programa.save();
       next();

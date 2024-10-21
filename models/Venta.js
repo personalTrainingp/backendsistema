@@ -256,11 +256,6 @@ SemanasTraining.belongsTo(detalleVenta_membresias, {
   targetKey: "id_st",
 });
 
-detalleVenta_membresias.hasMany(ImagePT, {
-  // foreignKey: "uid_", // Este debe ser el nombre de la columna en ImagePT
-  // sourceKey: "id_venta",
-});
-
 detalleVenta_membresias.hasOne(ImagePT, {
   foreignKey: "uid_location",
   sourceKey: "uid_contrato",

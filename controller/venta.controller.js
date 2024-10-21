@@ -43,8 +43,11 @@ const estadosClienteMembresiaVar = async (req = request, res = response) => {
   //const {tipoPrograma , fechaDesde, fechaHasta} = req.body;
   const { tipoPrograma, fechaDesde, fechaHasta } = req.body;
   try {
-    
-    const respuesta  = await estadosClienteMembresiaV2(tipoPrograma , fechaDesde , fechaHasta);
+    const respuesta = await estadosClienteMembresiaV2(
+      tipoPrograma,
+      fechaDesde,
+      fechaHasta
+    );
     res.status(200).json({
       ok: true,
       msg: respuesta,
@@ -85,8 +88,6 @@ const estadosClienteMembresiaVar = async (req = request, res = response) => {
 //     };
 //   }));
 
-
-  
 //   let contadorClienteNuevo = 0;
 //   let contadorClienteRenovado = 0;
 //   let contadorClienteReinscrito = 0;
@@ -720,15 +721,14 @@ const estadosClienteMembresiaVar = async (req = request, res = response) => {
 //   return respuesta;
 // }
 
-async function estadosClienteMembresiaV2(  
+async function estadosClienteMembresiaV2(
   tipoPrograma,
   fechaDesdeStr,
   fechaHastaStr
 ) {
+  fechaDesdeStr = new Date(fechaDesdeStr);
+  fechaHastaStr = new Date(fechaHastaStr);
 
-  fechaDesdeStr= new Date(fechaDesdeStr);
-  fechaHastaStr= new Date(fechaHastaStr);
-  
   let VentasPorCliente = {};
   let response = {};
 
@@ -772,13 +772,11 @@ async function estadosClienteMembresiaV2(
   ventas.map((venta)=>{
     if(!VentasPorCliente[venta.id_cli]){
       VentasPorCliente[venta.id_cli] = {
-        ventas:[
-          venta
-        ]
+        ventas: [venta],
       };
-    }else{
+    } else {
       VentasPorCliente[venta.id_cli].ventas.push(venta);
-    };
+    }
   });
 
   for (let key in VentasPorCliente) {
@@ -786,100 +784,109 @@ async function estadosClienteMembresiaV2(
     let ContadorVentasGeneral = 0;
     let tipoCliente = "";
 
-    let Primerafecha_fin_membresia ;
-    let Segundafecha_fin_membresia ;
-    VentasPorCliente[key].ventas.map((venta)=>{
+    let Primerafecha_fin_membresia;
+    let Segundafecha_fin_membresia;
+    VentasPorCliente[key].ventas.map((venta) => {
       venta = venta.toJSON();
 
-  
       let primeraFechaVenta = venta.fecha_venta;
       //let fecha_venta = new Date(venta.fecha_venta);
       let segundaFechaVenta = venta.fecha_venta;
 
-
-   
-
       let fecha_venta = new Date(venta.fecha_venta);
-      ContadorVentasGeneral ++;
+      ContadorVentasGeneral++;
 
-      if(primeraFechaVenta < fecha_venta){
+      if (primeraFechaVenta < fecha_venta) {
         primeraFechaVenta = fecha_venta;
-
-      };
-      if ( new Date(venta.detalle_ventaMembresia[0].fec_fin_mem) > Segundafecha_fin_membresia) {
-        Segundafecha_fin_membresia =  new Date(venta.detalle_ventaMembresia[0].fec_fin_mem) ;
+      }
+      if (
+        new Date(venta.detalle_ventaMembresia[0].fec_fin_mem) >
+        Segundafecha_fin_membresia
+      ) {
+        Segundafecha_fin_membresia = new Date(
+          venta.detalle_ventaMembresia[0].fec_fin_mem
+        );
       }
 
-      if((fecha_venta >= fechaDesdeStr) && (fecha_venta <= fechaHastaStr) ){
-        contadorVentasConTrue ++ ;
+      if (fecha_venta >= fechaDesdeStr && fecha_venta <= fechaHastaStr) {
+        contadorVentasConTrue++;
+      }
 
-      };
-
-  
-
-      if(contadorVentasConTrue == 1 && ContadorVentasGeneral == 1){
+      if (contadorVentasConTrue == 1 && ContadorVentasGeneral == 1) {
         tipoCliente = "Cliente Nuevo";
-        Primerafecha_fin_membresia =  new Date( venta.detalle_ventaMembresia[0].fec_fin_mem);
-      };
+        Primerafecha_fin_membresia = new Date(
+          venta.detalle_ventaMembresia[0].fec_fin_mem
+        );
+      }
 
-      if(contadorVentasConTrue == 2 || ContadorVentasGeneral == 2){
-       
-        Segundafecha_fin_membresia = new Date(venta.detalle_ventaMembresia[0].fec_fin_mem);
-
-      };
-      if((primeraFechaVenta && Segundafecha_fin_membresia) /*&& (contadorVentasConTrue == 2)*/){//la primera es la más reciente y la segunda es la más antigua
-        if(primeraFechaVenta  <  Segundafecha_fin_membresia){ //01/01/2022 < 02/01/2021
+      if (contadorVentasConTrue == 2 || ContadorVentasGeneral == 2) {
+        Segundafecha_fin_membresia = new Date(
+          venta.detalle_ventaMembresia[0].fec_fin_mem
+        );
+      }
+      if (
+        primeraFechaVenta &&
+        Segundafecha_fin_membresia /*&& (contadorVentasConTrue == 2)*/
+      ) {
+        //la primera es la más reciente y la segunda es la más antigua
+        if (primeraFechaVenta < Segundafecha_fin_membresia) {
+          //01/01/2022 < 02/01/2021
           tipoCliente = "Cliente Reinscrito";
-        };
-        if(primeraFechaVenta  >  Segundafecha_fin_membresia){ //01/01/2022 < 02/01/2021
+        }
+        if (primeraFechaVenta > Segundafecha_fin_membresia) {
+          //01/01/2022 < 02/01/2021
           tipoCliente = "Cliente Renovado";
+        }
+      }
 
-        };
-      };
-
-      if(venta.id_cli == 882){
+      if (venta.id_cli == 882) {
         console.log(venta);
         console.log(primeraFechaVenta + " " + Segundafecha_fin_membresia);
-      };
- 
+      }
 
-      if(!response[key]){
+      if (!response[key]) {
         response[key] = {
-          ventas :[ venta],
-          tipoCliente : tipoCliente,
+          ventas: [venta],
+          tipoCliente: tipoCliente,
         };
-      }else{
+      } else {
         response[key].ventas.push(venta);
         response[key].tipoCliente = tipoCliente;
-      };
+      }
+    });
+  }
 
-    })
-  };
-  
-  response = ContadoresEstadoClienteInscripcion (response , fechaDesdeStr , fechaHastaStr);
+  response = ContadoresEstadoClienteInscripcion(
+    response,
+    fechaDesdeStr,
+    fechaHastaStr
+  );
   return response;
-};
+}
 
-function ContadoresEstadoClienteInscripcion(AnalisisGeneral , fechaDesde , fechaHasta) {
+function ContadoresEstadoClienteInscripcion(
+  AnalisisGeneral,
+  fechaDesde,
+  fechaHasta
+) {
   let response = {};
-  let clientesNuevos = {} ;
+  let clientesNuevos = {};
   let contadorClienteNuevo = 0;
   let contadorClienteRenovado = 0;
   let contadorClienteReinscrito = 0;
 
-  for(key in AnalisisGeneral){
-    AnalisisGeneral[key].ventas.map((venta)=>{
+  for (key in AnalisisGeneral) {
+    AnalisisGeneral[key].ventas.map((venta) => {
       let fechaVenta = new Date(venta.fecha_venta);
 
-      if((fechaVenta >= fechaDesde) && (fechaVenta <= fechaHasta)){
-
+      if (fechaVenta >= fechaDesde && fechaVenta <= fechaHasta) {
         switch (AnalisisGeneral[key].tipoCliente) {
           case "Cliente Nuevo":
             contadorClienteNuevo++;
-    
+
             clientesNuevos[key] = {
-              idCliente : key,
-              tipoCliente : "Cliente Nuevo",
+              idCliente: key,
+              tipoCliente: "Cliente Nuevo",
             };
             break;
           case "Cliente Reinscrito":
@@ -888,30 +895,26 @@ function ContadoresEstadoClienteInscripcion(AnalisisGeneral , fechaDesde , fecha
           case "Cliente Renovado":
             contadorClienteRenovado++;
             break;
-    
+
           default:
             break;
-        };
-      };
+        }
+      }
     });
-    
+  }
 
-
-  };
-
-  response.cantidadPorEstado ={
-    ClienteNuevo : contadorClienteNuevo,
-    ClienteReinscrito : contadorClienteReinscrito,
-    ClienteRenovado : contadorClienteRenovado,
+  response.cantidadPorEstado = {
+    ClienteNuevo: contadorClienteNuevo,
+    ClienteReinscrito: contadorClienteReinscrito,
+    ClienteRenovado: contadorClienteRenovado,
   };
   response.clientesAnalizados = clientesNuevos;
 
-  return response;  
-};
+  return response;
+}
 
-const comparativaPorProgramaApi = async(req = request , res=  response )=>{
-
-  const {fecha} = req.params;
+const comparativaPorProgramaApi = async (req = request, res = response) => {
+  const { fecha } = req.params;
   //const {tipoPrograma , fechaDesde, fechaHasta} = req.body;
   try {
     let fechaDate = new Date(fecha);
@@ -1012,6 +1015,7 @@ const postVenta = async (req = request, res = response) => {
   // const { uid_firma, uid_contrato } = req.query;
   const uid_firma = v4();
   const uid_contrato = v4();
+  let base64_contratoPDF = "";
   try {
     if (req.productos && req.productos.length > 0) {
       const ventasProductosConIdVenta = await req.productos.map((producto) => ({
@@ -1026,6 +1030,17 @@ const postVenta = async (req = request, res = response) => {
     }
     if (req.ventaProgramas && req.ventaProgramas.length > 0) {
       // Crear múltiples registros en detalleVenta_producto
+      const { dataVenta, detalle_cli_modelo } = req.body;
+
+      const pdfContrato = await getPDF_CONTRATO(
+        dataVenta.detalle_venta_programa[0],
+        detalle_cli_modelo
+      );
+
+      base64_contratoPDF = `data:application/pdf;base64,${Buffer.from(
+        pdfContrato
+      ).toString("base64")}`;
+
       const ventasMembresiasConIdVenta = await req.ventaProgramas.map(
         (mem) => ({
           id_venta: req.ventaID,
@@ -1034,6 +1049,7 @@ const postVenta = async (req = request, res = response) => {
           ...mem,
         })
       );
+
       await detalleVenta_membresias.bulkCreate(ventasMembresiasConIdVenta);
     }
     if (req.citas && req.citas.length > 0) {
@@ -1073,6 +1089,8 @@ const postVenta = async (req = request, res = response) => {
     res.status(200).json({
       msg: `Venta creada con exito`,
       uid_firma,
+      uid_contrato: uid_contrato,
+      base64_contratoPDF: base64_contratoPDF,
     });
   } catch (error) {
     console.log(error);
@@ -1109,6 +1127,8 @@ const getPDF_CONTRATO = async (detalle_membresia, dataVenta) => {
     fechaFinal,
     tarifa,
   } = detalle_membresia;
+  console.log("en getPDF CONTRATO");
+
   const fecha_Venta = new Date();
   const { id_empl, id_cli } = dataVenta;
   const data_cliente = await Cliente.findOne({
@@ -1157,7 +1177,7 @@ const getPDF_CONTRATO = async (detalle_membresia, dataVenta) => {
       "plin",
       "transferencia bancaria",
     ],
-    monto: `S/. ${formatearNumero(tarifa)}`,
+    monto: `S/. ${0}`,
     //Firma
     firma_cli: firmaCli,
   };
@@ -1321,8 +1341,8 @@ const get_VENTA_ID = async (req = request, res = response) => {
         },
         {
           model: detalleVenta_membresias,
-          //required:true,
           attributes: [
+            "uid_contrato",
             "id_venta",
             "id_pgm",
             "id_tarifa",
@@ -1333,7 +1353,6 @@ const get_VENTA_ID = async (req = request, res = response) => {
             "uid_firma",
             "horario",
           ],
-
           include: [
             {
               model: ProgramaTraining,
@@ -1342,6 +1361,11 @@ const get_VENTA_ID = async (req = request, res = response) => {
             {
               model: SemanasTraining,
               attributes: ["semanas_st", "congelamiento_st", "nutricion_st"],
+            },
+            {
+              model: ImagePT,
+              as: "contrato_x_serv",
+              attributes: ["name_image"],
             },
           ],
         },
@@ -1385,7 +1409,6 @@ const get_VENTA_ID = async (req = request, res = response) => {
             },
           ],
         },
-
         {
           model: detalleVenta_pagoVenta,
           attributes: [
@@ -2070,6 +2093,10 @@ const obtenerContratosClientes = async (req = request, res = response) => {
     const datacontratosConMembresias = await Venta.findAll({
       where: {
         id_empresa: id_enterprice,
+        flag: true,
+        id_tipoFactura: {
+          [Op.ne]: 84, // Excluye los registros con id_tipoFactura igual a 84
+        },
       },
       order: [["id", "DESC"]],
       include: [
@@ -2104,6 +2131,48 @@ const obtenerContratosClientes = async (req = request, res = response) => {
     });
   }
 };
+const obtenerClientesVentas = async (req = request, res = response) => {
+  try {
+    const clientes = await Cliente.findAll({
+      attributes: ["id_cli", "nombre_cli"],
+      where: {
+        flag: true,
+      },
+      order: [["id_cli", "DESC"]],
+      limit: 100,
+      include: [
+        {
+          model: Venta,
+          where: {
+            fecha_venta: {
+              [Op.between]: [new Date("2024-01-21"), new Date("2024-09-21")],
+            },
+          },
+          limit: 2,
+          order: [["fecha_venta", "DESC"]],
+          required: false,
+        },
+      ],
+      // raw: true,
+    });
+    res.status(201).json({
+      msg: true,
+      data: clientes,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+function bytesToBase64(bytes) {
+  // Convertir bytes a cadena binaria
+  let binaryString = "";
+  bytes.forEach((byte) => {
+    binaryString += String.fromCharCode(byte);
+  });
+
+  // Convertir la cadena binaria en Base64
+  return btoa(binaryString);
+}
 module.exports = {
   postVenta,
   get_VENTAS,
@@ -2120,4 +2189,5 @@ module.exports = {
   comparativaPorProgramaApi,
   obtenerVentasMembresiaxEmpresa,
   obtenerContratosClientes,
+  obtenerClientesVentas,
 };
