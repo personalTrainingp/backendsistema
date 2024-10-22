@@ -67,8 +67,7 @@ const diasLaborables = (fechaInicio, fechaFin) => {
   return diasLaborables;
 };
 const getReporteSeguimiento = async (req, res) => {
-  // const { isClienteActive } = req.query;
-  const isClienteActive = true;
+  const { isClienteActive } = req.query;
   const { id_empresa } = req.params;
   try {
     const currentDate = new Date();
