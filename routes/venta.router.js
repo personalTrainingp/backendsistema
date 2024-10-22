@@ -50,7 +50,7 @@ router.get(
 router.post("/send-email", mailMembresia);
 router.post("/traspaso-membresia", postTraspasoMembresia);
 router.get("/get-ventas-x-fecha", getVentasxFecha);
-router.get("/get-ventas", get_VENTAS);
+router.get("/get-ventas/:id_empresa", get_VENTAS);
 router.post("/invoice-mail/:id_venta", mailMembresia);
 router.get("/get-id-ventas/:id", get_VENTA_ID);
 router.post("/invoice-PDFcontrato", obtener_contrato_pdf);

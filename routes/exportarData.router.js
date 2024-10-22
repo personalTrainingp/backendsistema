@@ -23,7 +23,7 @@ const router = Router();
 router.get("/reporte-ventas-x-cliente/:id_cli");
 router.get("/reporte-ventas-formas-de-pago", getReporteFormasDePago);
 router.get("/reporte-obtener-ventas", getReporteVentas);
-router.get("/reporte-seguimiento-membresia/:id_empresa", getReporteSeguimiento);
+router.get("/reporte-seguimiento-membresia", getReporteSeguimiento);
 router.get(
   "/reporte-total-de-ventas",
   getReporteDeTotalDeVentas_ClientesVendedores

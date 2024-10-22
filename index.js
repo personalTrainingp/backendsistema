@@ -239,6 +239,7 @@ app.use(
   validarJWT,
   require("./routes/serviciosPT.router.js")
 );
+app.use("/api/exportar", validarJWT, require("./routes/exportarData.router.js"))
 app.use("/api/cita", validarJWT, require("./routes/cita.router.js"));
 app.use("/api/prospecto", validarJWT, require("./routes/prospecto.router.js"));
 app.use("/api/auditoria", validarJWT, require("./routes/auditoria.router.js"));
