@@ -72,7 +72,7 @@ const getReporteSeguimiento = async (req, res) => {
   try {
     const currentDate = new Date();
     let membresias = await detalleVenta_membresias.findAll({
-      attributes: ["id", "fec_inicio_mem", "fec_fin_mem"],
+      attributes: ["id", "fec_inicio_mem", "horario", "fec_fin_mem"],
       order: [["id", "DESC"]],
       include: [
         {
@@ -238,9 +238,6 @@ const getReporteSeguimiento = async (req, res) => {
       }
       return 0; // No aplicar orden si isClienteActive no está definido
     });
-    console.log(
-      relacionarTransferencias(transferenciasMembresias, filteredMembresias)
-    );
 
     res.status(200).json({
       newMembresias: relacionarTransferencias(

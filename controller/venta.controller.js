@@ -1206,7 +1206,7 @@ const get_VENTAS = async (req = request, res = response) => {
         "numero_transac",
         "fecha_venta",
       ],
-      order: [["id", "DESC"]],
+      order: [["fecha_venta", "DESC"]],
       include: [
         {
           model: Cliente,
