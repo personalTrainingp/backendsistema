@@ -7,6 +7,7 @@ const {
   detalleVenta_producto,
   detalleVenta_citas,
   detalleVenta_pagoVenta,
+  detalleVenta_Transferencia,
 } = require("../models/Venta");
 const {
   ProgramaTraining,
@@ -67,11 +68,11 @@ const diasLaborables = (fechaInicio, fechaFin) => {
 };
 const getReporteSeguimiento = async (req, res) => {
   const { isClienteActive } = req.query;
+  const { id_empresa } = req.params;
   try {
     const currentDate = new Date();
     let membresias = await detalleVenta_membresias.findAll({
-      attributes: ["id", "fec_inicio_mem", "fec_fin_mem"],
-      // limit: 20,
+      attributes: ["id", "fec_inicio_mem", "horario", "fec_fin_mem"],
       order: [["id", "DESC"]],
       include: [
         {
@@ -86,6 +87,7 @@ const getReporteSeguimiento = async (req, res) => {
         {
           model: Venta,
           attributes: ["id", "fecha_venta"],
+          where: { id_empresa: id_empresa },
           include: [
             {
               model: Cliente,
@@ -103,6 +105,8 @@ const getReporteSeguimiento = async (req, res) => {
                   "nombres_apellidos_cli",
                 ],
                 "email_cli",
+                "tel_cli",
+                "ubigeo_distrito_cli",
               ],
             },
           ],
@@ -121,6 +125,45 @@ const getReporteSeguimiento = async (req, res) => {
         {
           model: SemanasTraining,
           attributes: ["id_st", "semanas_st"],
+        },
+      ],
+    });
+
+    let transferenciasMembresias = await detalleVenta_Transferencia.findAll({
+      order: [["id", "DESC"]],
+      raw: true,
+      include: [
+        {
+          model: Venta,
+          attributes: ["id", "fecha_venta"],
+          as: "venta_venta",
+          where: { id_empresa: id_empresa },
+          include: [
+            {
+              model: Cliente,
+              attributes: [
+                "id_cli",
+                [
+                  Sequelize.fn(
+                    "CONCAT",
+                    Sequelize.col("nombre_cli"),
+                    " ",
+                    Sequelize.col("apPaterno_cli"),
+                    " ",
+                    Sequelize.col("apMaterno_cli")
+                  ),
+                  "nombres_apellidos_cli",
+                ],
+                "email_cli",
+                "tel_cli",
+                "ubigeo_distrito_cli",
+              ],
+            },
+          ],
+        },
+        {
+          model: Venta,
+          as: "venta_transferencia",
         },
       ],
     });
@@ -195,8 +238,12 @@ const getReporteSeguimiento = async (req, res) => {
       }
       return 0; // No aplicar orden si isClienteActive no está definido
     });
+
     res.status(200).json({
-      newMembresias: filteredMembresias,
+      newMembresias: relacionarTransferencias(
+        transferenciasMembresias,
+        filteredMembresias
+      ),
     });
   } catch (error) {
     console.log(error);
@@ -205,6 +252,7 @@ const getReporteSeguimiento = async (req, res) => {
     });
   }
 };
+
 const getReporteProgramas = async (req, res) => {};
 const getReporteVentasPrograma_COMPARATIVACONMEJORANO = async (
   req = request,
@@ -725,13 +773,12 @@ const getReporteVentasPrograma_EstadoCliente = async (
 };
 const getReporteDeVentasTickets = async (req = request, res = response) => {
   // const { fecha_venta } = req.query;
-  const { id_programa/*, dateRanges*/ } = req.query;
-  const dateRanges = ["2024-01-01", "2024-11-01"];
+  const { id_programa, dateRanges } = req.query;
   try {
     const datamembresias = await detalleVenta_membresias.findAll({
       attributes: ["id_pgm", "tarifa_monto", "id_st"],
       where: {
-        //id_pgm: id_programa,
+        id_pgm: id_programa,
         flag: true,
       },
       order: [["id", "DESC"]],
@@ -746,6 +793,9 @@ const getReporteDeVentasTickets = async (req = request, res = response) => {
           where: {
             fecha_venta: {
               [Op.between]: [new Date(dateRanges[0]), new Date(dateRanges[1])], // Suponiendo que fecha_inicial y fecha_final son variables con las fechas deseadas
+            },
+            id_tipoFactura: {
+              [Op.ne]: 84, // Excluye los registros con id_tipoFactura igual a 84
             },
           },
           required: true,
@@ -848,6 +898,7 @@ const getReporteDeProgramasXsemanas = async (req = request, res = response) => {
       include: [
         {
           model: SemanasTraining,
+          where: { flag: true, estado_st: true },
           attributes: ["semanas_st"],
         },
         {
@@ -1398,6 +1449,7 @@ const getReporteDeMembresiasxFechaxPrograma = async (
     });
   }
 };
+
 module.exports = {
   getReporteSeguimiento,
   getReporteProgramas,
@@ -1412,4 +1464,50 @@ module.exports = {
   getReporteVentas,
   getReporteFormasDePago,
   getReporteDeMembresiasxFechaxPrograma,
+};
+
+// Función para relacionar transferencias y ventas
+const relacionarTransferencias = (transferencias, ventas) => {
+  return ventas.map((venta) => {
+    // Busca la transferencia correspondiente según el id de la venta (que debería coincidir con el id_membresia)
+    const transferenciaRelacionada = transferencias.find((transf) => {
+      // console.log(
+      //   transf.id_membresia,
+      //   Number(transf.id_membresia) === Number(venta.tb_ventum.id),
+      //   venta.tb_ventum.id
+      // );
+
+      return Number(transf.id_membresia) === Number(venta.tb_ventum.id);
+    });
+    if (transferenciaRelacionada) {
+      // Si hay una transferencia relacionada, reemplaza los datos en el objeto de venta
+      return {
+        ...venta, // Mantén los datos de venta
+        tb_ventum: {
+          tb_cliente: {
+            id_cli: transferenciaRelacionada["venta_venta.tb_cliente.id_cli"],
+            nombres_apellidos_cli:
+              transferenciaRelacionada[
+                "venta_venta.tb_cliente.nombres_apellidos_cli"
+              ],
+            email_cli:
+              transferenciaRelacionada["venta_venta.tb_cliente.email_cli"],
+            tel_cli: transferenciaRelacionada["venta_venta.tb_cliente.tel_cli"],
+            ubigeo_distrito_cli:
+              transferenciaRelacionada[
+                "venta_venta.tb_cliente.ubigeo_distrito_cli"
+              ],
+          },
+          // Puedes añadir más campos que desees reemplazar aquí
+          fec_inicio_mem: transferenciaRelacionada.fec_inicio_mem,
+          fec_fin_mem: transferenciaRelacionada.fec_fin_mem,
+          fec_fin_mem_new: transferenciaRelacionada.fec_fin_mem,
+          tb_ProgramaTraining: venta.tb_ProgramaTraining,
+          tb_semana_training: venta.tb_semana_training,
+        },
+      };
+    }
+
+    return venta; // Si no hay match, devolver el objeto de venta original
+  });
 };

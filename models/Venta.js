@@ -41,22 +41,6 @@ const Venta = db.define("tb_venta", {
     defaultValue: true,
   },
 });
-const detalleVenta_transferenciasMembresias = db.define(
-  "detalle_ventaTransferencia",
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    id_venta: {
-      type: DataTypes.INTEGER,
-    },
-    tarifa_monto: {
-      type: DataTypes.DECIMAL(10, 2),
-    },
-  }
-);
 const detalleVenta_membresias = db.define("detalle_ventaMembresia", {
   id: {
     type: DataTypes.INTEGER,
@@ -310,10 +294,12 @@ detalleVenta_membresias.belongsTo(Venta, {
 Venta.hasMany(detalleVenta_Transferencia, {
   foreignKey: "id_venta", // Este debe ser el nombre de la columna en detalleVenta_membresias
   sourceKey: "id",
+  as: 'venta_venta'
 });
 detalleVenta_Transferencia.belongsTo(Venta, {
   foreignKey: "id_venta", // Este debe coincidir con el anterior
   targetKey: "id",
+  as: 'venta_venta'
 });
 detalleVenta_Transferencia.hasMany(Venta, {
   foreignKey: "id", // Este debe ser el nombre de la columna en detalleVenta_membresias
