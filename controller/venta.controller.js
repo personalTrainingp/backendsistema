@@ -736,7 +736,11 @@ async function estadosClienteMembresiaV2(
   if (tipoPrograma == 0) {
     ventas = await Venta.findAll({
       order: [["fecha_venta", "DESC"]],
-
+      where: {
+        id_tipoFactura: {
+          [Op.ne]: 84, // Excluye los registros con id_tipoFactura igual a 84
+        },
+      },
       include: [
         {
           model: detalleVenta_membresias,
@@ -752,7 +756,11 @@ async function estadosClienteMembresiaV2(
   } else {
     ventas = await Venta.findAll({
       order: [["fecha_venta", "DESC"]],
-
+      where: {
+        id_tipoFactura: {
+          [Op.ne]: 84, // Excluye los registros con id_tipoFactura igual a 84
+        },
+      },
       include: [
         {
           model: detalleVenta_membresias,

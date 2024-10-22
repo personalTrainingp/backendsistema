@@ -776,13 +776,12 @@ const getReporteVentasPrograma_EstadoCliente = async (
 };
 const getReporteDeVentasTickets = async (req = request, res = response) => {
   // const { fecha_venta } = req.query;
-  const { id_programa /*, dateRanges*/ } = req.query;
-  const dateRanges = ["2024-01-01", "2024-11-01"];
+  const { id_programa, dateRanges } = req.query;
   try {
     const datamembresias = await detalleVenta_membresias.findAll({
       attributes: ["id_pgm", "tarifa_monto", "id_st"],
       where: {
-        //id_pgm: id_programa,
+        id_pgm: id_programa,
         flag: true,
       },
       order: [["id", "DESC"]],
@@ -797,6 +796,9 @@ const getReporteDeVentasTickets = async (req = request, res = response) => {
           where: {
             fecha_venta: {
               [Op.between]: [new Date(dateRanges[0]), new Date(dateRanges[1])], // Suponiendo que fecha_inicial y fecha_final son variables con las fechas deseadas
+            },
+            id_tipoFactura: {
+              [Op.ne]: 84, // Excluye los registros con id_tipoFactura igual a 84
             },
           },
           required: true,
@@ -899,6 +901,7 @@ const getReporteDeProgramasXsemanas = async (req = request, res = response) => {
       include: [
         {
           model: SemanasTraining,
+          where: { flag: true, estado_st: true },
           attributes: ["semanas_st"],
         },
         {
