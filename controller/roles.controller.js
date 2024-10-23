@@ -700,7 +700,7 @@ const moduleGET = async (req = request, res = response) => {
         },
       ];
     }
-    
+
     if (usuario.rol_user === 5) {
       MODULOS_ITEMS = [
         {
