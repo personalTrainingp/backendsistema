@@ -106,8 +106,13 @@ const obtenerAsistenciaPorClientes = async (req, res) => {
           };
 
           if(new Date(agruparPorIdCliFechasPorDia[key][key2])){
-            fechaMasReciente = new Date(Math.max(...agruparPorIdCliFechasPorDia[key][key2]));
+            fechaMasReciente = new Date(Math.min(...agruparPorIdCliFechasPorDia[key][key2]));
             fechaUltima = new Date(Math.max(...agruparPorIdCliFechasPorDia[key][key2]));
+
+            if (fechaMasReciente.getTime() === fechaUltima.getTime()) {
+              fechaUltima = "";
+              
+            };
           };
 
           if (fechaMasReciente) {
@@ -121,7 +126,6 @@ const obtenerAsistenciaPorClientes = async (req, res) => {
               let clienteEcontrado = fechaMasRecientePorCliente.clientes.filter(cliente => cliente.dni === currecCliente.dni);
               if (clienteEcontrado.length > 0) {
                
-                console.log(clienteEcontrado);
                 clienteEcontrado[0].dias.push(dia);
               }else{
                 fechaMasRecientePorCliente.clientes.push(currecCliente);
@@ -149,9 +153,7 @@ const obtenerAsistenciaPorClientes = async (req, res) => {
 
  
     };
-
-    //console.log(fechaMasRecientePorCliente);
-
+    //console.log(agruparPorIdCliFechasPorDia);
     res.status(200).json({ FechaMasRecienteAsistencia: fechaMasRecientePorCliente });
   } catch (error) {
     response = error;
