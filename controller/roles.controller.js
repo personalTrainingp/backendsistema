@@ -252,7 +252,6 @@ const seccionGET = async (req = request, res = response) => {
           isTitle: false,
           icon: "uil-calender",
           url: "/reporte-admin/ReportePorMarcacion",
-          
         },
         {
           key: "gf-gv",
@@ -634,11 +633,11 @@ const seccionGET = async (req = request, res = response) => {
           url: "/gest-inventario",
         },
         {
-          key: "repor-invent-almacen",
-          label: "Reporte de movimiento de Almacen",
+          key: "gest-prov",
+          label: "Gestion de proveedores",
           isTitle: false,
-          icon: "pi pi-address-book",
-          url: "/repor-movim-almacen",
+          icon: "uil-calender",
+          url: "/gestion-proveedores",
         },
       ];
     }

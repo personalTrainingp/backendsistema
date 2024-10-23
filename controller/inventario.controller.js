@@ -2,28 +2,38 @@ const { request, response } = require("express");
 const { Articulos } = require("../models/Articulo");
 
 const obtenerInventario = async (req = request, res = response) => {
+  const { id_enterprice } = req.params;
   try {
-    const articulo = await Articulos.findAll({
-      where: { flag: true },
+    const articulos = await Articulos.findAll({
+      where: { flag: true, id_empresa: id_enterprice },
     });
     res.status(200).json({
-      articulo,
+      articulos,
     });
   } catch (error) {
+    console.log(error);
+
     res.status(501).json({
       msg: "Error en obtenerinventario",
     });
   }
 };
 const registrarArticulo = async (req = request, res = response) => {
+  const { id_enterprice } = req.params;
+  console.log(id_enterprice);
+
   try {
-    const articulo = new Articulos(req.body);
+    const articulo = new Articulos({
+      ...req.body,
+    });
     await articulo.save();
     res.status(201).json({
       msg: "Articulo registrado correctamente",
       articulo,
     });
   } catch (error) {
+    console.log(error);
+
     res.status(501).json({
       msg: "Error en registrarArticulo",
     });

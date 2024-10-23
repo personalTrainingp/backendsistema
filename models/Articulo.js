@@ -14,13 +14,13 @@ const Articulos = db.define("tb_articulos", {
     type: DataTypes.STRING(40),
   },
   marca: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING(100),
   },
   descripcion: {
-    type: DataTypes.STRING(2000),
+    type: DataTypes.STRING(890),
   },
   observacion: {
-    type: DataTypes.STRING(2000),
+    type: DataTypes.STRING(890),
   },
   cantidad: {
     type: DataTypes.INTEGER,
@@ -33,6 +33,9 @@ const Articulos = db.define("tb_articulos", {
   },
   lugar_compra_cotizacion: {
     type: DataTypes.DECIMAL(10, 2),
+  },
+  id_empresa: {
+    type: DataTypes.INTEGER,
   },
   flag: {
     type: DataTypes.BOOLEAN,

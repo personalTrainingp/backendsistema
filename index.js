@@ -227,9 +227,16 @@ app.use("/api", require("./routes/upload/upload.routes.js"));
 
 app.use("/api/reporte", require("./routes/reporte.router.js"));
 app.use("/api/comision", validarJWT, require("./routes/comision.router.js"));
-app.use("/api/inventario", validarJWT, require("./routes/inventario.router.js"))
+app.use(
+  "/api/inventario",
+  validarJWT,
+  require("./routes/inventario.router.js")
+);
 
-app.use("/api/marcacion"/*, validarJWT,*/ ,require("./routes/marcacion.router.js"))
+app.use(
+  "/api/marcacion" /*, validarJWT,*/,
+  require("./routes/marcacion.router.js")
+);
 //TODO: FORMA PAGO
 app.use("/api/formaPago", validarJWT, require("./routes/formaPago.router.js"));
 app.use("/api/rol", validarJWT, require("./routes/roles.router.js"));
@@ -239,7 +246,11 @@ app.use(
   validarJWT,
   require("./routes/serviciosPT.router.js")
 );
-app.use("/api/exportar", validarJWT, require("./routes/exportarData.router.js"))
+app.use(
+  "/api/exportar",
+  validarJWT,
+  require("./routes/exportarData.router.js")
+);
 app.use("/api/cita", validarJWT, require("./routes/cita.router.js"));
 app.use("/api/prospecto", validarJWT, require("./routes/prospecto.router.js"));
 app.use("/api/auditoria", validarJWT, require("./routes/auditoria.router.js"));
@@ -247,7 +258,11 @@ app.use("/api/aporte", validarJWT, require("./routes/aportes.router.js"));
 app.use("/api/dieta", require("./routes/dieta.router.js"));
 
 app.use("/api/flujo-caja", require("./routes/flujo-caja.router.js"));
-app.use("/api/recursosHumanos" , require("./routes/recursosHumanos.route.js"));
+app.use("/api/recursosHumanos", require("./routes/recursosHumanos.route.js"));
+
+//CIRCUS----
+// app.use("/circus/")
+
 //Escuchar peticiones
 app.listen(env.PORT || 4001, () => {
   console.log(`Servidor corriendo en el puerto ${env.PORT || 4001}`);

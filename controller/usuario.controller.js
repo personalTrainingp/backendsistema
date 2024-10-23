@@ -850,7 +850,7 @@ const revalidarToken = async (req, res) => {
   if (user.rol_user === 5) {
     MODULOS_ITEMS = [
       {
-        name: "INVENTARIO",
+        name: "CIRCUS",
         path: "/inventario",
         key: "mod-inventario",
       },
