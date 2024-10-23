@@ -51,10 +51,10 @@ const Proveedor = db.define(
       type: DataTypes.STRING(300),
     },
     cel_vend_prov: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(100),
     },
     email_vend_prov: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(100),
     },
     id_oficio: {
       type: DataTypes.INTEGER,
