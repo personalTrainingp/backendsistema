@@ -247,6 +247,14 @@ const seccionGET = async (req = request, res = response) => {
           url: "/reporte-admin/reporte-gerencial",
         },
         {
+          key: "reporte-gerencial",
+          label: "Reporte de Clientes",
+          isTitle: false,
+          icon: "uil-calender",
+          url: "/reporte-admin/ReportePorMarcacion",
+          
+        },
+        {
           key: "gf-gv",
           label: "Egresos y Aportes",
           isTitle: true,

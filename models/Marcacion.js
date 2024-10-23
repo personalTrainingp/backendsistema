@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { db } = require("../database/sequelizeConnection");
+const { Cliente } = require("./Usuarios");
 
 const Marcacion = db.define("tb_marcacion", {
   id: {
@@ -35,6 +36,15 @@ const Marcacion = db.define("tb_marcacion", {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+});
+
+Marcacion.belongsTo(Cliente, {
+  foreignKey: "dni",
+  targetKey: "numDoc_cli",
+});
+Cliente.hasMany(Marcacion, {
+  foreignKey: "dni",
+  sourceKey: "numDoc_cli",
 });
 
 Marcacion.sync()
