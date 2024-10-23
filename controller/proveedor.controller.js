@@ -68,7 +68,7 @@ const getProveedorxUID = async (req = request, res = response) => {
 };
 const getTBProveedores = async (req = request, res = response) => {
   try {
-    const { estado_prov } = req.query;
+    const { estado_prov, es_agente } = req.query;
     const proveedores = await Proveedor.findAll({
       order: [["id", "desc"]],
       attributes: [
@@ -87,7 +87,7 @@ const getTBProveedores = async (req = request, res = response) => {
           as: "parametro_oficio",
         },
       ],
-      where: { flag: true, estado_prov: estado_prov },
+      where: { flag: true, estado_prov: estado_prov, es_agente: es_agente },
     });
     res.status(200).json({
       msg: true,
@@ -118,6 +118,7 @@ const PostProveedores = async (req, res, next) => {
     n_cuenta,
     id_oficio,
     cci,
+    es_agente,
   } = req.body;
   try {
     const uid_contrato = uid.v4();
@@ -126,6 +127,7 @@ const PostProveedores = async (req, res, next) => {
     const uid_documento_proveedor = uid.v4();
     const proveedor = new Proveedor({
       estado_prov: false,
+      es_agente,
       uid: uid.v4(),
       id_oficio: id_oficio,
       uid_contrato_proveedor: uid_contrato,

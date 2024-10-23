@@ -75,6 +75,10 @@ const Proveedor = db.define(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    es_agente: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     flag: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
