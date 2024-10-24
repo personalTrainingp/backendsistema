@@ -23,6 +23,33 @@ const { Servicios } = require("../models/Servicios");
 const { ParametroGastos } = require("../models/GastosFyV");
 const { Inversionista } = require("../models/Aportes");
 const { ExtensionMembresia } = require("../models/ExtensionMembresia");
+const { Distritos } = require("../models/Distritos");
+
+const obtenerDistritosxDepartamentoxProvincia = async (
+  req = request,
+  res = response
+) => {
+  try {
+    const { id_provincia, department_id } = req.params;
+    const departamentos = await Distritos.findAll({
+      where: {
+        provincia_id: id_provincia,
+        department_id: department_id,
+        flag: true,
+      },
+      attributes: [
+        ["ubigeo", "value"],
+        ["distrito", "label"],
+      ],
+    });
+    res.status(200).json(departamentos);
+  } catch (error) {
+    console.log(error);
+
+    res.status(501).json(error);
+  }
+};
+
 function addBusinessDays(startDate, numberOfDays) {
   let currentDate = new Date(startDate);
   let daysAdded = 0;
@@ -923,6 +950,7 @@ const calcularCitasDisponibles = (
   return citasDisponibles.filter((cita) => cita !== null);
 };
 module.exports = {
+  obtenerDistritosxDepartamentoxProvincia,
   postParametros3,
   getParametrosVentaFitology,
   getParametrosTipoAportes,

@@ -28,6 +28,7 @@ const {
   getParametrosVentaFitology,
   getCitasServicioxCliente,
   postParametros3,
+  obtenerDistritosxDepartamentoxProvincia,
 } = require("../controller/Parametros.controller");
 const { obtener_estado_membresia } = require("../middlewares/logicaSistema");
 const router = Router();
@@ -36,6 +37,10 @@ const router = Router();
  * /api/parametros/
  */
 // router.get("/get_params/forma_pago")
+router.get(
+  "/get_params/distritos/:department_id/:id_provincia",
+  obtenerDistritosxDepartamentoxProvincia
+);
 router.get(
   "/get_params/pack-venta-servicio/:tipo_serv",
   getParametrosVentaFitology
