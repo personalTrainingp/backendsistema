@@ -1252,6 +1252,9 @@ const getReporteVentas = async (req = request, res = response) => {
         fecha_venta: {
           [Sequelize.Op.between]: [new Date(fechaInicio), new Date(fechaFin)],
         },
+        id_tipoFactura: {
+          [Op.ne]: 84, // Excluye los registros con id_tipoFactura igual a 84
+        },
       },
       order: [["id", "DESC"]],
       include: [

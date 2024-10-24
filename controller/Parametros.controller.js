@@ -204,7 +204,16 @@ const getParametrosporProveedor = async (req, res) => {
       order: [["id", "desc"]],
       attributes: [
         ["id", "value"],
-        ["razon_social_prov", "label"],
+        [
+          Sequelize.fn(
+            "CONCAT",
+            Sequelize.col("id"),
+            " | ",
+            Sequelize.col("razon_social_prov")
+          ),
+          "label",
+        ],
+        // ["razon_social_prov", "label"],
       ],
     });
     res.status(200).json(parametros);
